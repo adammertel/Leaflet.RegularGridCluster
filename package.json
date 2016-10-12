@@ -1,0 +1,36 @@
+{
+  "name": "leaflet-regular-grid-cluster",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/adammertel/Leaflet.RegularGridCluster.git"
+  },
+  "keywords": [
+    "leaflet",
+    "grid",
+    "cluster"
+  ],
+  "author": "Adam Mertel, University of Vienna",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/adammertel/Leaflet.RegularGridCluster/issues"
+  },
+  "homepage": "https://github.com/adammertel/Leaflet.RegularGridCluster#readme",
+  "devDependencies": {
+    "del-cli": "^0.2.0",
+    "glob": "^7.1.1",
+    "jshint": "*",
+    "leaflet": "*",
+    "parallelshell": "^2.0.0",
+    "uglify-js": "^2.7.3"
+  },
+  "scripts": {
+    "concat-js": "uglifyjs \"src/*.js\" -o dist/leaflet-regulargridcluster.src.js -b",
+    "minify-js": "uglifyjs \"src/*.js\" -o dist/leaflet-regulargridcluster.js -c",
+    "onchange-js": "onchange src/**/*.js -- npm run build",
+    "build": "parallelshell \"npm run concat-js\" \"npm run minify-js\" ",
+    "start": "parallelshell \"npm run onchange-js\" \"npm run build\" "
+  }
+}
