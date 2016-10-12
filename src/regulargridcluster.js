@@ -8,5 +8,6 @@ L.RegularGridCluster = L.FeatureGroup.extend({
   initialize: function (options) {
     L.Util.setOptions(this, options);
     console.log(this.options)
+
   }
 })

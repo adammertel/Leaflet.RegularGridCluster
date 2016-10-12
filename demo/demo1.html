@@ -1,0 +1,73 @@
+<html>
+
+<head>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
+
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.0.1/leaflet.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <script type="text/javascript" src="../dist/leaflet-regulargridcluster.src.js"></script>
+</head>
+
+<style>
+#map-content {
+  width: 100%;
+  height: 100%
+}
+
+.marker-cluster {
+  opacity: 1 !important
+}
+</style>
+
+
+<body>
+  <div id="map-content"></div>
+  <script>
+
+    // global variables
+    var map;
+
+    $( document ).ready(function(){
+
+      var colors = ['#e41a1c','#377eb8','#4daf4a','#984ea3','#ff7f00'];
+      var noTestData = 1000
+
+      // setting map
+      map = L.map('map-content').setView([0, 0], 7);
+
+      L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(map);
+
+
+      var circleStyle = function(point) {
+        return {
+          fillOpacity: 0.7,
+          radius: 3,
+          fillColor: colors[point.type],
+          color: 'black',
+          weight: 0.4
+        }
+      };
+
+      // boundaries of random data
+      var maxX = 18, minX = 15, maxY = 49.5, minY = 47.5;
+      map.fitBounds([[minY, minX], [maxY, maxX]]);
+
+      // putting some random point data
+      for (var i=0; i < noTestData; i++) {
+        var pointData = {
+          x: minX + Math.random() * (maxX - minX),
+          y: minY + Math.random() * (maxY - minY),
+          type: Math.floor(Math.random() * 5)
+        };
+        var circle = L.circleMarker([pointData.y, pointData.x], circleStyle(pointData));
+        map.addLayer(circle);
+      };
+
+
+    })
+  </script>
+</body>
+
+</html>

@@ -1,8 +1,8 @@
 {
   "name": "leaflet-regular-grid-cluster",
   "version": "0.0.1",
-  "description": "",
-  "main": "index.js",
+  "description": "clustering elements base on the define grid",
+  "main": "dist/leaflet-regulargridcluster.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/adammertel/Leaflet.RegularGridCluster.git"
@@ -19,16 +19,13 @@
   },
   "homepage": "https://github.com/adammertel/Leaflet.RegularGridCluster#readme",
   "devDependencies": {
-    "del-cli": "^0.2.0",
-    "glob": "^7.1.1",
-    "jshint": "*",
     "leaflet": "*",
     "parallelshell": "^2.0.0",
     "uglify-js": "^2.7.3"
   },
   "scripts": {
-    "concat-js": "uglifyjs \"src/*.js\" -o dist/leaflet-regulargridcluster.src.js -b",
-    "minify-js": "uglifyjs \"src/*.js\" -o dist/leaflet-regulargridcluster.js -c",
+    "concat-js": "uglifyjs \"src/*.js\" -o dist/leaflet-regulargridcluster.src.js -b --lint",
+    "minify-js": "uglifyjs \"src/*.js\" -o dist/leaflet-regulargridcluster.js -c -m",
     "onchange-js": "onchange src/**/*.js -- npm run build",
     "build": "parallelshell \"npm run concat-js\" \"npm run minify-js\" ",
     "start": "parallelshell \"npm run onchange-js\" \"npm run build\" "
