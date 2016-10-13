@@ -6,8 +6,17 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     cellW: 100
   },
   initialize: function (options) {
+    this.options = L.extend(this.options, options)
     L.Util.setOptions(this, options);
-    console.log(this.options)
 
-  }
-})
+    this.grid = new L.regularGridClusterGrid({});
+
+    L.FeatureGroup.prototype.initialize.call(this, {
+      features: []
+    }, options);
+  },
+});
+
+L.regularGridCluster = function(options) {
+  return new L.RegularGridCluster(options);
+};
