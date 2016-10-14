@@ -1,14 +1,14 @@
 L.RegularGridClusterCell = L.Polygon.extend({
   options: {
-
+    color: 'white',
+    weight: 1,
+    fillOpacity: 0.6
   },
-  initialize: function (options) {
+  initialize: function (path, options) {
     this.options = L.extend(this.options, options)
     L.Util.setOptions(this, options);
 
-    L.Polygon.prototype.initialize.call(this, {
-      features: []
-    }, options);
+    L.Polygon.prototype.initialize.call(this, path, options);
   },
 });
 

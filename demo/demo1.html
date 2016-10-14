@@ -30,10 +30,10 @@
     $( document ).ready(function(){
 
       var colors = ['#e41a1c','#377eb8','#4daf4a','#984ea3','#ff7f00'];
-      var noTestData = 10
+      var noTestData = 1000
 
       // setting map
-      map = L.map('map-content').setView([0, 0], 7);
+      map = L.map('map-content').setView([0, 0], 4);
 
       L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
@@ -52,12 +52,10 @@
       };
 
       // define RegularGridCluster instance
-      console.log(L.RegularGridCluster)
-      var grid = L.regularGridCluster({originY: 100});
-      console.log(grid)
+      var grid = L.regularGridCluster({});
 
       // boundaries of random data
-      var maxX = 18, minX = 15, maxY = 49.5, minY = 47.5;
+      var maxX = 50, minX = 0, maxY = 49.5, minY = 0;
       map.fitBounds([[minY, minX], [maxY, maxX]]);
 
       // putting some random point data
@@ -71,7 +69,7 @@
         grid.addLayer(circle);
       };
 
-      map.addLayer(grid);
+      grid.addTo(map);
 
     })
   </script>

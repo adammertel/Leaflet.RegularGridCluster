@@ -3,6 +3,7 @@ L.RegularGridClusterClusterGroup = L.FeatureGroup.extend({
 
   },
   initialize: function (options) {
+    this.controller = options.controller;
     this.options = L.extend(this.options, options)
     L.Util.setOptions(this, options);
 
@@ -10,6 +11,15 @@ L.RegularGridClusterClusterGroup = L.FeatureGroup.extend({
       features: []
     }, options);
   },
+
+  addLayer: function (layer) {
+    L.FeatureGroup.prototype.addLayer.call(this, layer);
+
+  },
+
+  truncate: function () {
+    this.clearLayers();
+  }
 });
 
 L.regularGridClusterClusterGroup = function(options) {
