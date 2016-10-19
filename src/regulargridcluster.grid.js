@@ -1,6 +1,5 @@
 L.RegularGridClusterGrid = L.FeatureGroup.extend({
   options: {
-    fillScale: ['#ffffe5','#fff7bc','#fee391','#fec44f','#fe9929','#ec7014','#cc4c02','#993404','#662506']
   },
   initialize: function (options) {
     this.controller = options.controller;
@@ -16,21 +15,21 @@ L.RegularGridClusterGrid = L.FeatureGroup.extend({
 
   render: function (cellSize, origin) {
     this.visualiseCells();
-    //console.log(cellSize);
-    //console.log(origin);
+    console.log(cellSize);
+    console.log(origin);
   },
 
-  addLayer: function (cell) {
-    L.FeatureGroup.prototype.addLayer.call(this, cell);
-    cell.inside = this.controller.countInside(cell);
-  },
+  // addLayer: function (cell) {
+  //   L.FeatureGroup.prototype.addLayer.call(this, cell);
+  //   cell.inside = this.controller.countInside(cell);
+  // },
 
   createCell: function (path, options) {
     var newCell = new L.regularGridClusterCell(path, options);
     newCell.cellId = this.cellid;
     this.addLayer(newCell);
     this.cellid++;
-    return newCell
+    return newCell;
   },
 
   addValueToCell: function (cell, attrName, value) {
@@ -46,7 +45,7 @@ L.RegularGridClusterGrid = L.FeatureGroup.extend({
     for (var c in cells){
       var cell = cells[c];
       var cellColor = this.options.fillScale[Math.floor((cell.inside)/ d)];
-      cell.setStyle({'fillColor': cellColor})
+      cell.setStyle({'fillColor': cellColor});
     }
   },
 

@@ -4,7 +4,7 @@ L.RegularGridClusterClusterGroup = L.FeatureGroup.extend({
   },
   initialize: function (options) {
     this.controller = options.controller;
-    this.options = L.extend(this.options, options)
+    this.options = L.extend(this.options, options);
     L.Util.setOptions(this, options);
 
     L.FeatureGroup.prototype.initialize.call(this, {

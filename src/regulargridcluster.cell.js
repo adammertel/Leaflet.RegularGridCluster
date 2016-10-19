@@ -1,17 +1,18 @@
 L.RegularGridClusterCell = L.Polygon.extend({
   options: {
-    color: 'white',
     weight: 1,
-    fillOpacity: 0.6
+    fillOpacity: 0.6,
+    clickable: false,
+    color: 'grey',
   },
   initialize: function (path, options) {
-    this.options = L.extend(this.options, options)
-    L.Util.setOptions(this, options);
+    this.options = L.extend(this.options, options);
+    L.Util.setOptions(this, this.options);
 
-    L.Polygon.prototype.initialize.call(this, path, options);
+    L.Polygon.prototype.initialize.call(this, path, this.options);
   },
 });
 
-L.regularGridClusterCell = function(options) {
-  return new L.RegularGridClusterCell(options);
+L.regularGridClusterCell = function(path, options) {
+  return new L.RegularGridClusterCell(path, options);
 };

@@ -30,7 +30,7 @@
     $( document ).ready(function(){
 
       var colors = ['#e41a1c','#377eb8','#4daf4a','#984ea3','#ff7f00'];
-      var noTestData = 1000
+      var noTestData = 1000;
 
       // setting map
       map = L.map('map-content').setView([0, 0], 4);
@@ -41,18 +41,40 @@
       }).addTo(map);
 
 
-      var circleStyle = function(point) {
-        return {
-          fillOpacity: 0.7,
-          radius: 3,
-          fillColor: colors[point.type],
-          color: 'black',
-          weight: 0.4
+      // var circleStyle = function(point) {
+      //   return {
+      //     fillOpacity: 0.7,
+      //     radius: 3,
+      //     fillColor: colors[point.type],
+      //     color: 'black',
+      //     weight: 0.4
+      //   }
+      // };
+
+      var rules = {
+        "grid": {
+          "fillColor": {
+            "method": "count",
+            "attribute": "",
+            "scale": "size",
+            "style": ["white", "orange", "red"]
+          },
+          "strokeColor": {
+            "style": "grey"
+          },
+          "fillOpacity": {
+            "style": 0.2
+          },
+          "strokeWeight": {
+            "style": 3
+          }
         }
       };
 
       // define RegularGridCluster instance
-      var grid = L.regularGridCluster({});
+      var grid = L.regularGridCluster({rules: rules});
+      console.log(grid)
+      //var grid = new L.geoJSON();
 
       // boundaries of random data
       var maxX = 50, minX = 0, maxY = 49.5, minY = 0;
@@ -65,10 +87,21 @@
           y: minY + Math.random() * (maxY - minY),
           type: Math.floor(Math.random() * 5)
         };
-        var circle = L.circleMarker([pointData.y, pointData.x], circleStyle(pointData));
-        grid.addLayer(circle);
-      };
+        //var circle = L.circleMarker([pointData.y, pointData.x], circleStyle(pointData));
 
+        grid.addElement(
+          {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [pointData.y, pointData.x]
+            },
+            "properties": {
+                "type": pointData.type
+            }
+          }
+        );
+      };
       grid.addTo(map);
 
     })

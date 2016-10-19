@@ -3,7 +3,7 @@ L.RegularGridClusterClusterMarker = L.Marker.extend({
 
   },
   initialize: function (options) {
-    this.options = L.extend(this.options, options)
+    this.options = L.extend(this.options, options);
     L.Util.setOptions(this, options);
 
     L.Marker.prototype.initialize.call(this, {
