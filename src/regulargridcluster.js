@@ -91,17 +91,17 @@ L.RegularGridCluster = L.GeoJSON.extend({
 
       if (that._isDynamicalRule(rule)) {
         console.log(rule);
-        var values = that._getCellsValues(rule.method, rule.attribute);
+        that._cellsValues(rule.method, rule.attribute);
 
-        var vMax = Math.max.apply(null, values);
-        var vMin = Math.min.apply(null, values);
+        var vMax = Math.max.apply(null, that._cells.map(function(o){return o.value;}));
+        var vMin = Math.min.apply(null, that._cells.map(function(o){return o.value;}));
         var noInts = rule.style.length;
         var vDiff = vMax - vMin;
 
         //var thresholds = that._getIntervalThresholds(values, rule, scale);
         for (var c in that._cells) {
           var cell = that._cells[c];
-          var cellValue = that._getCellValue(cell, rule.method, rule.attribute);
+          var cellValue = that._cells[c].value;
           var interval = that._getCellInterval(cellValue, vMin, vMax, vDiff, noInts, rule.scale);
           cell.options[option] = rule.style[interval];
         }
@@ -113,15 +113,6 @@ L.RegularGridCluster = L.GeoJSON.extend({
         }
       }
     });
-  },
-
-  _getCellValue: function (cell, method, attribute) {
-    switch (method) {
-      case 'count':
-        return cell.elms.length;
-      default:
-        return cell.elms.length;
-    }
   },
 
   _getCellInterval: function (value, min, max, diff, noInts, scale) {
@@ -142,16 +133,14 @@ L.RegularGridCluster = L.GeoJSON.extend({
     }
   },
 
-  _getCellsValues: function (method, attr) {
-    var values = [];
+  _cellsValues: function (method, attr) {
+    for (var c in this._cells) {
+      var cell = this._cells[c];
 
-    switch (method) {
-      case 'count':
-        for (var c in this._cells) {
-          var cell = this._cells[c];
-          values.push(cell.elms.length);
-        }
-        return values;
+      switch (method) {
+        case 'count':
+          cell.value = cell.elms.length;
+      }
     }
   },
 
