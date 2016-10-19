@@ -174,7 +174,7 @@ L.RegularGridCluster = L.GeoJSON.extend({
         var that = this;
         Object.keys(this.options.rules.grid).map(function(option) {
             var rule = that.options.rules.grid[option];
-            if (that._validateRule(rule)) {
+            if (that._isDynamicalRule(rule)) {
                 console.log(rule);
                 var values = that._getCellsValues(rule.method, rule.attribute);
                 var vMax = Math.max.apply(null, values);
@@ -183,12 +183,44 @@ L.RegularGridCluster = L.GeoJSON.extend({
                 var vDiff = vMax - vMin;
                 for (var c in that._cells) {
                     var cell = that._cells[c];
-                    var interval = Math.floor((cell.elms.length - vMin) / vDiff * noInts);
-                    cell.options[option] = rule.style[interval] || rule.style[rule.style.length - 1];
+                    var cellValue = that._getCellValue(cell, rule.method, rule.attribute);
+                    var interval = that._getCellInterval(cellValue, vMin, vMax, vDiff, noInts, rule.scale);
+                    cell.options[option] = rule.style[interval];
                 }
                 console.log(that._cells);
+            } else {
+                for (var cj in that._cells) {
+                    that._cells[cj].options[option] = rule;
+                }
             }
         });
+    },
+    _getCellValue: function(cell, method, attribute) {
+        switch (method) {
+          case "count":
+            return cell.elms.length;
+
+          default:
+            return cell.elms.length;
+        }
+    },
+    _getCellInterval: function(value, min, max, diff, noInts, scale) {
+        switch (scale) {
+          case "size":
+            if (value == max) {
+                return noInts - 1;
+            } else {
+                return Math.floor((value - min) / diff * noInts);
+            }
+            break;
+
+          default:
+            if (value == max) {
+                return noInts - 1;
+            } else {
+                return Math.floor((value - min) / diff * noInts);
+            }
+        }
     },
     _getCellsValues: function(method, attr) {
         var values = [];
@@ -201,7 +233,7 @@ L.RegularGridCluster = L.GeoJSON.extend({
             return values;
         }
     },
-    _validateRule: function(rule) {
+    _isDynamicalRule: function(rule) {
         return rule.method && rule.scale && rule.style;
     },
     _buildGrid: function() {
