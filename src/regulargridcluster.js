@@ -164,6 +164,10 @@ L.RegularGridCluster = L.GeoJSON.extend({
           cellValues = this._cellAttrValues(cell, attr);
           cell.value = this._math_min(cellValues);
           break;
+        case 'sum':
+          cellValues = this._cellAttrValues(cell, attr);
+          cell.value = this._math_sum(cellValues);
+          break;
       }
     }
   },
@@ -418,6 +422,19 @@ L.RegularGridCluster = L.GeoJSON.extend({
       },{sum:0,count:0}
     );
     return state.sum / state.count;
+  },
+
+  _math_sum: function(arr) {
+    if(arr.length === 0) {return 0;}
+    return arr.reduce(
+      function (a, b) {
+        if (b) {
+          return a + b;
+        } else {
+          return 0;
+        }
+      }, 0
+    );
   },
 
   _math_median: function (arr) {
