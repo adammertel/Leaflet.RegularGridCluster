@@ -54,14 +54,19 @@
       var rules = {
         "grid": {
           "fillColor": {
-            "method": "count",
-            "attribute": "",
+            "method": "mean",
+            "attribute": "a",
             "scale": "size",
-            "style": ["blue", "orange", "red"]
+            "style": ["white", "orange", "red"]
           },
-          "strokeColor": "grey",
+          "color": {
+            "method": "count",
+            "attribute": "b",
+            "scale": "size",
+            "style": ["white", "orange", "red"]
+          },
           "fillOpacity": 0.5,
-          "strokeWeight": 3,
+          "weight": 13,
         }
       };
 
@@ -91,7 +96,8 @@
                 "coordinates": [pointData.y, pointData.x]
             },
             "properties": {
-                "type": pointData.type
+                "a": Math.floor(Math.random() * 20),
+                "b": Math.floor(Math.random() * 10)
             }
           }
         );

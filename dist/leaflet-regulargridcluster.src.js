@@ -3,7 +3,8 @@ L.RegularGridClusterCell = L.Polygon.extend({
         weight: 1,
         fillOpacity: .6,
         clickable: false,
-        color: "grey"
+        color: "grey",
+        lineJoin: "miter"
     },
     initialize: function(path, options) {
         this.options = L.extend(this.options, options);
@@ -178,10 +179,18 @@ L.RegularGridCluster = L.GeoJSON.extend({
                 console.log(rule);
                 that._cellsValues(rule.method, rule.attribute);
                 var vMax = Math.max.apply(null, that._cells.map(function(o) {
-                    return o.value;
+                    if (o.value) {
+                        return o.value;
+                    } else {
+                        return 0;
+                    }
                 }));
                 var vMin = Math.min.apply(null, that._cells.map(function(o) {
-                    return o.value;
+                    if (o.value) {
+                        return o.value;
+                    } else {
+                        return 9999999999;
+                    }
                 }));
                 var noInts = rule.style.length;
                 var vDiff = vMax - vMin;
@@ -220,11 +229,45 @@ L.RegularGridCluster = L.GeoJSON.extend({
     _cellsValues: function(method, attr) {
         for (var c in this._cells) {
             var cell = this._cells[c];
+            var cellValues;
             switch (method) {
               case "count":
                 cell.value = cell.elms.length;
+                break;
+
+              case "mean":
+                cellValues = this._cellAttrValues(cell, attr);
+                cell.value = this._math_mean(cellValues);
+                break;
+
+              case "median":
+                cellValues = this._cellAttrValues(cell, attr);
+                cell.value = this._math_median(cellValues);
+                break;
+
+              case "mode":
+                cellValues = this._cellAttrValues(cell, attr);
+                cell.value = this._math_mode(cellValues);
+                break;
+
+              case "max":
+                cellValues = this._cellAttrValues(cell, attr);
+                cell.value = this._math_max(cellValues);
+                break;
+
+              case "min":
+                cellValues = this._cellAttrValues(cell, attr);
+                cell.value = this._math_min(cellValues);
+                break;
             }
         }
+    },
+    _cellAttrValues: function(cell, attr) {
+        var values = [];
+        for (var e in cell.elms) {
+            values.push(this._elements[cell.elms[e]].properties[attr]);
+        }
+        return values;
     },
     _isDynamicalRule: function(rule) {
         return rule.method && rule.scale && rule.style;
@@ -235,7 +278,9 @@ L.RegularGridCluster = L.GeoJSON.extend({
         for (var c in this._cells) {
             var cell = this._cells[c];
             var regularCell = new L.regularGridClusterCell(cell.path, cell.options);
-            this._grid.addLayer(regularCell);
+            if (cell.value) {
+                this._grid.addLayer(regularCell);
+            }
         }
         this._grid.addTo(this._map);
     },
@@ -355,6 +400,78 @@ L.RegularGridCluster = L.GeoJSON.extend({
     },
     _deltaHeightAtY: function(lat) {
         return Math.abs(1 / Math.cos(lat * Math.PI / 180));
+    },
+    _math_max: function(arr) {
+        if (arr.length) {
+            return Math.max.apply(null, arr.map(function(o) {
+                if (o) {
+                    return o;
+                } else {
+                    return 0;
+                }
+            }));
+        } else {
+            return undefined;
+        }
+    },
+    _math_min: function(arr) {
+        if (arr.length) {
+            return Math.min.apply(null, arr.map(function(o) {
+                if (o) {
+                    return o;
+                } else {
+                    return 99999;
+                }
+            }));
+        } else {
+            return undefined;
+        }
+    },
+    _math_mode: function(arr) {
+        if (arr.length === 0) {
+            return null;
+        }
+        var modeMap = {};
+        var maxEl = arr[0], maxCount = 1;
+        for (var i = 0; i < arr.length; i++) {
+            var el = arr[i];
+            if (el) {
+                if (modeMap[el] === null) {
+                    modeMap[el] = 1;
+                } else {
+                    modeMap[el]++;
+                }
+                if (modeMap[el] > maxCount) {
+                    maxEl = el;
+                    maxCount = modeMap[el];
+                }
+            }
+        }
+        return maxEl;
+    },
+    _math_mean: function(arr) {
+        var state = arr.reduce(function(state, a) {
+            if (a) {
+                state.sum += a;
+                state.count += 1;
+            }
+            return state;
+        }, {
+            sum: 0,
+            count: 0
+        });
+        return state.sum / state.count;
+    },
+    _math_median: function(arr) {
+        arr.sort(function(a, b) {
+            return a - b;
+        });
+        var half = Math.floor(arr.length / 2);
+        if (arr.length % 2) {
+            return arr[half];
+        } else {
+            return (arr[half - 1] + arr[half]) / 2;
+        }
     }
 });
 
