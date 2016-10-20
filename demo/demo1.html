@@ -40,24 +40,13 @@
         opacity: .3
       }).addTo(map);
 
-
-      // var circleStyle = function(point) {
-      //   return {
-      //     fillOpacity: 0.7,
-      //     radius: 3,
-      //     fillColor: colors[point.type],
-      //     color: 'black',
-      //     weight: 0.4
-      //   }
-      // };
-
       var rules = {
         "grid": {
           "fillColor": {
-            "method": "mean",
+            "method": "count",
             "attribute": "a",
             "scale": "continuous",
-            "style": ["white", "orange", "red"]
+            "style": ["white", "blue", "red"]
           },
           "fillOpacity": {
             "method": "sum",

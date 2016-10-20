@@ -191,25 +191,12 @@ L.RegularGridCluster = L.GeoJSON.extend({
         var values = this._cellValues(true).sort(function(a, b) {
             return a - b;
         });
-        console.log(values);
         var noInts = style.length;
         if (scale === "continuous") {
             noInts = noInts - 1;
         }
-        var max = Math.max.apply(null, this._cells.map(function(o) {
-            if (o.value) {
-                return o.value;
-            } else {
-                return 0;
-            }
-        }));
-        var min = Math.min.apply(null, this._cells.map(function(o) {
-            if (o.value) {
-                return o.value;
-            } else {
-                return 9999999999;
-            }
-        }));
+        var max = Math.max.apply(null, values);
+        var min = Math.min.apply(null, values);
         var diff = max - min;
         var thresholds = [];
         if (scale != "size") {
