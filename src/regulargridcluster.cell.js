@@ -5,6 +5,8 @@ L.RegularGridClusterCell = L.Polygon.extend({
     clickable: false,
     color: 'grey',
     lineJoin: 'miter',
+    fillRule: 'evenodd',
+    strokeLocation: 'inside'
   },
   initialize: function (path, options) {
     this.options = L.extend(this.options, options);
