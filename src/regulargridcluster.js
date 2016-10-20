@@ -106,18 +106,20 @@ L.RegularGridCluster = L.GeoJSON.extend({
     var values = this._cellValues(true).sort(function(a,b){return a-b;});
     console.log(values);
     var noInts = style.length;
+    if (scale === 'continuous') {
+      noInts = noInts - 1;
+    }
     var max = Math.max.apply(null, this._cells.map(function(o){if (o.value){return o.value;}else{return 0;}}));
     var min = Math.min.apply(null, this._cells.map(function(o){if (o.value){return o.value;}else{return 9999999999;}}));
     var diff = max - min;
 
     var thresholds = [];
-    if (scale === 'quantile') {
+    if (scale != 'size') {
       var qLen = Math.floor(values.length / noInts);
       for (var i = 1; i != noInts; i++ ) {
         thresholds.push(values[qLen * i]);
       }
     }
-    console.log(thresholds);
 
     for (var c in this._cells) {
       var cell = this._cells[c];
@@ -134,15 +136,41 @@ L.RegularGridCluster = L.GeoJSON.extend({
 
             cell.options[option] = style[interval];
             break;
+
           case 'quantile':
             interval = 0;
             for (var ti in thresholds) {
               if (value > thresholds[ti]) {
-                interval = ti++;
+                interval = (parseInt(ti) + 1);
               }
             }
-            console.log(interval);
             cell.options[option] = style[interval];
+            break;
+
+          case 'continuous':
+            interval = 0;
+            for (var tj in thresholds) {
+              if (value > thresholds[tj]) {
+                interval = parseInt(tj) + 1;
+              }
+            }
+            var edgeValues = thresholds.slice(0);
+            edgeValues.push(max);
+            edgeValues.unshift(min);
+            var ratioDif = (value - edgeValues[interval]) / (edgeValues[interval + 1] - edgeValues[interval]);
+            var bottomValue = style[interval];
+            var upperValue = style[interval + 1];
+
+            var styleValue;
+
+            // number or color
+            if (this._isNumber(bottomValue)) {
+              styleValue = bottomValue + ratioDif * (upperValue - bottomValue);
+            } else {
+              styleValue = this._colorMix(bottomValue, upperValue, ratioDif);
+            }
+
+            cell.options[option] = styleValue;
             break;
         }
 
@@ -478,7 +506,7 @@ L.RegularGridCluster = L.GeoJSON.extend({
   },
 
   // colors
-  _colorNameToHex: function () {
+  _colorNameToHex: function (color) {
     var colors = {"aliceblue":"#f0f8ff","antiquewhite":"#faebd7","aqua":"#00ffff","aquamarine":"#7fffd4","azure":"#f0ffff",
     "beige":"#f5f5dc","bisque":"#ffe4c4","black":"#000000","blanchedalmond":"#ffebcd","blue":"#0000ff","blueviolet":"#8a2be2","brown":"#a52a2a","burlywood":"#deb887",
     "cadetblue":"#5f9ea0","chartreuse":"#7fff00","chocolate":"#d2691e","coral":"#ff7f50","cornflowerblue":"#6495ed","cornsilk":"#fff8dc","crimson":"#dc143c","cyan":"#00ffff",
@@ -505,7 +533,7 @@ L.RegularGridCluster = L.GeoJSON.extend({
     "yellow":"#ffff00","yellowgreen":"#9acd32"};
 
     if (typeof colors[color.toLowerCase()] != 'undefined') {
-      return colors[color.toLowerCase()];
+      return colors[color.toLowerCase()].substring(1);
     } else {
       return false;
     }
@@ -516,12 +544,23 @@ L.RegularGridCluster = L.GeoJSON.extend({
     return (x.length == 1) ? '0' + x : x;
   },
 
-  _colorMix: function (color1, color2, ratio) {
-    var r = Math.ceil(parseInt(color1.substring(0,2), 16) * ratio + parseInt(color2.substring(0,2), 16) * (1-ratio));
-    var g = Math.ceil(parseInt(color1.substring(2,4), 16) * ratio + parseInt(color2.substring(2,4), 16) * (1-ratio));
-    var b = Math.ceil(parseInt(color1.substring(4,6), 16) * ratio + parseInt(color2.substring(4,6), 16) * (1-ratio));
+  _validateColor: function (color) {
+    if (color.indexOf('#') == -1) {
+      return this._colorNameToHex(color);
+    } else {
+      return color.substring(1);
+    }
+  },
 
-    return hex(r) + hex(g) + hex(b);
+  _colorMix: function (color1, color2, ratio) {
+    color1 = this._validateColor(color1);
+    color2 = this._validateColor(color2);
+
+    var r = Math.floor(parseInt(color1.substring(0,2), 16) * ratio + parseInt(color2.substring(0,2), 16) * (1-ratio));
+    var g = Math.floor(parseInt(color1.substring(2,4), 16) * ratio + parseInt(color2.substring(2,4), 16) * (1-ratio));
+    var b = Math.floor(parseInt(color1.substring(4,6), 16) * ratio + parseInt(color2.substring(4,6), 16) * (1-ratio));
+
+    return '#' + this._hex(r) + this._hex(g) + this._hex(b);
   },
 
   // other functions
@@ -531,6 +570,10 @@ L.RegularGridCluster = L.GeoJSON.extend({
     } else {
       return true;
     }
+  },
+
+  _isNumber: function (value) {
+    return !isNaN(parseFloat(value)) && isFinite(value);
   },
 
 });

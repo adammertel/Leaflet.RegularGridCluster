@@ -193,6 +193,9 @@ L.RegularGridCluster = L.GeoJSON.extend({
         });
         console.log(values);
         var noInts = style.length;
+        if (scale === "continuous") {
+            noInts = noInts - 1;
+        }
         var max = Math.max.apply(null, this._cells.map(function(o) {
             if (o.value) {
                 return o.value;
@@ -209,13 +212,12 @@ L.RegularGridCluster = L.GeoJSON.extend({
         }));
         var diff = max - min;
         var thresholds = [];
-        if (scale === "quantile") {
+        if (scale != "size") {
             var qLen = Math.floor(values.length / noInts);
             for (var i = 1; i != noInts; i++) {
                 thresholds.push(values[qLen * i]);
             }
         }
-        console.log(thresholds);
         for (var c in this._cells) {
             var cell = this._cells[c];
             var value = cell.value;
@@ -234,11 +236,32 @@ L.RegularGridCluster = L.GeoJSON.extend({
                     interval = 0;
                     for (var ti in thresholds) {
                         if (value > thresholds[ti]) {
-                            interval = ti++;
+                            interval = parseInt(ti) + 1;
                         }
                     }
-                    console.log(interval);
                     cell.options[option] = style[interval];
+                    break;
+
+                  case "continuous":
+                    interval = 0;
+                    for (var tj in thresholds) {
+                        if (value > thresholds[tj]) {
+                            interval = parseInt(tj) + 1;
+                        }
+                    }
+                    var edgeValues = thresholds.slice(0);
+                    edgeValues.push(max);
+                    edgeValues.unshift(min);
+                    var ratioDif = (value - edgeValues[interval]) / (edgeValues[interval + 1] - edgeValues[interval]);
+                    var bottomValue = style[interval];
+                    var upperValue = style[interval + 1];
+                    var styleValue;
+                    if (this._isNumber(bottomValue)) {
+                        styleValue = bottomValue + ratioDif * (upperValue - bottomValue);
+                    } else {
+                        styleValue = this._colorMix(bottomValue, upperValue, ratioDif);
+                    }
+                    cell.options[option] = styleValue;
                     break;
                 }
             }
@@ -521,7 +544,7 @@ L.RegularGridCluster = L.GeoJSON.extend({
             return (arr[half - 1] + arr[half]) / 2;
         }
     },
-    _colorNameToHex: function() {
+    _colorNameToHex: function(color) {
         var colors = {
             aliceblue: "#f0f8ff",
             antiquewhite: "#faebd7",
@@ -665,7 +688,7 @@ L.RegularGridCluster = L.GeoJSON.extend({
             yellowgreen: "#9acd32"
         };
         if (typeof colors[color.toLowerCase()] != "undefined") {
-            return colors[color.toLowerCase()];
+            return colors[color.toLowerCase()].substring(1);
         } else {
             return false;
         }
@@ -674,11 +697,20 @@ L.RegularGridCluster = L.GeoJSON.extend({
         x = x.toString(16);
         return x.length == 1 ? "0" + x : x;
     },
+    _validateColor: function(color) {
+        if (color.indexOf("#") == -1) {
+            return this._colorNameToHex(color);
+        } else {
+            return color.substring(1);
+        }
+    },
     _colorMix: function(color1, color2, ratio) {
-        var r = Math.ceil(parseInt(color1.substring(0, 2), 16) * ratio + parseInt(color2.substring(0, 2), 16) * (1 - ratio));
-        var g = Math.ceil(parseInt(color1.substring(2, 4), 16) * ratio + parseInt(color2.substring(2, 4), 16) * (1 - ratio));
-        var b = Math.ceil(parseInt(color1.substring(4, 6), 16) * ratio + parseInt(color2.substring(4, 6), 16) * (1 - ratio));
-        return hex(r) + hex(g) + hex(b);
+        color1 = this._validateColor(color1);
+        color2 = this._validateColor(color2);
+        var r = Math.floor(parseInt(color1.substring(0, 2), 16) * ratio + parseInt(color2.substring(0, 2), 16) * (1 - ratio));
+        var g = Math.floor(parseInt(color1.substring(2, 4), 16) * ratio + parseInt(color2.substring(2, 4), 16) * (1 - ratio));
+        var b = Math.floor(parseInt(color1.substring(4, 6), 16) * ratio + parseInt(color2.substring(4, 6), 16) * (1 - ratio));
+        return "#" + this._hex(r) + this._hex(g) + this._hex(b);
     },
     _isDefined: function(value) {
         if (!value && value !== 0) {
@@ -686,6 +718,9 @@ L.RegularGridCluster = L.GeoJSON.extend({
         } else {
             return true;
         }
+    },
+    _isNumber: function(value) {
+        return !isNaN(parseFloat(value)) && isFinite(value);
     }
 });
 
