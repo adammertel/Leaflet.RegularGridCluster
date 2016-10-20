@@ -118,12 +118,7 @@ L.RegularGridCluster = L.GeoJSON.extend({
         gridBoundsPadding: .1,
         gridMode: "square",
         cellSize: 1e4,
-        rules: {},
-        gridFillColor: "white",
-        gridFillOpacity: .05,
-        gridStrokeColor: "grey",
-        gridStrokeWeight: 2,
-        gridStrokeOpacity: .4
+        rules: {}
     },
     initialize: function(options) {
         this.options = L.extend(this.options, options);
@@ -140,55 +135,6 @@ L.RegularGridCluster = L.GeoJSON.extend({
         L.FeatureGroup.prototype.initialize.call(this, {
             features: []
         }, options);
-    },
-    onAdd: function(map) {
-        var that = this;
-        this._map = map;
-        this._grid.addTo(this._map);
-        this._clusters.addTo(this._map);
-        this._map.on("zoomend", function() {
-            that.refresh(true, true);
-        });
-        this.refresh(true, true);
-    },
-    addElement: function(element) {
-        this._elements[this.lastelmid] = {
-            id: this.lastelmid,
-            geometry: element.geometry.coordinates,
-            properties: element.properties
-        };
-        this.lastelmid++;
-        if (this._map) {
-            this.refresh(true, true);
-        }
-    },
-    addData: function(element) {},
-    refresh: function(buildGrid, buildCluster) {
-        console.log("refresh");
-        this._prepareCells();
-        if (buildGrid) {
-            this._buildGrid();
-        }
-        if (buildCluster) {
-            this._buildClusters();
-        }
-    },
-    _visualiseCells: function() {
-        var that = this;
-        Object.keys(this.options.rules.grid).map(function(option) {
-            var rule = that.options.rules.grid[option];
-            if (that._isDynamicalRule(rule)) {
-                var time1 = new Date();
-                that._cellsValues(rule.method, rule.attribute);
-                var time2 = new Date();
-                console.log(time2.valueOf() - time1.valueOf());
-                that._applyOptions(rule.scale, rule.style, option);
-            } else {
-                for (var cj in that._cells) {
-                    that._cells[cj].options[option] = rule;
-                }
-            }
-        });
     },
     _scaleOperations: {
         size: function(value, min, max, noInts, thresholds, style) {
@@ -230,6 +176,188 @@ L.RegularGridCluster = L.GeoJSON.extend({
             return styleValue;
         }
     },
+    _methodOperations: {
+        count: function(cell, values) {
+            return cell.elms.length;
+        },
+        mean: function(cell, values) {
+            return this._math_mean(values);
+        },
+        median: function(cell, values) {
+            return this._math_median(values);
+        },
+        mode: function(cell, values) {
+            return this._math_mode(values);
+        },
+        max: function(cell, values) {
+            return this._math_max(values);
+        },
+        min: function(cell, values) {
+            return this._math_min(values);
+        },
+        sum: function(cell, values) {
+            return this._math_sum(values);
+        }
+    },
+    onAdd: function(map) {
+        var that = this;
+        this._map = map;
+        this._grid.addTo(this._map);
+        this._clusters.addTo(this._map);
+        this._map.on("zoomend", function() {
+            that.refresh(true, true);
+        });
+        this.refresh(true, true);
+    },
+    addElement: function(element) {
+        this._elements[this.lastelmid] = {
+            id: this.lastelmid,
+            geometry: element.geometry.coordinates,
+            properties: element.properties
+        };
+        this.lastelmid++;
+        if (this._map) {
+            this.refresh(true, true);
+        }
+    },
+    addData: function(element) {},
+    refresh: function(buildGrid, buildCluster) {
+        var time1 = new Date();
+        this._prepareCells();
+        var time3 = new Date();
+        console.log("cells prepared in " + (time3.valueOf() - time1.valueOf()) + "ms");
+        if (buildGrid) {
+            this._buildGrid();
+        }
+        if (buildCluster) {
+            this._buildClusters();
+        }
+        var time2 = new Date();
+        console.log("refreshed in " + (time2.valueOf() - time1.valueOf()) + "ms");
+    },
+    _buildGrid: function() {
+        var time1 = new Date();
+        this._truncateGrid();
+        this._visualiseCells();
+        var time2 = new Date();
+        console.log("cells visualised in " + (time2.valueOf() - time1.valueOf()) + "ms");
+        for (var c in this._cells) {
+            var cell = this._cells[c];
+            var regularCell = new L.regularGridClusterCell(cell.path, cell.options);
+            if (cell.value) {
+                this._grid.addLayer(regularCell);
+            }
+        }
+        var time3 = new Date();
+        console.log("layers added in " + (time3.valueOf() - time1.valueOf()) + "ms");
+        this._grid.addTo(this._map);
+    },
+    _truncateGrid: function() {
+        this._grid.truncate();
+    },
+    _buildClusters: function() {
+        this._truncateClusters();
+    },
+    _prepareCells: function() {
+        this._cells = [];
+        var cellId = 1;
+        var values = [];
+        var cellSize = this._cellSize();
+        var origin = this._gridOrigin();
+        var gridEnd = this._gridExtent().getNorthEast();
+        var maxX = gridEnd.lng, maxY = gridEnd.lat;
+        var x = origin.lng, y = origin.lat;
+        var cellW = cellSize / 111319;
+        var elementCoordinates = this._getElementsCoordinatesCollection();
+        while (y < maxY) {
+            var cellH = this._cellHeightAtY(y, cellSize);
+            while (x < maxX) {
+                var cell = {
+                    id: cellId,
+                    x: x,
+                    y: y,
+                    h: cellH,
+                    w: cellW,
+                    options: {}
+                };
+                var time1 = new Date();
+                cell.path = this._cellPath(cell);
+                var time2 = new Date();
+                cell.elms = this._cellElmsInside(cell, elementCoordinates);
+                var time3 = new Date();
+                this._cells.push(cell);
+                cellId++;
+                x += cellW;
+            }
+            x = origin.lng;
+            y += cellH;
+        }
+        console.log("created " + this._cells.length + " cells");
+    },
+    _cellPath: function(cell) {
+        var c = cell;
+        switch (this.options.gridMode) {
+          case "square":
+            return [ [ c.y, c.x ], [ c.y, c.x + c.w ], [ c.y + c.h, c.x + c.w ], [ c.y + c.h, c.x ], [ c.y, c.x ] ];
+
+          default:
+            return [ [ c.y, c.x ], [ c.y, c.x + c.w ], [ c.y + c.h, c.x + c.w ], [ c.y + c.h, c.x ], [ c.y, c.x ] ];
+        }
+    },
+    _cellElmsInside: function(cell, elements) {
+        switch (this.options.gridMode) {
+          case "square":
+            return this._elmsInsideSquare(cell, elements);
+
+          default:
+            return this._elmsInsideSquare(cell, elements);
+        }
+    },
+    _elmsInsideSquare: function(cell, elements) {
+        var elsInside = [];
+        var x1 = cell.x, x2 = cell.x + cell.w, y1 = cell.y, y2 = cell.y + cell.h;
+        for (var e in elements) {
+            var element = elements[e];
+            if (element[0] > x1 && element[1] > y1) {
+                if (element[0] < x2 && element[1] < y2) {
+                    elsInside.push(element.id);
+                }
+            }
+        }
+        return elsInside;
+    },
+    _getElementsCollection: function() {
+        var that = this;
+        return Object.keys(this._elements).map(function(key) {
+            return that._elements[key];
+        });
+    },
+    _getElementsCoordinatesCollection: function() {
+        var that = this;
+        return Object.keys(this._elements).map(function(key) {
+            return that._elements[key].geometry;
+        });
+    },
+    _createCell: function(path, options) {
+        return this._grid.createCell(path, options);
+    },
+    _truncateClusters: function() {
+        this._clusters.truncate();
+    },
+    _visualiseCells: function() {
+        var that = this;
+        Object.keys(this.options.rules.grid).map(function(option) {
+            var rule = that.options.rules.grid[option];
+            if (that._isDynamicalRule(rule)) {
+                that._cellsValues(rule.method, rule.attribute);
+                that._applyOptions(rule.scale, rule.style, option);
+            } else {
+                for (var cj in that._cells) {
+                    that._cells[cj].options[option] = rule;
+                }
+            }
+        });
+    },
     _applyOptions: function(scale, style, option) {
         var values = this._cellValues(true).sort(function(a, b) {
             return a - b;
@@ -254,29 +382,6 @@ L.RegularGridCluster = L.GeoJSON.extend({
                     cell.options[option] = this._scaleOperations[scale].call(this, cell.value, min, max, noInts, thresholds, style);
                 }
             }
-        }
-    },
-    _methodOperations: {
-        count: function(cell, values) {
-            return cell.elms.length;
-        },
-        mean: function(cell, values) {
-            return this._math_mean(values);
-        },
-        median: function(cell, values) {
-            return this._math_median(values);
-        },
-        mode: function(cell, values) {
-            return this._math_mode(values);
-        },
-        max: function(cell, values) {
-            return this._math_max(values);
-        },
-        min: function(cell, values) {
-            return this._math_min(values);
-        },
-        sum: function(cell, values) {
-            return this._math_sum(values);
         }
     },
     _cellsValues: function(method, attr) {
@@ -311,100 +416,6 @@ L.RegularGridCluster = L.GeoJSON.extend({
     },
     _isDynamicalRule: function(rule) {
         return rule.method && rule.scale && rule.style;
-    },
-    _buildGrid: function() {
-        this._truncateGrid();
-        this._visualiseCells();
-        for (var c in this._cells) {
-            var cell = this._cells[c];
-            var regularCell = new L.regularGridClusterCell(cell.path, cell.options);
-            if (cell.value) {
-                this._grid.addLayer(regularCell);
-            }
-        }
-        this._grid.addTo(this._map);
-    },
-    _truncateGrid: function() {
-        this._grid.truncate();
-    },
-    _buildClusters: function() {
-        this._truncateClusters();
-    },
-    _prepareCells: function() {
-        this._cells = [];
-        var cellId = 1;
-        var values = [];
-        var cellSize = this._cellSize();
-        var origin = this._gridOrigin();
-        var gridEnd = this._gridExtent().getNorthEast();
-        var maxX = gridEnd.lng, maxY = gridEnd.lat;
-        var x = origin.lng;
-        var y = origin.lat;
-        var cellW = cellSize / 111319;
-        while (y < maxY) {
-            var cellH = this._cellHeightAtY(y, cellSize);
-            while (x < maxX) {
-                var cell = {
-                    id: cellId,
-                    x: x,
-                    y: y,
-                    h: cellH,
-                    w: cellW,
-                    options: {}
-                };
-                cell.path = this._cellPath(cell);
-                cell.elms = this._cellElmsInside(cell);
-                this._cells.push(cell);
-                cellId++;
-                x += cellW;
-            }
-            x = origin.lng;
-            y += cellH;
-        }
-        console.log("created " + this._cells.length + " cells");
-    },
-    _cellPath: function(cell) {
-        var c = cell;
-        switch (this.options.gridMode) {
-          case "square":
-            return [ [ c.y, c.x ], [ c.y, c.x + c.w ], [ c.y + c.h, c.x + c.w ], [ c.y + c.h, c.x ], [ c.y, c.x ] ];
-
-          default:
-            return [ [ c.y, c.x ], [ c.y, c.x + c.w ], [ c.y + c.h, c.x + c.w ], [ c.y + c.h, c.x ], [ c.y, c.x ] ];
-        }
-    },
-    _cellElmsInside: function(cell) {
-        switch (this.options.gridMode) {
-          case "square":
-            return this._elmsInsideSquare(cell);
-
-          default:
-            return this._elmsInsideSquare(cell);
-        }
-    },
-    _elmsInsideSquare: function(cell) {
-        var elsInside = [];
-        var bounds = new L.latLngBounds(L.latLng(cell.y, cell.x), L.latLng(cell.y + cell.h, cell.x + cell.w));
-        var elements = this._getElementsCollection();
-        for (var e in elements) {
-            var element = elements[e];
-            if (bounds.contains(element.geometry)) {
-                elsInside.push(element.id);
-            }
-        }
-        return elsInside;
-    },
-    _getElementsCollection: function() {
-        var that = this;
-        return Object.keys(this._elements).map(function(key) {
-            return that._elements[key];
-        });
-    },
-    _createCell: function(path, options) {
-        return this._grid.createCell(path, options);
-    },
-    _truncateClusters: function() {
-        this._clusters.truncate();
     },
     _cellSize: function() {
         return this.options.cellSize * Math.pow(2, 10 - this._mapZoom());
