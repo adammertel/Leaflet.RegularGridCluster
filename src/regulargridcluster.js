@@ -90,18 +90,8 @@ L.RegularGridCluster = L.GeoJSON.extend({
       var rule = that.options.rules.grid[option];
 
       if (that._isDynamicalRule(rule)) {
-        console.log(rule);
         that._cellsValues(rule.method, rule.attribute);
-        that._intervaliseValues(rule.scale, rule.style.length);
-
-
-        //var thresholds = that._getIntervalThresholds(values, rule, scale);
-        for (var c in that._cells) {
-          var cell = that._cells[c];
-          cell.options[option] = rule.style[cell.interval];
-        }
-
-        console.log(that._cells);
+        that._applyOptions(rule.scale, rule.style, option);
       } else {
         for (var cj in that._cells) {
           that._cells[cj].options[option] = rule;
@@ -112,24 +102,50 @@ L.RegularGridCluster = L.GeoJSON.extend({
 
   // TODO - object for storing operations
   // TODO - optimalise max and min
-  _intervaliseValues: function(scale, noInts) {
+  _applyOptions: function(scale, style, option) {
+    var values = this._cellValues(true).sort(function(a,b){return a-b;});
+    console.log(values);
+    var noInts = style.length;
     var max = Math.max.apply(null, this._cells.map(function(o){if (o.value){return o.value;}else{return 0;}}));
     var min = Math.min.apply(null, this._cells.map(function(o){if (o.value){return o.value;}else{return 9999999999;}}));
     var diff = max - min;
 
+    var thresholds = [];
+    if (scale === 'quantile') {
+      var qLen = Math.floor(values.length / noInts);
+      for (var i = 1; i != noInts; i++ ) {
+        thresholds.push(values[qLen * i]);
+      }
+    }
+    console.log(thresholds);
+
     for (var c in this._cells) {
       var cell = this._cells[c];
-      var cellValues;
       var value = cell.value;
+      var interval;
 
-      switch (scale) {
-        case 'size':
-          if (value == max){
-            cell.interval = noInts - 1;
-          } else {
-            cell.interval = Math.floor(((value - min)/diff) * noInts);
-          }
-          break;
+      if (this._isDefined(value)) {
+        switch (scale) {
+          case 'size':
+            interval = noInts - 1;
+            if (value < max) {
+              interval = Math.floor(((value - min)/diff) * noInts);
+            }
+
+            cell.options[option] = style[interval];
+            break;
+          case 'quantile':
+            interval = 0;
+            for (var ti in thresholds) {
+              if (value > thresholds[ti]) {
+                interval = ti++;
+              }
+            }
+            console.log(interval);
+            cell.options[option] = style[interval];
+            break;
+        }
+
       }
     }
   },
@@ -170,6 +186,20 @@ L.RegularGridCluster = L.GeoJSON.extend({
           break;
       }
     }
+  },
+
+  _cellValues: function (onlyDefined) {
+    var values = [];
+    for (var c in this._cells) {
+      if (onlyDefined) {
+        if (typeof this._cells[c].value !== 'undefined' && !isNaN(this._cells[c].value)) {
+          values.push(this._cells[c].value);
+        }
+      } else {
+        values.push(this._cells[c].value);
+      }
+    }
+    return values;
   },
 
   _cellAttrValues: function(cell, attr) {
@@ -492,7 +522,16 @@ L.RegularGridCluster = L.GeoJSON.extend({
     var b = Math.ceil(parseInt(color1.substring(4,6), 16) * ratio + parseInt(color2.substring(4,6), 16) * (1-ratio));
 
     return hex(r) + hex(g) + hex(b);
-  }
+  },
+
+  // other functions
+  _isDefined: function (value) {
+    if (!value && value !== 0) {
+      return false;
+    } else {
+      return true;
+    }
+  },
 
 });
 
