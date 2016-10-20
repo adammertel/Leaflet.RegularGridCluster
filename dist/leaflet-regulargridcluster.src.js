@@ -178,7 +178,10 @@ L.RegularGridCluster = L.GeoJSON.extend({
         Object.keys(this.options.rules.grid).map(function(option) {
             var rule = that.options.rules.grid[option];
             if (that._isDynamicalRule(rule)) {
+                var time1 = new Date();
                 that._cellsValues(rule.method, rule.attribute);
+                var time2 = new Date();
+                console.log(time2.valueOf() - time1.valueOf());
                 that._applyOptions(rule.scale, rule.style, option);
             } else {
                 for (var cj in that._cells) {
@@ -186,6 +189,46 @@ L.RegularGridCluster = L.GeoJSON.extend({
                 }
             }
         });
+    },
+    _scaleOperations: {
+        size: function(value, min, max, noInts, thresholds, style) {
+            var diff = max - min;
+            interval = noInts - 1;
+            if (value < max) {
+                interval = Math.floor((value - min) / diff * noInts);
+            }
+            return style[interval];
+        },
+        quantile: function(value, min, max, noInts, thresholds, style) {
+            interval = 0;
+            for (var ti in thresholds) {
+                if (value > thresholds[ti]) {
+                    interval = parseInt(ti) + 1;
+                }
+            }
+            return style[interval];
+        },
+        continuous: function(value, min, max, noInts, thresholds, style) {
+            interval = 0;
+            for (var tj in thresholds) {
+                if (value > thresholds[tj]) {
+                    interval = parseInt(tj) + 1;
+                }
+            }
+            var edgeValues = thresholds.slice(0);
+            edgeValues.push(max);
+            edgeValues.unshift(min);
+            var ratioDif = (value - edgeValues[interval]) / (edgeValues[interval + 1] - edgeValues[interval]);
+            var bottomValue = style[interval];
+            var upperValue = style[interval + 1];
+            var styleValue;
+            if (this._isNumber(bottomValue)) {
+                styleValue = bottomValue + ratioDif * (upperValue - bottomValue);
+            } else {
+                styleValue = this._colorMix(bottomValue, upperValue, ratioDif);
+            }
+            return styleValue;
+        }
     },
     _applyOptions: function(scale, style, option) {
         var values = this._cellValues(true).sort(function(a, b) {
@@ -197,7 +240,6 @@ L.RegularGridCluster = L.GeoJSON.extend({
         }
         var max = Math.max.apply(null, values);
         var min = Math.min.apply(null, values);
-        var diff = max - min;
         var thresholds = [];
         if (scale != "size") {
             var qLen = Math.floor(values.length / noInts);
@@ -205,94 +247,46 @@ L.RegularGridCluster = L.GeoJSON.extend({
                 thresholds.push(values[qLen * i]);
             }
         }
-        for (var c in this._cells) {
-            var cell = this._cells[c];
-            var value = cell.value;
-            var interval;
-            if (this._isDefined(value)) {
-                switch (scale) {
-                  case "size":
-                    interval = noInts - 1;
-                    if (value < max) {
-                        interval = Math.floor((value - min) / diff * noInts);
-                    }
-                    cell.options[option] = style[interval];
-                    break;
-
-                  case "quantile":
-                    interval = 0;
-                    for (var ti in thresholds) {
-                        if (value > thresholds[ti]) {
-                            interval = parseInt(ti) + 1;
-                        }
-                    }
-                    cell.options[option] = style[interval];
-                    break;
-
-                  case "continuous":
-                    interval = 0;
-                    for (var tj in thresholds) {
-                        if (value > thresholds[tj]) {
-                            interval = parseInt(tj) + 1;
-                        }
-                    }
-                    var edgeValues = thresholds.slice(0);
-                    edgeValues.push(max);
-                    edgeValues.unshift(min);
-                    var ratioDif = (value - edgeValues[interval]) / (edgeValues[interval + 1] - edgeValues[interval]);
-                    var bottomValue = style[interval];
-                    var upperValue = style[interval + 1];
-                    var styleValue;
-                    if (this._isNumber(bottomValue)) {
-                        styleValue = bottomValue + ratioDif * (upperValue - bottomValue);
-                    } else {
-                        styleValue = this._colorMix(bottomValue, upperValue, ratioDif);
-                    }
-                    cell.options[option] = styleValue;
-                    break;
+        if (this._scaleOperations[scale]) {
+            for (var c in this._cells) {
+                var cell = this._cells[c];
+                if (this._isDefined(cell.value)) {
+                    cell.options[option] = this._scaleOperations[scale].call(this, cell.value, min, max, noInts, thresholds, style);
                 }
             }
+        }
+    },
+    _methodOperations: {
+        count: function(cell, values) {
+            return cell.elms.length;
+        },
+        mean: function(cell, values) {
+            return this._math_mean(values);
+        },
+        median: function(cell, values) {
+            return this._math_median(values);
+        },
+        mode: function(cell, values) {
+            return this._math_mode(values);
+        },
+        max: function(cell, values) {
+            return this._math_max(values);
+        },
+        min: function(cell, values) {
+            return this._math_min(values);
+        },
+        sum: function(cell, values) {
+            return this._math_sum(values);
         }
     },
     _cellsValues: function(method, attr) {
         for (var c in this._cells) {
             var cell = this._cells[c];
             var cellValues;
-            switch (method) {
-              case "count":
-                cell.value = cell.elms.length;
-                break;
-
-              case "mean":
+            if (method !== "count") {
                 cellValues = this._cellAttrValues(cell, attr);
-                cell.value = this._math_mean(cellValues);
-                break;
-
-              case "median":
-                cellValues = this._cellAttrValues(cell, attr);
-                cell.value = this._math_median(cellValues);
-                break;
-
-              case "mode":
-                cellValues = this._cellAttrValues(cell, attr);
-                cell.value = this._math_mode(cellValues);
-                break;
-
-              case "max":
-                cellValues = this._cellAttrValues(cell, attr);
-                cell.value = this._math_max(cellValues);
-                break;
-
-              case "min":
-                cellValues = this._cellAttrValues(cell, attr);
-                cell.value = this._math_min(cellValues);
-                break;
-
-              case "sum":
-                cellValues = this._cellAttrValues(cell, attr);
-                cell.value = this._math_sum(cellValues);
-                break;
             }
+            cell.value = this._methodOperations[method].call(this, cell, cellValues);
         }
     },
     _cellValues: function(onlyDefined) {
