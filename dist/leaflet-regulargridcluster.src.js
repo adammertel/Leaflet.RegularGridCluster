@@ -199,6 +199,11 @@ L.RegularGridCluster = L.GeoJSON.extend({
             return this._math_sum(values);
         }
     },
+    _cellsInsideOperations: {
+        square: function(cell, elements) {
+            return this._elmsInsideSquare(cell, elements);
+        }
+    },
     onAdd: function(map) {
         var that = this;
         this._map = map;
@@ -268,7 +273,7 @@ L.RegularGridCluster = L.GeoJSON.extend({
         var maxX = gridEnd.lng, maxY = gridEnd.lat;
         var x = origin.lng, y = origin.lat;
         var cellW = cellSize / 111319;
-        var elementCoordinates = this._getElementsCoordinatesCollection();
+        var time1 = new Date();
         while (y < maxY) {
             var cellH = this._cellHeightAtY(y, cellSize);
             while (x < maxX) {
@@ -280,11 +285,7 @@ L.RegularGridCluster = L.GeoJSON.extend({
                     w: cellW,
                     options: {}
                 };
-                var time1 = new Date();
                 cell.path = this._cellPath(cell);
-                var time2 = new Date();
-                cell.elms = this._cellElmsInside(cell, elementCoordinates);
-                var time3 = new Date();
                 this._cells.push(cell);
                 cellId++;
                 x += cellW;
@@ -292,6 +293,14 @@ L.RegularGridCluster = L.GeoJSON.extend({
             x = origin.lng;
             y += cellH;
         }
+        var time2 = new Date();
+        var elementCoordinates = JSON.parse(JSON.stringify(this._elements));
+        for (var ci in this._cells) {
+            this._cells[ci].elms = this._cellElmsInside(this._cells[ci], elementCoordinates);
+        }
+        var time3 = new Date();
+        console.log("paths created in " + (time2.valueOf() - time1.valueOf()) + "ms");
+        console.log("elements inside found in " + (time3.valueOf() - time2.valueOf()) + "ms");
         console.log("created " + this._cells.length + " cells");
     },
     _cellPath: function(cell) {
@@ -305,22 +314,22 @@ L.RegularGridCluster = L.GeoJSON.extend({
         }
     },
     _cellElmsInside: function(cell, elements) {
-        switch (this.options.gridMode) {
-          case "square":
-            return this._elmsInsideSquare(cell, elements);
-
-          default:
-            return this._elmsInsideSquare(cell, elements);
-        }
+        return this._cellsInsideOperations[this.options.gridMode].call(this, cell, elements);
     },
     _elmsInsideSquare: function(cell, elements) {
         var elsInside = [];
         var x1 = cell.x, x2 = cell.x + cell.w, y1 = cell.y, y2 = cell.y + cell.h;
-        for (var e in elements) {
-            var element = elements[e];
-            if (element[0] > x1 && element[1] > y1) {
-                if (element[0] < x2 && element[1] < y2) {
-                    elsInside.push(element.id);
+        for (var id in elements) {
+            var element = elements[id];
+            var ex = element[0], ey = element[1];
+            if (ex > x1) {
+                if (ey > y1) {
+                    if (ex < x2) {
+                        if (ey < y2) {
+                            elsInside.push(id);
+                            delete elements[id];
+                        }
+                    }
                 }
             }
         }
@@ -334,9 +343,11 @@ L.RegularGridCluster = L.GeoJSON.extend({
     },
     _getElementsCoordinatesCollection: function() {
         var that = this;
-        return Object.keys(this._elements).map(function(key) {
-            return that._elements[key].geometry;
-        });
+        var elmsJustGeom = {};
+        for (var id in this._elements) {
+            elmsJustGeom[id] = this._elements[id].geometry;
+        }
+        return elmsJustGeom;
     },
     _createCell: function(path, options) {
         return this._grid.createCell(path, options);
