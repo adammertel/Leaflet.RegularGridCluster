@@ -31,42 +31,7 @@ L.RegularGridClusterGrid = L.FeatureGroup.extend({
             features: []
         }, options);
     },
-    render: function(cellSize, origin) {
-        this.visualiseCells();
-        console.log(cellSize);
-        console.log(origin);
-    },
-    createCell: function(path, options) {
-        var newCell = new L.regularGridClusterCell(path, options);
-        newCell.cellId = this.cellid;
-        this.addLayer(newCell);
-        this.cellid++;
-        return newCell;
-    },
-    addValueToCell: function(cell, attrName, value) {
-        cell.options[attrName] = value;
-    },
-    visualiseCells: function() {
-        var cells = this.getCells();
-        var maxInside = this.maxInside(cells) + 1;
-        var intervals = this.options.fillScale.length;
-        var d = maxInside / intervals;
-        for (var c in cells) {
-            var cell = cells[c];
-            var cellColor = this.options.fillScale[Math.floor(cell.inside / d)];
-            cell.setStyle({
-                fillColor: cellColor
-            });
-        }
-    },
-    maxInside: function(cells) {
-        return Math.max.apply(Math, cells.map(function(o) {
-            return o.inside;
-        }));
-    },
-    getCells: function() {
-        return this.getLayers();
-    },
+    render: function(cellSize, origin) {},
     truncate: function() {
         this.clearLayers();
     }
