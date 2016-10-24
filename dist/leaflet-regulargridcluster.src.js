@@ -85,6 +85,9 @@ L.RegularGridCluster = L.GeoJSON.extend({
         gridBoundsPadding: .1,
         gridMode: "square",
         cellSize: 1e4,
+        showGrid: true,
+        showMarkers: true,
+        showText: true,
         rules: {}
     },
     initialize: function(options) {
@@ -214,29 +217,33 @@ L.RegularGridCluster = L.GeoJSON.extend({
         this._markers.truncate();
     },
     _buildGrid: function() {
-        this._visualise("grid");
-        for (var c in this._cells) {
-            var cell = this._cells[c];
-            if (this._cellIsNotEmpty(cell)) {
-                var regularCell = new L.regularGridClusterCell(cell.path, cell.options.grid);
-                this._grid.addLayer(regularCell);
+        if (this.options.rules.grid && this.options.showGrid) {
+            this._visualise("grid");
+            for (var c in this._cells) {
+                var cell = this._cells[c];
+                if (this._cellIsNotEmpty(cell)) {
+                    var regularCell = new L.regularGridClusterCell(cell.path, cell.options.grid);
+                    this._grid.addLayer(regularCell);
+                }
             }
+            this._grid.addTo(this._map);
         }
-        this._grid.addTo(this._map);
     },
     _buildClusterMarkers: function() {
-        this._visualise("markers");
-        for (var c in this._cells) {
-            var cell = this._cells[c];
-            if (this._cellIsNotEmpty(cell)) {
-                var cellCentroid = [ cell.y + cell.h / 2, cell.x + cell.w / 2 ];
-                var marker = new L.regularGridClusterMarker(cellCentroid, {
-                    fillColor: "blue"
-                });
-                this._markers.addLayer(marker);
+        if (this.options.rules.markers && this.options.showMarkers) {
+            this._visualise("markers");
+            for (var c in this._cells) {
+                var cell = this._cells[c];
+                if (this._cellIsNotEmpty(cell)) {
+                    var cellCentroid = [ cell.y + cell.h / 2, cell.x + cell.w / 2 ];
+                    var marker = new L.regularGridClusterMarker(cellCentroid, {
+                        fillColor: "blue"
+                    });
+                    this._markers.addLayer(marker);
+                }
             }
+            this._markers.addTo(this._map);
         }
-        this._markers.addTo(this._map);
     },
     _prepareCells: function() {
         this._cells = [];
@@ -272,12 +279,10 @@ L.RegularGridCluster = L.GeoJSON.extend({
             x = origin.lng;
             y += cellH;
         }
-        var time2 = new Date();
         var elementCoordinates = this._getElementsCoordinatesCollection();
         for (var ci in this._cells) {
             this._cells[ci].elms = this._cellElmsInside(this._cells[ci], elementCoordinates);
         }
-        var time3 = new Date();
     },
     _cellIsNotEmpty: function(cell) {
         return cell.elms.length !== 0;

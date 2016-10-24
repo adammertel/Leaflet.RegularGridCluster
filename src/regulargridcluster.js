@@ -6,6 +6,10 @@ L.RegularGridCluster = L.GeoJSON.extend({
     gridMode: 'square',
     cellSize: 10000, // size of the cell at a scale of 10
 
+    showGrid: true,
+    showMarkers: true,
+    showText: true,
+
     rules: {},
 
   },
@@ -147,31 +151,36 @@ L.RegularGridCluster = L.GeoJSON.extend({
 
   // Controlling grid
   _buildGrid: function () {
-    this._visualise('grid');
+    if (this.options.rules.grid && this.options.showGrid) {
+      this._visualise('grid');
 
-    for (var c in this._cells) {
-      var cell = this._cells[c];
-      if (this._cellIsNotEmpty(cell)){
-        var regularCell = new L.regularGridClusterCell(cell.path, cell.options.grid);
-        this._grid.addLayer(regularCell);
+      for (var c in this._cells) {
+        var cell = this._cells[c];
+        if (this._cellIsNotEmpty(cell)){
+          var regularCell = new L.regularGridClusterCell(cell.path, cell.options.grid);
+          this._grid.addLayer(regularCell);
+        }
       }
+      this._grid.addTo(this._map);
     }
 
-    this._grid.addTo(this._map);
   },
 
   _buildClusterMarkers: function () {
-    this._visualise('markers');
-    for (var c in this._cells) {
-      var cell = this._cells[c];
-      if (this._cellIsNotEmpty(cell)){
-        var cellCentroid = [cell.y + cell.h/2, cell.x + cell.w/2];
-        var marker = new L.regularGridClusterMarker(cellCentroid, {fillColor: 'blue'});
-        this._markers.addLayer(marker);
+    if (this.options.rules.markers && this.options.showMarkers) {
+      this._visualise('markers');
+
+      for (var c in this._cells) {
+        var cell = this._cells[c];
+        if (this._cellIsNotEmpty(cell)){
+          var cellCentroid = [cell.y + cell.h/2, cell.x + cell.w/2];
+          var marker = new L.regularGridClusterMarker(cellCentroid, {fillColor: 'blue'});
+          this._markers.addLayer(marker);
+        }
       }
+      this._markers.addTo(this._map);
     }
 
-    this._markers.addTo(this._map);
   },
 
   _prepareCells: function () {
@@ -219,20 +228,13 @@ L.RegularGridCluster = L.GeoJSON.extend({
       y += cellH;
     }
 
-
-    var time2 = new Date();
-
     var elementCoordinates = this._getElementsCoordinatesCollection();
+
     //putting elements into cells
     for (var ci in this._cells){
       this._cells[ci].elms = this._cellElmsInside(this._cells[ci], elementCoordinates);
     }
 
-
-    var time3 = new Date();
-    // console.log('paths created in ' + (time2.valueOf() - time1.valueOf()) + 'ms');
-    // console.log('elements inside found in ' + (time3.valueOf() - time2.valueOf()) + 'ms');
-    // console.log('created ' + this._cells.length + ' cells');
   },
 
   _cellIsNotEmpty:function (cell) {
