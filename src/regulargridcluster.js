@@ -19,7 +19,7 @@ L.RegularGridCluster = L.GeoJSON.extend({
     this._cells = [];
 
     this._grid = new L.regularGridClusterGrid({controller: this});
-    this._clusters = new L.regularGridClusterClusterGroup({controller: this});
+    this._markers = new L.regularGridClusterMarkersGroup({controller: this});
 
     L.FeatureGroup.prototype.initialize.call(this, {
       features: []
@@ -92,7 +92,7 @@ L.RegularGridCluster = L.GeoJSON.extend({
     //L.GeoJSON.prototype.onAdd.call(this, map);
 
     this._grid.addTo(this._map);
-    this._clusters.addTo(this._map);
+    this._markers.addTo(this._map);
 
     this._map.on('zoomend', function(){
       that.refresh(true, true);
@@ -132,7 +132,7 @@ L.RegularGridCluster = L.GeoJSON.extend({
       this._buildGrid();
     }
     if (buildCluster) {
-      this._buildClusters();
+      this._buildClusterMarkers();
     }
 
     var time2 = new Date();
@@ -165,8 +165,12 @@ L.RegularGridCluster = L.GeoJSON.extend({
     this._grid.truncate();
   },
 
-  _buildClusters: function () {
-    this._truncateClusters();
+  _buildClusterMarkers: function () {
+    this._truncateMarkers();
+  },
+
+  _truncateMarkers: function () {
+    this._markers.truncate();
   },
 
   _prepareCells: function () {
@@ -286,10 +290,6 @@ L.RegularGridCluster = L.GeoJSON.extend({
 
   _createCell: function (path, options) {
     return this._grid.createCell(path, options);
-  },
-
-  _truncateClusters: function () {
-    this._clusters.truncate();
   },
 
   // applying rules to grid - styling
@@ -412,20 +412,8 @@ L.RegularGridCluster = L.GeoJSON.extend({
 
   },
 
-  // BASE FUNCTIONS
-  // longitude delta for given latitude
-  _cellHeightAtY: function (y, cellSize) {
-    return (cellSize/111319) * this._deltaHeightAtY(y);
-  },
 
-  // multiplier for y size at given latitude
-  _deltaHeightAtY: function (lat) {
-    return Math.abs(1/Math.cos(lat * Math.PI / 180));
-  },
-
-
-
-  // math functions
+  // MATH FUNCTIONS
   _math_max: function(arr) {
     if (arr.length){
       return  Math.max.apply(
@@ -514,7 +502,7 @@ L.RegularGridCluster = L.GeoJSON.extend({
     }
   },
 
-  // colors
+  // COLORS
   _colorNameToHex: function (color) {
     var colors = {"aliceblue":"#f0f8ff","antiquewhite":"#faebd7","aqua":"#00ffff","aquamarine":"#7fffd4","azure":"#f0ffff",
     "beige":"#f5f5dc","bisque":"#ffe4c4","black":"#000000","blanchedalmond":"#ffebcd","blue":"#0000ff","blueviolet":"#8a2be2","brown":"#a52a2a","burlywood":"#deb887",
@@ -572,7 +560,18 @@ L.RegularGridCluster = L.GeoJSON.extend({
     return '#' + this._hex(r) + this._hex(g) + this._hex(b);
   },
 
-  // other functions
+
+  // BASE FUNCTIONS
+  // longitude delta for given latitude
+  _cellHeightAtY: function (y, cellSize) {
+    return (cellSize/111319) * this._deltaHeightAtY(y);
+  },
+
+  // multiplier for y size at given latitude
+  _deltaHeightAtY: function (lat) {
+    return Math.abs(1/Math.cos(lat * Math.PI / 180));
+  },
+
   _isDefined: function (value) {
     if (!value && value !== 0) {
       return false;

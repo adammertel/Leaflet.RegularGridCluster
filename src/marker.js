@@ -1,4 +1,4 @@
-L.RegularGridClusterClusterMarker = L.Marker.extend({
+L.RegularGridClusterMarker = L.Marker.extend({
   options: {
 
   },
@@ -12,6 +12,6 @@ L.RegularGridClusterClusterMarker = L.Marker.extend({
   },
 });
 
-L.regularGridClusterClusterMarker = function(options) {
-  return new L.RegularGridClusterClusterMarker(options);
+L.regularGridClusterMarker = function(options) {
+  return new L.RegularGridClusterMarker(options);
 };

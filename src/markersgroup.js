@@ -1,4 +1,4 @@
-L.RegularGridClusterClusterGroup = L.FeatureGroup.extend({
+L.RegularGridClusterMarkersGroup = L.FeatureGroup.extend({
   options: {
 
   },
@@ -22,6 +22,6 @@ L.RegularGridClusterClusterGroup = L.FeatureGroup.extend({
   }
 });
 
-L.regularGridClusterClusterGroup = function(options) {
-  return new L.RegularGridClusterClusterGroup(options);
+L.regularGridClusterMarkersGroup = function(options) {
+  return new L.RegularGridClusterMarkersGroup(options);
 };

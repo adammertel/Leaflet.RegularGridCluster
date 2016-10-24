@@ -19,43 +19,6 @@ L.regularGridClusterCell = function(path, options) {
     return new L.RegularGridClusterCell(path, options);
 };
 
-L.RegularGridClusterClusterGroup = L.FeatureGroup.extend({
-    options: {},
-    initialize: function(options) {
-        this.controller = options.controller;
-        this.options = L.extend(this.options, options);
-        L.Util.setOptions(this, options);
-        L.FeatureGroup.prototype.initialize.call(this, {
-            features: []
-        }, options);
-    },
-    addLayer: function(layer) {
-        L.FeatureGroup.prototype.addLayer.call(this, layer);
-    },
-    truncate: function() {
-        this.clearLayers();
-    }
-});
-
-L.regularGridClusterClusterGroup = function(options) {
-    return new L.RegularGridClusterClusterGroup(options);
-};
-
-L.RegularGridClusterClusterMarker = L.Marker.extend({
-    options: {},
-    initialize: function(options) {
-        this.options = L.extend(this.options, options);
-        L.Util.setOptions(this, options);
-        L.Marker.prototype.initialize.call(this, {
-            features: []
-        }, options);
-    }
-});
-
-L.regularGridClusterClusterMarker = function(options) {
-    return new L.RegularGridClusterClusterMarker(options);
-};
-
 L.RegularGridClusterGrid = L.FeatureGroup.extend({
     options: {},
     initialize: function(options) {
@@ -113,6 +76,43 @@ L.regularGridClusterGrid = function(options) {
     return new L.RegularGridClusterGrid(options);
 };
 
+L.RegularGridClusterMarker = L.Marker.extend({
+    options: {},
+    initialize: function(options) {
+        this.options = L.extend(this.options, options);
+        L.Util.setOptions(this, options);
+        L.Marker.prototype.initialize.call(this, {
+            features: []
+        }, options);
+    }
+});
+
+L.regularGridClusterMarker = function(options) {
+    return new L.RegularGridClusterMarker(options);
+};
+
+L.RegularGridClusterMarkersGroup = L.FeatureGroup.extend({
+    options: {},
+    initialize: function(options) {
+        this.controller = options.controller;
+        this.options = L.extend(this.options, options);
+        L.Util.setOptions(this, options);
+        L.FeatureGroup.prototype.initialize.call(this, {
+            features: []
+        }, options);
+    },
+    addLayer: function(layer) {
+        L.FeatureGroup.prototype.addLayer.call(this, layer);
+    },
+    truncate: function() {
+        this.clearLayers();
+    }
+});
+
+L.regularGridClusterMarkersGroup = function(options) {
+    return new L.RegularGridClusterMarkersGroup(options);
+};
+
 L.RegularGridCluster = L.GeoJSON.extend({
     options: {
         gridBoundsPadding: .1,
@@ -129,7 +129,7 @@ L.RegularGridCluster = L.GeoJSON.extend({
         this._grid = new L.regularGridClusterGrid({
             controller: this
         });
-        this._clusters = new L.regularGridClusterClusterGroup({
+        this._markers = new L.regularGridClusterMarkersGroup({
             controller: this
         });
         L.FeatureGroup.prototype.initialize.call(this, {
@@ -208,7 +208,7 @@ L.RegularGridCluster = L.GeoJSON.extend({
         var that = this;
         this._map = map;
         this._grid.addTo(this._map);
-        this._clusters.addTo(this._map);
+        this._markers.addTo(this._map);
         this._map.on("zoomend", function() {
             that.refresh(true, true);
         });
@@ -235,7 +235,7 @@ L.RegularGridCluster = L.GeoJSON.extend({
             this._buildGrid();
         }
         if (buildCluster) {
-            this._buildClusters();
+            this._buildClusterMarkers();
         }
         var time2 = new Date();
         console.log("refreshed in " + (time2.valueOf() - time1.valueOf()) + "ms");
@@ -260,8 +260,11 @@ L.RegularGridCluster = L.GeoJSON.extend({
     _truncateGrid: function() {
         this._grid.truncate();
     },
-    _buildClusters: function() {
-        this._truncateClusters();
+    _buildClusterMarkers: function() {
+        this._truncateMarkers();
+    },
+    _truncateMarkers: function() {
+        this._markers.truncate();
     },
     _prepareCells: function() {
         this._cells = [];
@@ -351,9 +354,6 @@ L.RegularGridCluster = L.GeoJSON.extend({
     },
     _createCell: function(path, options) {
         return this._grid.createCell(path, options);
-    },
-    _truncateClusters: function() {
-        this._clusters.truncate();
     },
     _visualiseCells: function() {
         var that = this;
@@ -457,12 +457,6 @@ L.RegularGridCluster = L.GeoJSON.extend({
         }
     },
     _calculateGridOrigin: function() {},
-    _cellHeightAtY: function(y, cellSize) {
-        return cellSize / 111319 * this._deltaHeightAtY(y);
-    },
-    _deltaHeightAtY: function(lat) {
-        return Math.abs(1 / Math.cos(lat * Math.PI / 180));
-    },
     _math_max: function(arr) {
         if (arr.length) {
             return Math.max.apply(null, arr.map(function(o) {
@@ -714,6 +708,12 @@ L.RegularGridCluster = L.GeoJSON.extend({
         var g = Math.floor(parseInt(color1.substring(2, 4), 16) * ratio + parseInt(color2.substring(2, 4), 16) * (1 - ratio));
         var b = Math.floor(parseInt(color1.substring(4, 6), 16) * ratio + parseInt(color2.substring(4, 6), 16) * (1 - ratio));
         return "#" + this._hex(r) + this._hex(g) + this._hex(b);
+    },
+    _cellHeightAtY: function(y, cellSize) {
+        return cellSize / 111319 * this._deltaHeightAtY(y);
+    },
+    _deltaHeightAtY: function(lat) {
+        return Math.abs(1 / Math.cos(lat * Math.PI / 180));
     },
     _isDefined: function(value) {
         if (!value && value !== 0) {
