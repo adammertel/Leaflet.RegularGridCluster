@@ -236,9 +236,7 @@ L.RegularGridCluster = L.GeoJSON.extend({
                 var cell = this._cells[c];
                 if (this._cellIsNotEmpty(cell)) {
                     var cellCentroid = [ cell.y + cell.h / 2, cell.x + cell.w / 2 ];
-                    var marker = new L.regularGridClusterMarker(cellCentroid, {
-                        fillColor: "blue"
-                    });
+                    var marker = new L.regularGridClusterMarker(cellCentroid, cell.options.markers);
                     this._markers.addLayer(marker);
                 }
             }
@@ -267,8 +265,8 @@ L.RegularGridCluster = L.GeoJSON.extend({
                     w: cellW,
                     options: {
                         grid: {},
-                        marker: {},
-                        text: {}
+                        markers: {},
+                        texts: {}
                     }
                 };
                 cell.path = this._cellPath(cell);
