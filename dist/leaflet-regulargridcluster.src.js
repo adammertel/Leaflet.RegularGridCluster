@@ -294,7 +294,7 @@ L.RegularGridCluster = L.GeoJSON.extend({
             y += cellH;
         }
         var time2 = new Date();
-        var elementCoordinates = JSON.parse(JSON.stringify(this._elements));
+        var elementCoordinates = this._getElementsCoordinatesCollection();
         for (var ci in this._cells) {
             this._cells[ci].elms = this._cellElmsInside(this._cells[ci], elementCoordinates);
         }

@@ -4,7 +4,6 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
 
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.0.1/leaflet.js"></script>
-  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
   <script type="text/javascript" src="../dist/leaflet-regulargridcluster.src.js"></script>
 </head>
 
@@ -27,7 +26,7 @@
     // global variables
     var map;
 
-    $( document ).ready(function(){
+    document.addEventListener("DOMContentLoaded", function(event) {
 
       var colors = ['#e41a1c','#377eb8','#4daf4a','#984ea3','#ff7f00'];
       var noTestData = 10000;
@@ -45,8 +44,8 @@
           "fillColor": {
             "method": "sum",
             "attribute": "a",
-            "scale": "size",
-            "style": ["black", "purple"]
+            "scale": "continuous",
+            "style": ["white", "purple"]
           },
           "weight": {
             "method": "count",
@@ -61,8 +60,6 @@
 
       // define RegularGridCluster instance
       var grid = L.regularGridCluster({rules: rules});
-      console.log(grid)
-      //var grid = new L.geoJSON();
 
       // boundaries of random data
       var maxX = 50, minX = 0, maxY = 49.5, minY = 0;

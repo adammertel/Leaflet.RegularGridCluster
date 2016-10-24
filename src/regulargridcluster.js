@@ -217,11 +217,12 @@ L.RegularGridCluster = L.GeoJSON.extend({
 
     var time2 = new Date();
 
-    var elementCoordinates = JSON.parse(JSON.stringify(this._elements));//this._getElementsCoordinatesCollection();
+    var elementCoordinates = this._getElementsCoordinatesCollection();
     //putting elements into cells
     for (var ci in this._cells){
       this._cells[ci].elms = this._cellElmsInside(this._cells[ci], elementCoordinates);
     }
+
 
     var time3 = new Date();
     console.log('paths created in ' + (time2.valueOf() - time1.valueOf()) + 'ms');
@@ -252,7 +253,7 @@ L.RegularGridCluster = L.GeoJSON.extend({
     for (var id in elements) {
       var element = elements[id];
       var ex = element[0], ey = element[1];
-      if (ex > x1) {
+      if (ex > x1 ) {
         if (ey > y1) {
           if (ex < x2) {
             if (ey < y2) {
