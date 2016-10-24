@@ -12,9 +12,12 @@ L.RegularGridClusterMarkersGroup = L.FeatureGroup.extend({
     }, options);
   },
 
-  addLayer: function (layer) {
-    L.FeatureGroup.prototype.addLayer.call(this, layer);
+  render: function (cellSize, origin) {
 
+  },
+
+  addLayer: function (marker) {
+    L.FeatureGroup.prototype.addLayer.call(this, marker);
   },
 
   truncate: function () {

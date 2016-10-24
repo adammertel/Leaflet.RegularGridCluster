@@ -110,7 +110,6 @@ L.RegularGridCluster = L.GeoJSON.extend({
     };
 
     this.lastelmid++;
-
     //L.GeoJSON.prototype.addData.call(this, element);
 
     if (this._map) {
@@ -150,8 +149,8 @@ L.RegularGridCluster = L.GeoJSON.extend({
 
     for (var c in this._cells) {
       var cell = this._cells[c];
-      var regularCell = new L.regularGridClusterCell(cell.path, cell.options);
-      if (cell.value){
+      if (this._isCellEmpty(cell)){
+        var regularCell = new L.regularGridClusterCell(cell.path, cell.options.grid);
         this._grid.addLayer(regularCell);
       }
     }
@@ -167,6 +166,17 @@ L.RegularGridCluster = L.GeoJSON.extend({
 
   _buildClusterMarkers: function () {
     this._truncateMarkers();
+    this._visualiseMarkers();
+    for (var c in this._cells) {
+      var cell = this._cells[c];
+      if (this._isCellEmpty(cell)){
+        var cellCentroid = [cell.y + cell.h/2, cell.x + cell.w/2];
+        var marker = new L.regularGridClusterMarker(cellCentroid, {fillColor: 'blue'});
+        this._markers.addLayer(marker);
+      }
+    }
+
+    this._markers.addTo(this._map);
   },
 
   _truncateMarkers: function () {
@@ -194,8 +204,6 @@ L.RegularGridCluster = L.GeoJSON.extend({
       var cellH = this._cellHeightAtY(y, cellSize);
 
       while (x < maxX) {
-        //var path = this._createPath(x, y, cellH, cellW);
-        //var newCell = this._createCell(path, {});
 
         var cell = {
           id: cellId,
@@ -203,11 +211,13 @@ L.RegularGridCluster = L.GeoJSON.extend({
           y: y,
           h: cellH,
           w: cellW,
-          options: {}
+          options: {
+            grid: {},
+            marker: {},
+            text: {}
+          }
         };
         cell.path = this._cellPath(cell);
-
-
         this._cells.push(cell);
 
         cellId++;
@@ -236,6 +246,10 @@ L.RegularGridCluster = L.GeoJSON.extend({
     console.log('created ' + this._cells.length + ' cells');
   },
 
+  _isCellEmpty:function (cell) {
+    return cell.elms.length !== 0;
+  },
+
   _cellPath: function (cell) {
     var c = cell;
     switch (this.options.gridMode) {
@@ -256,7 +270,7 @@ L.RegularGridCluster = L.GeoJSON.extend({
 
     for (var id in elements) {
       var element = elements[id];
-      var ex = element[0], ey = element[1];
+      var ex = element[1], ey = element[0];
       if (ex > x1 ) {
         if (ey > y1) {
           if (ex < x2) {
@@ -288,8 +302,10 @@ L.RegularGridCluster = L.GeoJSON.extend({
     return elmsJustGeom;
   },
 
-  _createCell: function (path, options) {
-    return this._grid.createCell(path, options);
+  // applying rules to markers - styling
+  _visualiseMarkers: function () {
+    var that = this;
+
   },
 
   // applying rules to grid - styling
@@ -297,7 +313,6 @@ L.RegularGridCluster = L.GeoJSON.extend({
     var that = this;
 
     Object.keys(this.options.rules.grid).map(function (option) {
-
       var rule = that.options.rules.grid[option];
 
       if (that._isDynamicalRule(rule)) {
@@ -305,7 +320,7 @@ L.RegularGridCluster = L.GeoJSON.extend({
         that._applyOptions(rule.scale, rule.style, option);
       } else {
         for (var cj in that._cells) {
-          that._cells[cj].options[option] = rule;
+          that._cells[cj].options.grid[option] = rule;
         }
       }
     });
@@ -330,7 +345,7 @@ L.RegularGridCluster = L.GeoJSON.extend({
         var cell = this._cells[c];
 
         if (this._isDefined(cell.value)) {
-          cell.options[option] = this._scaleOperations[scale].call(this, cell.value, min, max, noInts, thresholds, style);
+          cell.options.grid[option] = this._scaleOperations[scale].call(this, cell.value, min, max, noInts, thresholds, style);
         }
       }
     }
