@@ -1,0 +1,93 @@
+<html>
+
+<head>
+  <link rel="stylesheet" href="vendor/leaflet1.0.1.css" />
+
+  <script type="text/javascript" src="./../../data/doctors.js"></script>
+  <script type="text/javascript" src="vendor/leaflet1.0.1.js"></script>
+  <script type="text/javascript" src="../dist/leaflet-regulargridcluster.src.js"></script>
+</head>
+
+<style>
+#map-content {
+  width: 100%;
+  height: 100%
+}
+
+.marker-cluster {
+  opacity: 1 !important
+}
+</style>
+
+
+<body>
+  <div id="map-content"></div>
+  <script>
+
+    // global variables
+    var map;
+
+    console.log(doctors);
+
+    document.addEventListener("DOMContentLoaded", function(event) {
+
+      var colors = ['#e41a1c','#377eb8','#4daf4a','#984ea3','#ff7f00'];
+
+      // setting map
+      map = L.map('map-content').setView([0, 0], 4);
+
+      L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+        opacity: .3
+      }).addTo(map);
+
+      var rules = {
+        "grid": {
+          "fillColor": {
+            "method": "count",
+            "attribute": "",
+            "scale": "quantile",
+            "style": ["white", "orange", "red"]
+          },
+          "weight": 1,
+          "fillOpacity": 0.1,
+          "color": 'white',
+          "weight": 3,
+        },
+        "markers": {
+          "color": 'black',
+          "fillColor": {
+            "method": "count",
+            "attribute": "",
+            "scale": "quantile",
+            "style": ["white", "orange", "red"]
+          },
+          "radius": {
+            "method": "count",
+            "attribute": "",
+            "scale": "continuous",
+            "style": [5, 30]
+          },
+        }
+      };
+
+      // define RegularGridCluster instance
+      var grid = L.regularGridCluster({rules: rules});
+      console.log(doctors.features.length)
+
+      // putting some random point data
+      for (var di in doctors.features) {
+        var doctor = doctors.features[di];
+        var x = doctor.geometry.coordinates[0];
+        var y = doctor.geometry.coordinates[1];
+        doctor.geometry.coordinates[1] = x;
+        doctor.geometry.coordinates[0] = y;
+        grid.addElement( doctors.features[di])
+      }
+      grid.addTo(map);
+
+    })
+  </script>
+</body>
+
+</html>
