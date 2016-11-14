@@ -73,21 +73,25 @@ L.RegularGridCluster = L.GeoJSON.extend({
     this._prepareCells();
     var time2 = new Date();
 
-    this._buildGrid();
+    this._findElements();
     var time3 = new Date();
 
-    this._buildMarkers();
+    this._buildGrid();
     var time4 = new Date();
 
-    this._buildTexts();
+    this._buildMarkers();
     var time5 = new Date();
+
+    this._buildTexts();
+    var time6 = new Date();
 
     console.log('********************');
     console.log('cells prepared in ' + (time2.valueOf() - time1.valueOf()) + 'ms');
-    console.log('grid built in ' + (time3.valueOf() - time2.valueOf()) + 'ms');
-    console.log('markers built in ' + (time4.valueOf() - time3.valueOf()) + 'ms');
-    console.log('texts built in ' + (time5.valueOf() - time4.valueOf()) + 'ms');
-    console.log(this._cells.length + ' cells refreshed in ' + (time5.valueOf() - time1.valueOf()) + 'ms');
+    console.log('elements found in ' + (time3.valueOf() - time2.valueOf()) + 'ms');
+    console.log('grid built in ' + (time4.valueOf() - time3.valueOf()) + 'ms');
+    console.log('markers built in ' + (time5.valueOf() - time4.valueOf()) + 'ms');
+    console.log('texts built in ' + (time6.valueOf() - time5.valueOf()) + 'ms');
+    console.log(this._cells.length + ' cells refreshed in ' + (time6.valueOf() - time1.valueOf()) + 'ms');
     console.log('********************');
   },
 
@@ -154,13 +158,30 @@ L.RegularGridCluster = L.GeoJSON.extend({
     var values = [];
 
     var cellSize = this._cellSize();
+
     var origin = this._gridOrigin();
     var gridEnd = this._gridExtent().getNorthEast();
     var maxX = gridEnd.lng,
       maxY = gridEnd.lat;
 
+    var indexPortion = 10;
+
     var x = origin.lng,
       y = origin.lat;
+
+    diffX = (maxX - x) / indexPortion;
+    diffY = (maxY - y) / indexPortion;
+    this.indexedCells = [];
+
+    for (var xi = x; xi < maxX; xi += diffX){
+      for (var yi = y; yi < maxY; yi += diffY){
+        var bounds = L.latLngBounds([yi, xi], [yi + diffY, xi + diffX]);
+        this.indexedCells.push({
+          bounds: bounds,
+          cells: []
+        });
+      }
+    }
 
     var cellW = cellSize/111319;
 
@@ -181,10 +202,21 @@ L.RegularGridCluster = L.GeoJSON.extend({
             grid: {},
             markers: {},
             texts: {}
-          }
+          },
+
+          elms: []
         };
+        var cellBounds = L.latLngBounds([y, x], [y + cellH, x + cellW]);
+
         cell.path = this._cellPath(cell);
         this._cells.push(cell);
+
+        for (var ici in this.indexedCells) {
+          var indexedCell = this.indexedCells[ici];
+          if (indexedCell.bounds.intersects(cellBounds)){
+            indexedCell.cells.push(cell);
+          }
+        }
 
         cellId++;
         x += cellW;
@@ -194,13 +226,52 @@ L.RegularGridCluster = L.GeoJSON.extend({
       y += cellH;
     }
 
-    var elementCoordinates = this._getElementsCoordinatesCollection();
+    // "indexation"
 
-    //putting elements into cells
-    for (var ci in this._cells){
-      this._cells[ci].elms = this._cellElmsInside(this._cells[ci], elementCoordinates);
+
+    // var elementCoordinates = this._getElementsCoordinatesCollection();
+    //
+    // //putting elements into cells
+    // for (var ci in this._cells){
+    //   this._cells[ci].elms = this._cellElmsInside(this._cells[ci], elementCoordinates);
+    // }
+
+  },
+
+  _findElements: function () {
+    var elements = this._getElementsCoordinatesCollection();
+    var cells = this._cells;
+
+    for (var ei in elements) {
+      var element = elements[ei];
+      var ex = element[1], ey = element[0];
+      var cellsAtIndex = [];
+
+      for (var ici in this.indexedCells) {
+        var indexedCell = this.indexedCells[ici];
+        if (indexedCell.bounds.contains([ey, ex])) {
+          cellsAtIndex = indexedCell.cells;
+          break;
+        }
+      }
+
+      for (var ci in cellsAtIndex) {
+        var cell = cellsAtIndex[ci];
+        var x1 = cell.x, x2 = cell.x + cell.w, y1 = cell.y, y2 = cell.y + cell.h;
+
+        if (ex > x1) {
+          if (ey > y1) {
+            if (ex < x2) {
+              if (ey < y2) {
+                cell.elms.push(ei);
+                break;
+              }
+            }
+          }
+        }
+
+      }
     }
-
   },
 
   _cellIsNotEmpty:function (cell) {
