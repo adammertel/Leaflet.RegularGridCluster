@@ -34,7 +34,7 @@
       var colors = ['#e41a1c','#377eb8','#4daf4a','#984ea3','#ff7f00'];
 
       // setting map
-      map = L.map('map-content').setView([0, 0], 4);
+      map = L.map('map-content').setView([48, 15], 10);
 
       L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
@@ -50,9 +50,9 @@
             "style": ["white", "orange", "red"]
           },
           "weight": 1,
-          "fillOpacity": 0.1,
+          "fillOpacity": 0.05,
           "color": 'white',
-          "weight": 3,
+          "weight": 1,
         },
         "markers": {
           "color": 'black',

@@ -26,8 +26,8 @@
   },
   "scripts": {
     "jshint": "jshint src",
-    "concat-js": "uglifyjs \"src/*.js\" -o dist/leaflet-regulargridcluster.src.js -b",
-    "minify-js": "uglifyjs dist/leaflet-regulargridcluster.src.js -o dist/leaflet-regulargridcluster.js -c -m",
+    "concat-js": "uglifyjs \"src/*.js\" -o dist/leaflet-regulargridcluster.src.js -b --preamble \" /* Adam Mertel|UNIVIE */ \" --wrap ",
+    "minify-js": "uglifyjs dist/leaflet-regulargridcluster.src.js -o dist/leaflet-regulargridcluster.js -c -m --preamble \" /* Adam Mertel|UNIVIE */ \" --wrap ",
     "onchange-js": "onchange src/**/*.js -- npm run build",
     "build": "parallelshell \"npm run jshint\" \"npm run concat-js\" \"npm run minify-js\" ",
     "start": "parallelshell \"npm run onchange-js\" \"npm run build\" "
