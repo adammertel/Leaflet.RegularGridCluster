@@ -17,6 +17,10 @@
 .marker-cluster {
   opacity: 1 !important
 }
+
+.leaflet-div-icon {
+  border: 0px
+}
 </style>
 
 
@@ -68,6 +72,27 @@
             "scale": "continuous",
             "style": [5, 30]
           },
+        },
+        "texts": {
+          "color": {
+            "method": "count",
+            "attribute": "",
+            "scale": "quantile",
+            "style": ["white", "orange", "red"]
+          },
+          "font-size": {
+            "method": "count",
+            "attribute": "",
+            "scale": "continuous",
+            "style": [20, 35]
+          },
+          "anchorOffsetX": {
+            "method": "count",
+            "attribute": "",
+            "scale": "continuous",
+            "style": [0, 20]
+          },
+          "anchorOffsetY": -20,
         }
       };
 

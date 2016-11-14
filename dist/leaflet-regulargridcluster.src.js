@@ -75,6 +75,49 @@
     L.regularGridClusterMarkersGroup = function(options) {
         return new L.RegularGridClusterMarkersGroup(options);
     };
+    L.RegularGridClusterText = L.Marker.extend({
+        options: {
+            style: {
+                border: "0px !important"
+            }
+        },
+        initialize: function(centroid, options) {
+            this.options = L.extend(this.options, options);
+            L.Util.setOptions(this, options);
+            var iconOptions = JSON.stringify(options).substring(1, JSON.stringify(options).length - 2).replace(/,/g, ";").replace(/\"/g, "");
+            options.icon = L.divIcon({
+                html: '<span style="' + iconOptions + ' ; text-align: center">T</span>',
+                iconSize: [ 0, 0 ],
+                iconAnchor: [ options.anchorOffsetX || -10, options.anchorOffsetY || -30 ]
+            });
+            options.border = "3px solid black";
+            L.Marker.prototype.initialize.call(this, centroid, options);
+        }
+    });
+    L.regularGridClusterText = function(centroid, options) {
+        return new L.RegularGridClusterText(centroid, options);
+    };
+    L.RegularGridClusterTextsGroup = L.FeatureGroup.extend({
+        options: {},
+        initialize: function(options) {
+            this.controller = options.controller;
+            this.options = L.extend(this.options, options);
+            L.Util.setOptions(this, options);
+            L.FeatureGroup.prototype.initialize.call(this, {
+                features: []
+            }, options);
+        },
+        render: function(cellSize, origin) {},
+        addLayer: function(marker) {
+            L.FeatureGroup.prototype.addLayer.call(this, marker);
+        },
+        truncate: function() {
+            this.clearLayers();
+        }
+    });
+    L.regularGridClusterTextsGroup = function(options) {
+        return new L.RegularGridClusterTextsGroup(options);
+    };
     L.RegularGridCluster = L.GeoJSON.extend({
         options: {
             gridBoundsPadding: .1,
@@ -82,7 +125,7 @@
             cellSize: 1e4,
             showGrid: true,
             showMarkers: true,
-            showText: true,
+            showTexts: true,
             rules: {}
         },
         initialize: function(options) {
@@ -97,6 +140,9 @@
             this._markers = new L.regularGridClusterMarkersGroup({
                 controller: this
             });
+            this._texts = new L.regularGridClusterTextsGroup({
+                controller: this
+            });
             L.FeatureGroup.prototype.initialize.call(this, {
                 features: []
             }, options);
@@ -106,6 +152,7 @@
             this._map = map;
             this._grid.addTo(this._map);
             this._markers.addTo(this._map);
+            this._texts.addTo(this._map);
             this._map.on("zoomend", function() {
                 that.refresh();
             });
@@ -130,18 +177,22 @@
             var time2 = new Date();
             this._buildGrid();
             var time3 = new Date();
-            this._buildClusterMarkers();
+            this._buildMarkers();
             var time4 = new Date();
+            this._buildTexts();
+            var time5 = new Date();
             console.log("********************");
             console.log("cells prepared in " + (time2.valueOf() - time1.valueOf()) + "ms");
             console.log("grid built in " + (time3.valueOf() - time2.valueOf()) + "ms");
             console.log("markers built in " + (time4.valueOf() - time3.valueOf()) + "ms");
-            console.log(this._cells.length + " cells refreshed in " + (time4.valueOf() - time1.valueOf()) + "ms");
+            console.log("texts built in " + (time5.valueOf() - time4.valueOf()) + "ms");
+            console.log(this._cells.length + " cells refreshed in " + (time5.valueOf() - time1.valueOf()) + "ms");
             console.log("********************");
         },
         _truncateLayers: function() {
             this._grid.truncate();
             this._markers.truncate();
+            this._texts.truncate();
         },
         _buildGrid: function() {
             if (this.options.rules.grid && this.options.showGrid) {
@@ -156,7 +207,7 @@
                 this._grid.addTo(this._map);
             }
         },
-        _buildClusterMarkers: function() {
+        _buildMarkers: function() {
             if (this.options.rules.markers && this.options.showMarkers) {
                 this._visualise("markers");
                 for (var c in this._cells) {
@@ -168,6 +219,20 @@
                     }
                 }
                 this._markers.addTo(this._map);
+            }
+        },
+        _buildTexts: function() {
+            if (this.options.rules.texts && this.options.showTexts) {
+                this._visualise("texts");
+                for (var c in this._cells) {
+                    var cell = this._cells[c];
+                    if (this._cellIsNotEmpty(cell)) {
+                        var cellCentroid = [ cell.y + cell.h / 2, cell.x + cell.w / 2 ];
+                        var text = new L.regularGridClusterText(cellCentroid, cell.options.texts);
+                        this._texts.addLayer(text);
+                    }
+                }
+                this._texts.addTo(this._map);
             }
         },
         _prepareCells: function() {

@@ -8,7 +8,7 @@ L.RegularGridCluster = L.GeoJSON.extend({
 
     showGrid: true,
     showMarkers: true,
-    showText: true,
+    showTexts: true,
 
     rules: {},
 
@@ -24,6 +24,7 @@ L.RegularGridCluster = L.GeoJSON.extend({
 
     this._grid = new L.regularGridClusterGrid({controller: this});
     this._markers = new L.regularGridClusterMarkersGroup({controller: this});
+    this._texts = new L.regularGridClusterTextsGroup({controller: this});
 
     L.FeatureGroup.prototype.initialize.call(this, {
       features: []
@@ -37,6 +38,7 @@ L.RegularGridCluster = L.GeoJSON.extend({
 
     this._grid.addTo(this._map);
     this._markers.addTo(this._map);
+    this._texts.addTo(this._map);
 
     this._map.on('zoomend', function(){
       that.refresh();
@@ -73,20 +75,26 @@ L.RegularGridCluster = L.GeoJSON.extend({
 
     this._buildGrid();
     var time3 = new Date();
-    this._buildClusterMarkers();
+
+    this._buildMarkers();
     var time4 = new Date();
+
+    this._buildTexts();
+    var time5 = new Date();
 
     console.log('********************');
     console.log('cells prepared in ' + (time2.valueOf() - time1.valueOf()) + 'ms');
     console.log('grid built in ' + (time3.valueOf() - time2.valueOf()) + 'ms');
     console.log('markers built in ' + (time4.valueOf() - time3.valueOf()) + 'ms');
-    console.log(this._cells.length + ' cells refreshed in ' + (time4.valueOf() - time1.valueOf()) + 'ms');
+    console.log('texts built in ' + (time5.valueOf() - time4.valueOf()) + 'ms');
+    console.log(this._cells.length + ' cells refreshed in ' + (time5.valueOf() - time1.valueOf()) + 'ms');
     console.log('********************');
   },
 
   _truncateLayers: function() {
     this._grid.truncate();
     this._markers.truncate();
+    this._texts.truncate();
   },
 
   // Controlling grid
@@ -106,7 +114,7 @@ L.RegularGridCluster = L.GeoJSON.extend({
 
   },
 
-  _buildClusterMarkers: function () {
+  _buildMarkers: function () {
     if (this.options.rules.markers && this.options.showMarkers) {
       this._visualise('markers');
 
@@ -119,6 +127,23 @@ L.RegularGridCluster = L.GeoJSON.extend({
         }
       }
       this._markers.addTo(this._map);
+    }
+
+  },
+
+  _buildTexts: function () {
+    if (this.options.rules.texts && this.options.showTexts) {
+      this._visualise('texts');
+
+      for (var c in this._cells) {
+        var cell = this._cells[c];
+        if (this._cellIsNotEmpty(cell)){
+          var cellCentroid = [cell.y + cell.h/2, cell.x + cell.w/2];
+          var text = new L.regularGridClusterText(cellCentroid, cell.options.texts);
+          this._texts.addLayer(text);
+        }
+      }
+      this._texts.addTo(this._map);
     }
 
   },
