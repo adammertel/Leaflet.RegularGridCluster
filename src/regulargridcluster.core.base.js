@@ -12,7 +12,7 @@ L.RegularGridCluster = L.GeoJSON.extend({
 
     showElementsZoom: 19,
 
-    indexSize: 8,
+    indexSize: 12,
 
     rules: {},
 
@@ -48,6 +48,7 @@ L.RegularGridCluster = L.GeoJSON.extend({
       that.refresh();
     });
     this._indexCells();
+    this._indexElements();
     this.refresh();
   },
 
@@ -64,6 +65,7 @@ L.RegularGridCluster = L.GeoJSON.extend({
 
     if (this._map) {
       this._indexCells();
+      this._indexElements();
       this.refresh();
     }
   },
@@ -168,30 +170,49 @@ L.RegularGridCluster = L.GeoJSON.extend({
     var indexPortion = this.options.indexSize;
     var diffX = (maxX - x) / indexPortion;
     var diffY = (maxY - y) / indexPortion;
-    this.indexedCells = [];
+    this._indexedCells = {};
+
+    var cellId = 0;
 
     for (var xi = x; xi < maxX; xi += diffX){
       for (var yi = y; yi < maxY; yi += diffY){
         var bounds = L.latLngBounds([yi, xi], [yi + diffY, xi + diffX]);
-        this.indexedCells.push({
-          bounds: bounds,
-          cells: []
-        });
+        this._indexedCells[cellId] = {
+          b: bounds,
+          cs: []
+        };
+        cellId = cellId + 1;
       }
     }
   },
 
+  _indexElements: function () {
+    var elements = this._getElementsCollection();
+
+    elements.forEach(function(element) {
+
+      for (var ici in this._indexedCells) {
+        var indexedCell = this._indexedCells[ici];
+        if (indexedCell.b.contains(element.g)) {
+          this._elements[element.id].index = ici;
+          break;
+        }
+      }
+
+
+    }.bind(this));
+  },
+
   _truncateIndexedCells: function () {
-    this.indexedCells.forEach(function (indexedCell) {
-      indexedCell.cells = [];
-    });
+    for (var ici in this._indexedCells) {
+      this._indexedCells[ici].cs = [];
+    }
   },
 
   _prepareCells: function () {
     this._cells = [];
     this._truncateIndexedCells();
     var cellId = 1;
-    var values = [];
 
     var cellSize = this._cellSize();
 
@@ -228,10 +249,10 @@ L.RegularGridCluster = L.GeoJSON.extend({
         cell.path = this._cellPath(cell);
         this._cells.push(cell);
 
-        for (var ici in this.indexedCells) {
-          var indexedCell = this.indexedCells[ici];
-          if (indexedCell.bounds.intersects(cellBounds)){
-            indexedCell.cells.push(cell);
+        for (var ici in this._indexedCells) {
+          var indexedCell = this._indexedCells[ici];
+          if (indexedCell.b.intersects(cellBounds)){
+            indexedCell.cs.push(cell);
           }
         }
 
@@ -246,25 +267,18 @@ L.RegularGridCluster = L.GeoJSON.extend({
   },
 
   _findElements: function () {
-    // var elements = this._getElementsCoordinatesCollection();
     var elements = this._getElementsCollection();
-    var cells = this._cells;
-    var that = this;
 
     elements.forEach(function(element) {
-      var ei = element.id;
+      var ei = element.id,
+          ex = element.g[1],
+          ey = element.g[0];
+      var cellsAtIndex = this._indexedCells[element.i].cs;
 
-      var ex = element.geometry[1], ey = element.geometry[0];
-      var cellsAtIndex = [];
+      // console.log(this._indexedCells[element.i])
+      // console.log(element.i)
 
-      for (var ici in this.indexedCells) {
-        var indexedCell = this.indexedCells[ici];
-        if (indexedCell.bounds.contains([ey, ex])) {
-          cellsAtIndex = indexedCell.cells;
-          break;
-        }
-      }
-
+      // var time2 = new Date();
       for (var ci in cellsAtIndex) {
         var cell = cellsAtIndex[ci];
         var x1 = cell.x, x2 = cell.x + cell.w, y1 = cell.y, y2 = cell.y + cell.h;
@@ -280,6 +294,9 @@ L.RegularGridCluster = L.GeoJSON.extend({
           }
         }
       }
+      // var time3 = new Date();
+      // console.log('getting indexed cells', time2.valueOf() - time1.valueOf());
+      // console.log('getting elms', time3.valueOf() - time2.valueOf());
     }.bind(this));
   },
 
@@ -327,17 +344,12 @@ L.RegularGridCluster = L.GeoJSON.extend({
   _getElementsCollection: function (){
     var that = this;
     return Object.keys(this._elements).map(function (key) {
-      return that._elements[key];
+      return {
+        id: that._elements[key].id,
+        g: that._elements[key].geometry,
+        i: that._elements[key].index
+      };
     });
-  },
-
-  _getElementsCoordinatesCollection: function (){
-    var that = this;
-    var elmsJustGeom = {};
-    for (var id in this._elements) {
-      elmsJustGeom[id] = this._elements[id].geometry;
-    }
-    return elmsJustGeom;
   },
 
   _visualise: function (featureType) {
@@ -457,7 +469,7 @@ L.RegularGridCluster = L.GeoJSON.extend({
     var elements = this._getElementsCollection();
 
     for (var e in elements) {
-      geometries.push(elements[e].geometry);
+      geometries.push(elements[e].g);
     }
     return geometries;
   },
