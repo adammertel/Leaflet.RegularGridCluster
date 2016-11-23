@@ -346,16 +346,8 @@
                 var cellsAtIndex = this._indexedCells[element.i].cs;
                 for (var ci in cellsAtIndex) {
                     var cell = cellsAtIndex[ci];
-                    var x1 = cell.x, x2 = cell.x + cell.w, y1 = cell.y, y2 = cell.y + cell.h;
-                    if (ex > x1) {
-                        if (ey > y1) {
-                            if (ex < x2) {
-                                if (ey < y2) {
-                                    cell.elms.push(ei);
-                                    break;
-                                }
-                            }
-                        }
+                    if (this._cellsInsideOperations[this.options.gridMode].call(this, ex, ey, cell)) {
+                        cell.elms.push(ei);
                     }
                 }
             }.bind(this));
@@ -373,27 +365,18 @@
                 return [ [ c.y, c.x ], [ c.y, c.x + c.w ], [ c.y + c.h, c.x + c.w ], [ c.y + c.h, c.x ], [ c.y, c.x ] ];
             }
         },
-        _cellElmsInside: function(cell, elements) {
-            return this._cellsInsideOperations[this.options.gridMode].call(this, cell, elements);
-        },
-        _elmsInsideSquare: function(cell, elements) {
-            var elsInside = [];
+        _elmInsideSquare: function(ex, ey, cell) {
             var x1 = cell.x, x2 = cell.x + cell.w, y1 = cell.y, y2 = cell.y + cell.h;
-            for (var id in elements) {
-                var element = elements[id];
-                var ex = element[1], ey = element[0];
-                if (ex > x1) {
-                    if (ey > y1) {
-                        if (ex < x2) {
-                            if (ey < y2) {
-                                elsInside.push(id);
-                                delete elements[id];
-                            }
+            if (ex > x1) {
+                if (ey > y1) {
+                    if (ex < x2) {
+                        if (ey < y2) {
+                            return true;
                         }
                     }
                 }
             }
-            return elsInside;
+            return false;
         },
         _getElementsCollection: function() {
             var that = this;
@@ -854,8 +837,8 @@
             }
         },
         _cellsInsideOperations: {
-            square: function(cell, elements) {
-                return this._elmsInsideSquare(cell, elements);
+            square: function(cellX, cellY, elements) {
+                return this._elmInsideSquare(cellX, cellY, elements);
             }
         }
     });

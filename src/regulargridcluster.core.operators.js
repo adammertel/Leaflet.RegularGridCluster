@@ -58,8 +58,8 @@ L.RegularGridCluster.include( {
   },
 
   _cellsInsideOperations: {
-    square: function (cell, elements) {
-      return this._elmsInsideSquare(cell, elements);
+    square: function (cellX, cellY, elements) {
+      return this._elmInsideSquare(cellX, cellY, elements);
     }
   }
 });

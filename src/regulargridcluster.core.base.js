@@ -298,28 +298,12 @@ L.RegularGridCluster = L.GeoJSON.extend({
           ey = element.g[0];
       var cellsAtIndex = this._indexedCells[element.i].cs;
 
-      // console.log(this._indexedCells[element.i])
-      // console.log(element.i)
-
-      // var time2 = new Date();
       for (var ci in cellsAtIndex) {
         var cell = cellsAtIndex[ci];
-        var x1 = cell.x, x2 = cell.x + cell.w, y1 = cell.y, y2 = cell.y + cell.h;
-
-        if (ex > x1) {
-          if (ey > y1) {
-            if (ex < x2) {
-              if (ey < y2) {
-                cell.elms.push(ei);
-                break;
-              }
-            }
-          }
+        if (this._cellsInsideOperations[this.options.gridMode].call(this, ex, ey, cell)) {
+          cell.elms.push(ei);
         }
       }
-      // var time3 = new Date();
-      // console.log('getting indexed cells', time2.valueOf() - time1.valueOf());
-      // console.log('getting elms', time3.valueOf() - time2.valueOf());
     }.bind(this));
   },
 
@@ -338,30 +322,20 @@ L.RegularGridCluster = L.GeoJSON.extend({
     }
   },
 
-  _cellElmsInside: function (cell, elements) {
-    return this._cellsInsideOperations[this.options.gridMode].call(this, cell, elements);
-  },
-
-  _elmsInsideSquare: function (cell, elements) {
-    var elsInside = [];
+  _elmInsideSquare: function (ex, ey, cell) {
     var x1 = cell.x, x2 = cell.x + cell.w, y1 = cell.y, y2 = cell.y + cell.h;
 
-    for (var id in elements) {
-      var element = elements[id];
-      var ex = element[1], ey = element[0];
-      if (ex > x1 ) {
-        if (ey > y1) {
-          if (ex < x2) {
-            if (ey < y2) {
-              elsInside.push(id);
-              delete elements[id];
-            }
+    if (ex > x1) {
+      if (ey > y1) {
+        if (ex < x2) {
+          if (ey < y2) {
+            return true;
           }
         }
       }
     }
 
-    return elsInside;
+    return false;
   },
 
   _getElementsCollection: function (){
