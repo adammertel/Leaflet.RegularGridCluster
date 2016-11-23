@@ -158,8 +158,7 @@
             this._map.on("zoomend", function() {
                 that.refresh();
             });
-            this._indexCells();
-            this._indexElements();
+            this._index();
             this.refresh();
         },
         addElement: function(element) {
@@ -170,10 +169,21 @@
             };
             this.lastelmid++;
             if (this._map) {
-                this._indexCells();
-                this._indexElements();
+                this._index();
                 this.refresh();
             }
+        },
+        _index: function() {
+            var time1 = new Date();
+            this._indexCells();
+            var time2 = new Date();
+            this._indexElements();
+            var time3 = new Date();
+            console.log("//////////////////////////////////");
+            console.log("cells indexed in " + (time2.valueOf() - time1.valueOf()) + "ms");
+            console.log("elements indexed in " + (time3.valueOf() - time2.valueOf()) + "ms");
+            console.log("indexing took " + (time3.valueOf() - time1.valueOf()) + "ms");
+            console.log("//////////////////////////////////");
         },
         addData: function(element) {},
         refresh: function() {
@@ -274,10 +284,17 @@
                 }
             }.bind(this));
         },
+        _indexedCellsCollection: function() {
+            var that = this;
+            return Object.keys(this._indexedCells).map(function(key) {
+                return that._indexedCells[key];
+            });
+        },
         _truncateIndexedCells: function() {
-            for (var ici in this._indexedCells) {
-                this._indexedCells[ici].cs = [];
-            }
+            var indexedCellsCollection = this._indexedCellsCollection();
+            indexedCellsCollection.forEach(function(indexedCell) {
+                indexedCell.cs = [];
+            });
         },
         _prepareCells: function() {
             this._cells = [];
@@ -289,6 +306,7 @@
             var maxX = gridEnd.lng, maxY = gridEnd.lat;
             var x = origin.lng, y = origin.lat;
             var cellW = cellSize / 111319;
+            var indexedCellsCollection = this._indexedCellsCollection();
             while (y < maxY) {
                 var cellH = this._cellHeightAtY(y, cellSize);
                 while (x < maxX) {
@@ -308,9 +326,9 @@
                     var cellBounds = L.latLngBounds([ y, x ], [ y + cellH, x + cellW ]);
                     cell.path = this._cellPath(cell);
                     this._cells.push(cell);
-                    for (var ici in this._indexedCells) {
-                        var indexedCell = this._indexedCells[ici];
-                        if (indexedCell.b.intersects(cellBounds)) {
+                    for (var icci in indexedCellsCollection) {
+                        indexedCell = indexedCellsCollection[icci];
+                        if (indexedCell.b.overlaps(cellBounds)) {
                             indexedCell.cs.push(cell);
                         }
                     }
