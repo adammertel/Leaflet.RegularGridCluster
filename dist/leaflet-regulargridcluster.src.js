@@ -127,6 +127,7 @@
             showMarkers: true,
             showTexts: true,
             showElementsZoom: 19,
+            indexSize: 8,
             rules: {}
         },
         initialize: function(options) {
@@ -157,6 +158,7 @@
             this._map.on("zoomend", function() {
                 that.refresh();
             });
+            this._indexCells();
             this.refresh();
         },
         addElement: function(element) {
@@ -167,6 +169,7 @@
             };
             this.lastelmid++;
             if (this._map) {
+                this._indexCells();
                 this.refresh();
             }
         },
@@ -236,19 +239,14 @@
                 this._texts.addTo(this._map);
             }
         },
-        _prepareCells: function() {
-            this._cells = [];
-            var cellId = 1;
-            var values = [];
-            var cellSize = this._cellSize();
+        _indexCells: function() {
             var origin = this._gridOrigin();
             var gridEnd = this._gridExtent().getNorthEast();
             var maxX = gridEnd.lng, maxY = gridEnd.lat;
             var x = origin.lng, y = origin.lat;
-            var cellW = cellSize / 111319;
-            var indexPortion = 8;
-            diffX = (maxX - x) / indexPortion;
-            diffY = (maxY - y) / indexPortion;
+            var indexPortion = this.options.indexSize;
+            var diffX = (maxX - x) / indexPortion;
+            var diffY = (maxY - y) / indexPortion;
             this.indexedCells = [];
             for (var xi = x; xi < maxX; xi += diffX) {
                 for (var yi = y; yi < maxY; yi += diffY) {
@@ -259,7 +257,23 @@
                     });
                 }
             }
-            var time1 = new Date();
+        },
+        _truncateIndexedCells: function() {
+            this.indexedCells.forEach(function(indexedCell) {
+                indexedCell.cells = [];
+            });
+        },
+        _prepareCells: function() {
+            this._cells = [];
+            this._truncateIndexedCells();
+            var cellId = 1;
+            var values = [];
+            var cellSize = this._cellSize();
+            var origin = this._gridOrigin();
+            var gridEnd = this._gridExtent().getNorthEast();
+            var maxX = gridEnd.lng, maxY = gridEnd.lat;
+            var x = origin.lng, y = origin.lat;
+            var cellW = cellSize / 111319;
             while (y < maxY) {
                 var cellH = this._cellHeightAtY(y, cellSize);
                 while (x < maxX) {
