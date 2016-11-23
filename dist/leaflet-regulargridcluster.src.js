@@ -133,8 +133,10 @@
         initialize: function(options) {
             this.options = L.extend(this.options, options);
             this.lastelmid = 0;
+            this.elementDisplayed = false;
             L.Util.setOptions(this, options);
             this._elements = {};
+            this._displayedElsGroup = L.featureGroup([]);
             this._cells = [];
             this._grid = new L.regularGridClusterGrid({
                 controller: this
@@ -186,27 +188,56 @@
             console.log("//////////////////////////////////");
         },
         addData: function(element) {},
+        _displayElements: function() {
+            if (!this.elementDisplayed) {
+                this._displayedElsGroup.clearLayers();
+                this.elementDisplayed = true;
+                var elements = this._getElementsCollection();
+                elements.forEach(function(element) {
+                    this._displayedElsGroup.addLayer(L.circleMarker([ element.g[0], element.g[1] ], 500, {
+                        fillColor: "lightblue",
+                        stroke: "false",
+                        weight: 0
+                    }));
+                }.bind(this));
+                this._displayedElsGroup.addTo(this._map);
+            }
+        },
+        _hideElements: function() {
+            if (this.elementDisplayed) {
+                this.elementDisplayed = false;
+                this._displayedElsGroup.clearLayers();
+            }
+        },
         refresh: function() {
-            this._truncateLayers();
-            var time1 = new Date();
-            this._prepareCells();
-            var time2 = new Date();
-            this._findElements();
-            var time3 = new Date();
-            this._buildGrid();
-            var time4 = new Date();
-            this._buildMarkers();
-            var time5 = new Date();
-            this._buildTexts();
-            var time6 = new Date();
-            console.log("********************");
-            console.log("cells prepared in " + (time2.valueOf() - time1.valueOf()) + "ms");
-            console.log("elements found in " + (time3.valueOf() - time2.valueOf()) + "ms");
-            console.log("grid built in " + (time4.valueOf() - time3.valueOf()) + "ms");
-            console.log("markers built in " + (time5.valueOf() - time4.valueOf()) + "ms");
-            console.log("texts built in " + (time6.valueOf() - time5.valueOf()) + "ms");
-            console.log(this._cells.length + " cells refreshed in " + (time6.valueOf() - time1.valueOf()) + "ms");
-            console.log("********************");
+            var zoom = this._map.getZoom();
+            if (zoom > this.options.showElementsZoom) {
+                console.log("elements will be displayed");
+                this._displayElements();
+            } else {
+                console.log("elements will be hidden");
+                this._hideElements();
+                this._truncateLayers();
+                var time1 = new Date();
+                this._prepareCells();
+                var time2 = new Date();
+                this._findElements();
+                var time3 = new Date();
+                this._buildGrid();
+                var time4 = new Date();
+                this._buildMarkers();
+                var time5 = new Date();
+                this._buildTexts();
+                var time6 = new Date();
+                console.log("********************");
+                console.log("cells prepared in " + (time2.valueOf() - time1.valueOf()) + "ms");
+                console.log("elements found in " + (time3.valueOf() - time2.valueOf()) + "ms");
+                console.log("grid built in " + (time4.valueOf() - time3.valueOf()) + "ms");
+                console.log("markers built in " + (time5.valueOf() - time4.valueOf()) + "ms");
+                console.log("texts built in " + (time6.valueOf() - time5.valueOf()) + "ms");
+                console.log(this._cells.length + " cells refreshed in " + (time6.valueOf() - time1.valueOf()) + "ms");
+                console.log("********************");
+            }
         },
         _truncateLayers: function() {
             this._grid.truncate();
@@ -390,15 +421,24 @@
         },
         _visualise: function(featureType) {
             var that = this;
+            var cj, cell;
             if (this.options.rules[featureType]) {
                 Object.keys(this.options.rules[featureType]).map(function(option) {
                     var rule = that.options.rules[featureType][option];
-                    if (that._isDynamicalRule(rule)) {
+                    if (option == "text") {
+                        that._cellsValues(rule.method, rule.attribute);
+                        for (cj in that._cells) {
+                            cell = that._cells[cj];
+                            if (that._cellIsNotEmpty(cell)) {
+                                cell.options.texts.text = cell.value;
+                            }
+                        }
+                    } else if (that._isDynamicalRule(rule)) {
                         that._cellsValues(rule.method, rule.attribute);
                         that._applyOptions(featureType, rule.scale, rule.style, option);
                     } else {
-                        for (var cj in that._cells) {
-                            var cell = that._cells[cj];
+                        for (cj in that._cells) {
+                            cell = that._cells[cj];
                             if (that._cellIsNotEmpty(cell)) {
                                 cell.options[featureType][option] = rule;
                             }

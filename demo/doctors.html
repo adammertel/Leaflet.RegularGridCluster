@@ -47,15 +47,15 @@
 
       var rules = {
         "grid": {
-          "fillColor": {
-            "method": "count",
-            "attribute": "",
-            "scale": "continuous",
-            "style": ["white", "blue"]
-          },
+          // "fillColor": {
+          //   "method": "count",
+          //   "attribute": "",
+          //   "scale": "continuous",
+          //   "style": ["white", "blue"]
+          // },
           "weight": 1,
-          "fillOpacity": 0.15,
-          "color": 'white',
+          "fillOpacity": 0,
+          "color": 'grey',
           "weight": 1,
         },
         "markers": {
@@ -64,7 +64,7 @@
             "method": "count",
             "attribute": "",
             "scale": "quantile",
-            "style": ["white", "blue", "red"]
+            "style": ["white", "orange", "red"]
           },
           "radius": {
             "method": "count",
@@ -74,19 +74,22 @@
           },
         },
         "texts": {
-          "color": {
-            "method": "count",
-            "attribute": "",
-            "scale": "quantile",
-            "style": ["white", "orange", "red"]
-          },
+          // "color": {
+          //   "method": "count",
+          //   "attribute": "",
+          //   "scale": "quantile",
+          //   "style": ["white", "orange", "red"]
+          // },
           "font-size": {
             "method": "count",
             "attribute": "",
             "scale": "continuous",
-            "style": [20, 35]
+            "style": [15, 25]
           },
-          "text": "abcd",
+          "text": {
+            "method": "count",
+            "attribute": ""
+          },
           "anchorOffsetX": {
             "method": "count",
             "attribute": "",
@@ -98,7 +101,12 @@
       };
 
       // define RegularGridCluster instance
-      var grid = L.regularGridCluster({rules: rules});
+      var grid = L.regularGridCluster(
+        {
+          rules: rules,
+          showElementsZoom: 8,
+        }
+      );
       console.log(doctors.features.length)
 
       // putting some random point data
