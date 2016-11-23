@@ -40,7 +40,7 @@ L.RegularGridCluster.include( {
       if (this._isNumber(bottomValue)) {
         styleValue = bottomValue + ratioDif * (upperValue - bottomValue);
       } else {
-        styleValue = this._colorMix(bottomValue, upperValue, ratioDif);
+        styleValue = this._colorMix(upperValue, bottomValue, ratioDif);
       }
 
       return styleValue;

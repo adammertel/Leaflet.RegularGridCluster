@@ -35,6 +35,7 @@ L.RegularGridCluster.include( {
     if(arr.length === 0) {return null;}
     var modeMap = {};
     var maxEl = arr[0], maxCount = 1;
+
     for(var i = 0; i < arr.length; i++){
       var el = arr[i];
       if (el) {
@@ -82,6 +83,7 @@ L.RegularGridCluster.include( {
   _math_median: function (arr) {
     arr.sort(function(a,b) {return a - b;} );
     var half = Math.floor(arr.length/2);
+    
     if(arr.length % 2) {
       return arr[half];
     } else {

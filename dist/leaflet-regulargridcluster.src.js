@@ -86,7 +86,7 @@
             L.Util.setOptions(this, options);
             var iconOptions = JSON.stringify(options).substring(1, JSON.stringify(options).length - 2).replace(/,/g, ";").replace(/\"/g, "");
             options.icon = L.divIcon({
-                html: '<span style="' + iconOptions + ' ; text-align: center">T</span>',
+                html: '<span style="' + iconOptions + ' ; text-align: center">' + this.options.text + "</span>",
                 iconSize: [ 0, 0 ],
                 iconAnchor: [ options.anchorOffsetX || -10, options.anchorOffsetY || -30 ]
             });
@@ -126,6 +126,7 @@
             showGrid: true,
             showMarkers: true,
             showTexts: true,
+            showElementsZoom: 19,
             rules: {}
         },
         initialize: function(options) {
@@ -166,7 +167,7 @@
             };
             this.lastelmid++;
             if (this._map) {
-                this.refresh(true, true);
+                this.refresh();
             }
         },
         addData: function(element) {},
@@ -200,41 +201,38 @@
         _buildGrid: function() {
             if (this.options.rules.grid && this.options.showGrid) {
                 this._visualise("grid");
-                for (var c in this._cells) {
-                    var cell = this._cells[c];
+                this._cells.forEach(function(cell) {
                     if (this._cellIsNotEmpty(cell)) {
                         var regularCell = new L.regularGridClusterCell(cell.path, cell.options.grid);
                         this._grid.addLayer(regularCell);
                     }
-                }
+                }.bind(this));
                 this._grid.addTo(this._map);
             }
         },
         _buildMarkers: function() {
             if (this.options.rules.markers && this.options.showMarkers) {
                 this._visualise("markers");
-                for (var c in this._cells) {
-                    var cell = this._cells[c];
+                this._cells.forEach(function(cell) {
                     if (this._cellIsNotEmpty(cell)) {
                         var cellCentroid = [ cell.y + cell.h / 2, cell.x + cell.w / 2 ];
                         var marker = new L.regularGridClusterMarker(cellCentroid, cell.options.markers);
                         this._markers.addLayer(marker);
                     }
-                }
+                }.bind(this));
                 this._markers.addTo(this._map);
             }
         },
         _buildTexts: function() {
             if (this.options.rules.texts && this.options.showTexts) {
                 this._visualise("texts");
-                for (var c in this._cells) {
-                    var cell = this._cells[c];
+                this._cells.forEach(function(cell) {
                     if (this._cellIsNotEmpty(cell)) {
                         var cellCentroid = [ cell.y + cell.h / 2, cell.x + cell.w / 2 ];
                         var text = new L.regularGridClusterText(cellCentroid, cell.options.texts);
                         this._texts.addLayer(text);
                     }
-                }
+                }.bind(this));
                 this._texts.addTo(this._map);
             }
         },
@@ -246,8 +244,9 @@
             var origin = this._gridOrigin();
             var gridEnd = this._gridExtent().getNorthEast();
             var maxX = gridEnd.lng, maxY = gridEnd.lat;
-            var indexPortion = 10;
             var x = origin.lng, y = origin.lat;
+            var cellW = cellSize / 111319;
+            var indexPortion = 8;
             diffX = (maxX - x) / indexPortion;
             diffY = (maxY - y) / indexPortion;
             this.indexedCells = [];
@@ -260,7 +259,6 @@
                     });
                 }
             }
-            var cellW = cellSize / 111319;
             var time1 = new Date();
             while (y < maxY) {
                 var cellH = this._cellHeightAtY(y, cellSize);
@@ -295,11 +293,12 @@
             }
         },
         _findElements: function() {
-            var elements = this._getElementsCoordinatesCollection();
+            var elements = this._getElementsCollection();
             var cells = this._cells;
-            for (var ei in elements) {
-                var element = elements[ei];
-                var ex = element[1], ey = element[0];
+            var that = this;
+            elements.forEach(function(element) {
+                var ei = element.id;
+                var ex = element.geometry[1], ey = element.geometry[0];
                 var cellsAtIndex = [];
                 for (var ici in this.indexedCells) {
                     var indexedCell = this.indexedCells[ici];
@@ -322,7 +321,7 @@
                         }
                     }
                 }
-            }
+            }.bind(this));
         },
         _cellIsNotEmpty: function(cell) {
             return cell.elms.length !== 0;
@@ -383,7 +382,10 @@
                         that._applyOptions(featureType, rule.scale, rule.style, option);
                     } else {
                         for (var cj in that._cells) {
-                            that._cells[cj].options[featureType][option] = rule;
+                            var cell = that._cells[cj];
+                            if (that._cellIsNotEmpty(cell)) {
+                                cell.options[featureType][option] = rule;
+                            }
                         }
                     }
                 });
@@ -790,7 +792,7 @@
                 if (this._isNumber(bottomValue)) {
                     styleValue = bottomValue + ratioDif * (upperValue - bottomValue);
                 } else {
-                    styleValue = this._colorMix(bottomValue, upperValue, ratioDif);
+                    styleValue = this._colorMix(upperValue, bottomValue, ratioDif);
                 }
                 return styleValue;
             }

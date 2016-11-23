@@ -41,6 +41,7 @@ L.RegularGridCluster.include( {
   },
 
   _validateColor: function (color) {
+    
     if (color.indexOf('#') == -1) {
       return this._colorNameToHex(color);
     } else {

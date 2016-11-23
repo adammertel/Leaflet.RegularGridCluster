@@ -8,6 +8,7 @@ L.RegularGridClusterCell = L.Polygon.extend({
     fillRule: 'evenodd',
     strokeLocation: 'inside'
   },
+  
   initialize: function (path, options) {
     this.options = L.extend(this.options, options);
     L.Util.setOptions(this, this.options);
