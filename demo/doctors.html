@@ -84,7 +84,7 @@
             "method": "count",
             "attribute": "",
             "scale": "continuous",
-            "style": [15, 25]
+            "style": [12, 22]
           },
           "text": {
             "method": "count",
@@ -94,9 +94,14 @@
             "method": "count",
             "attribute": "",
             "scale": "continuous",
-            "style": [0, 20]
+            "style": [5, 25]
           },
-          "anchorOffsetY": -20,
+          "anchorOffsetY": {
+            "method": "count",
+            "attribute": "",
+            "scale": "continuous",
+            "style": [-15, -30]
+          },
         }
       };
 
@@ -104,7 +109,7 @@
       var grid = L.regularGridCluster(
         {
           rules: rules,
-          showElementsZoom: 8,
+          showElementsZoom: 12,
         }
       );
       console.log(doctors.features.length)
