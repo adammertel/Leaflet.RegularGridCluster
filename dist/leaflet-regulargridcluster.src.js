@@ -194,10 +194,9 @@
                 this.elementDisplayed = true;
                 var elements = this._getElementsCollection();
                 elements.forEach(function(element) {
-                    this._displayedElsGroup.addLayer(L.circleMarker([ element.g[0], element.g[1] ], 500, {
+                    this._displayedElsGroup.addLayer(L.circleMarker([ element.g[0], element.g[1] ], 50, {
                         fillColor: "lightblue",
-                        stroke: "false",
-                        weight: 0
+                        stroke: false
                     }));
                 }.bind(this));
                 this._displayedElsGroup.addTo(this._map);
@@ -338,8 +337,14 @@
             var x = origin.lng, y = origin.lat;
             var cellW = cellSize / 111319;
             var indexedCellsCollection = this._indexedCellsCollection();
+            var row = 1;
             while (y < maxY) {
                 var cellH = this._cellHeightAtY(y, cellSize);
+                if (this.options.gridMode == "hexagon") {
+                    if (row % 2) {
+                        x -= cellW / 2;
+                    }
+                }
                 while (x < maxX) {
                     var cell = {
                         id: cellId,
@@ -355,7 +360,7 @@
                         elms: []
                     };
                     var cellBounds = L.latLngBounds([ y, x ], [ y + cellH, x + cellW ]);
-                    cell.path = this._cellPath(cell);
+                    cell.path = this._buildPathOperations[this.options.gridMode].call(this, cell);
                     this._cells.push(cell);
                     for (var icci in indexedCellsCollection) {
                         indexedCell = indexedCellsCollection[icci];
@@ -367,7 +372,12 @@
                     x += cellW;
                 }
                 x = origin.lng;
-                y += cellH;
+                if (this.options.gridMode == "hexagon") {
+                    y += 3 / 4 * cellH;
+                } else {
+                    y += cellH;
+                }
+                row += 1;
             }
         },
         _findElements: function() {
@@ -377,7 +387,7 @@
                 var cellsAtIndex = this._indexedCells[element.i].cs;
                 for (var ci in cellsAtIndex) {
                     var cell = cellsAtIndex[ci];
-                    if (this._cellsInsideOperations[this.options.gridMode].call(this, ex, ey, cell)) {
+                    if (this._elmInsideOperations[this.options.gridMode].call(this, ex, ey, cell)) {
                         cell.elms.push(ei);
                     }
                 }
@@ -385,29 +395,6 @@
         },
         _cellIsNotEmpty: function(cell) {
             return cell.elms.length !== 0;
-        },
-        _cellPath: function(cell) {
-            var c = cell;
-            switch (this.options.gridMode) {
-              case "square":
-                return [ [ c.y, c.x ], [ c.y, c.x + c.w ], [ c.y + c.h, c.x + c.w ], [ c.y + c.h, c.x ], [ c.y, c.x ] ];
-
-              default:
-                return [ [ c.y, c.x ], [ c.y, c.x + c.w ], [ c.y + c.h, c.x + c.w ], [ c.y + c.h, c.x ], [ c.y, c.x ] ];
-            }
-        },
-        _elmInsideSquare: function(ex, ey, cell) {
-            var x1 = cell.x, x2 = cell.x + cell.w, y1 = cell.y, y2 = cell.y + cell.h;
-            if (ex > x1) {
-                if (ey > y1) {
-                    if (ex < x2) {
-                        if (ey < y2) {
-                            return true;
-                        }
-                    }
-                }
-            }
-            return false;
         },
         _getElementsCollection: function() {
             var that = this;
@@ -876,9 +863,52 @@
                 return this._math_sum(values);
             }
         },
-        _cellsInsideOperations: {
-            square: function(cellX, cellY, elements) {
-                return this._elmInsideSquare(cellX, cellY, elements);
+        _elmInsideOperations: {
+            square: function(ex, ey, cell) {
+                var x1 = cell.x, x2 = cell.x + cell.w, y1 = cell.y, y2 = cell.y + cell.h;
+                if (ex > x1) {
+                    if (ey > y1) {
+                        if (ex < x2) {
+                            if (ey < y2) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+                return false;
+            },
+            hexagon: function(ex, ey, cell) {
+                var x1 = cell.x, x2 = cell.x + cell.w, y1 = cell.y, y2 = cell.y + cell.h;
+                if (ex > x1) {
+                    if (ey > y1) {
+                        if (ex < x2) {
+                            if (ey < y2) {
+                                var yh1 = y1 + cell.h * 1 / 4, yh2 = y1 + cell.h * 3 / 4;
+                                if (ey > yh1 && ey < yh2) {
+                                    return true;
+                                } else {
+                                    var tx = ex - x1, ty = ey - y1;
+                                    if (ty > cell.h / 4 * 3) {
+                                        ty = cell.h - ty;
+                                    }
+                                    if (tx > cell.w / 2) {
+                                        tx = cell.w - tx;
+                                    }
+                                    return ty / (cell.h / 4) + tx / (cell.w / 2) > 1;
+                                }
+                            }
+                        }
+                    }
+                }
+                return false;
+            }
+        },
+        _buildPathOperations: {
+            square: function(c) {
+                return [ [ c.y, c.x ], [ c.y, c.x + c.w ], [ c.y + c.h, c.x + c.w ], [ c.y + c.h, c.x ], [ c.y, c.x ] ];
+            },
+            hexagon: function(c) {
+                return [ [ c.y + c.h / 4, c.x ], [ c.y, c.x + c.w / 2 ], [ c.y + c.h / 4, c.x + c.w ], [ c.y + 3 * (c.h / 4), c.x + c.w ], [ c.y + c.h, c.x + c.w / 2 ], [ c.y + 3 * (c.h / 4), c.x ], [ c.y + c.h / 4, c.x ] ];
             }
         }
     });

@@ -38,7 +38,12 @@
       var colors = ['#e41a1c','#377eb8','#4daf4a','#984ea3','#ff7f00'];
 
       // setting map
-      map = L.map('map-content').setView([48, 15], 7);
+      map = L.map(
+        'map-content',
+        {
+
+        }
+      ).setView([48, 15], 7);
 
       L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
@@ -109,7 +114,8 @@
       var grid = L.regularGridCluster(
         {
           rules: rules,
-          showElementsZoom: 12,
+          showElementsZoom: 20,
+          gridMode: 'hexagon'
         }
       );
       console.log(doctors.features.length)

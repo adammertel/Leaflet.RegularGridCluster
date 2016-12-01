@@ -29,7 +29,7 @@
     document.addEventListener("DOMContentLoaded", function(event) {
 
       var colors = ['#e41a1c','#377eb8','#4daf4a','#984ea3','#ff7f00'];
-      var noTestData = 10000;
+      var noTestData = 1000;
 
       // setting map
       map = L.map('map-content').setView([0, 0], 4);
@@ -70,11 +70,47 @@
             "scale": "continuous",
             "style": [5, 30]
           },
+        },
+        "texts": {
+          // "color": {
+          //   "method": "count",
+          //   "attribute": "",
+          //   "scale": "quantile",
+          //   "style": ["white", "orange", "red"]
+          // },
+          "font-size": {
+            "method": "count",
+            "attribute": "",
+            "scale": "continuous",
+            "style": [12, 22]
+          },
+          "text": {
+            "method": "count",
+            "attribute": ""
+          },
+          "anchorOffsetX": {
+            "method": "count",
+            "attribute": "",
+            "scale": "continuous",
+            "style": [5, 25]
+          },
+          "anchorOffsetY": {
+            "method": "count",
+            "attribute": "",
+            "scale": "continuous",
+            "style": [-15, -30]
+          },
         }
-      };
+      }
 
       // define RegularGridCluster instance
-      var grid = L.regularGridCluster({rules: rules});
+      var grid = L.regularGridCluster(
+        {
+          rules: rules,
+          showElementsZoom: 5,
+          gridMode: 'hexagon'
+        }
+      );
 
       // boundaries of random data
       var maxX = 50, minX = 0, maxY = 49.5, minY = 0;

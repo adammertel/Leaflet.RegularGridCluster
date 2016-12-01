@@ -101,8 +101,8 @@ L.RegularGridCluster = L.GeoJSON.extend({
         this._displayedElsGroup.addLayer(
           L.circleMarker(
             [element.g[0], element.g[1]],
-            500,
-            {fillColor: 'lightblue', stroke: 'false', weight: 0}
+            50,
+            {fillColor: 'lightblue', stroke: false}
           )
         );
       }.bind(this));
@@ -289,9 +289,16 @@ L.RegularGridCluster = L.GeoJSON.extend({
     var cellW = cellSize/111319;
 
     var indexedCellsCollection = this._indexedCellsCollection();
+    var row = 1;
 
     while (y < maxY) {
       var cellH = this._cellHeightAtY(y, cellSize);
+
+      if (this.options.gridMode == 'hexagon') {
+        if (row%2) {
+          x -= cellW/2;
+        }
+      }
 
       while (x < maxX) {
         var cell = {
@@ -311,7 +318,7 @@ L.RegularGridCluster = L.GeoJSON.extend({
         };
         var cellBounds = L.latLngBounds([y, x], [y + cellH, x + cellW]);
 
-        cell.path = this._cellPath(cell);
+        cell.path = this._buildPathOperations[this.options.gridMode].call(this, cell);
         this._cells.push(cell);
 
         for (var icci in indexedCellsCollection) {
@@ -322,11 +329,23 @@ L.RegularGridCluster = L.GeoJSON.extend({
         }
 
         cellId++;
+
+        // if (this.options.gridMode == 'hexagon') {
+        //   x += (1/Math.sqrt(3)/2) * cellW;
+        // } else {
+        //   x += cellW;
+        // }
         x += cellW;
       }
 
       x = origin.lng;
-      y += cellH;
+      //y += cellH;
+      if (this.options.gridMode == 'hexagon') {
+        y += 3/4 * cellH;
+      } else {
+        y += cellH;
+      }
+      row += 1;
     }
 
   },
@@ -342,7 +361,7 @@ L.RegularGridCluster = L.GeoJSON.extend({
 
       for (var ci in cellsAtIndex) {
         var cell = cellsAtIndex[ci];
-        if (this._cellsInsideOperations[this.options.gridMode].call(this, ex, ey, cell)) {
+        if (this._elmInsideOperations[this.options.gridMode].call(this, ex, ey, cell)) {
           cell.elms.push(ei);
         }
       }
@@ -351,33 +370,6 @@ L.RegularGridCluster = L.GeoJSON.extend({
 
   _cellIsNotEmpty:function (cell) {
     return cell.elms.length !== 0;
-  },
-
-  _cellPath: function (cell) {
-    var c = cell;
-
-    switch (this.options.gridMode) {
-      case 'square':
-        return [[c.y, c.x], [c.y, c.x + c.w], [c.y + c.h, c.x + c.w], [c.y + c.h, c.x], [c.y, c.x]];
-      default:
-        return [[c.y, c.x], [c.y, c.x + c.w], [c.y + c.h, c.x + c.w], [c.y + c.h, c.x], [c.y, c.x]];
-    }
-  },
-
-  _elmInsideSquare: function (ex, ey, cell) {
-    var x1 = cell.x, x2 = cell.x + cell.w, y1 = cell.y, y2 = cell.y + cell.h;
-
-    if (ex > x1) {
-      if (ey > y1) {
-        if (ex < x2) {
-          if (ey < y2) {
-            return true;
-          }
-        }
-      }
-    }
-
-    return false;
   },
 
   _getElementsCollection: function (){
