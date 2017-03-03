@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/adammertel/Leaflet.RegularGridCluster#readme",
   "devDependencies": {
+    "bower": "^1.8.0",
     "jshint": "^2.9.3",
     "leaflet": "*",
     "parallelshell": "^2.0.0",

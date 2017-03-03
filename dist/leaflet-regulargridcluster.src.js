@@ -524,7 +524,7 @@
             }
         },
         _cellHeightAtY: function(y, cellSize) {
-            return cellSize / 111319 * this._deltaHeightAtY(y);
+            return cellSize / 111319;
         },
         _deltaHeightAtY: function(lat) {
             return Math.abs(1 / Math.cos(lat * Math.PI / 180));

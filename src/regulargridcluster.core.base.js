@@ -526,7 +526,8 @@ L.RegularGridCluster = L.GeoJSON.extend({
   // BASE FUNCTIONS
   // longitude delta for given latitude
   _cellHeightAtY: function (y, cellSize) {
-    return (cellSize/111319) * this._deltaHeightAtY(y);
+    return cellSize/111319;
+    // return (cellSize/111319) * this._deltaHeightAtY(y);
   },
 
   // multiplier for y size at given latitude
