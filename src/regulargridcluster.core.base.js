@@ -53,8 +53,17 @@ L.RegularGridCluster = L.GeoJSON.extend({
     this.refresh();
   },
 
+  addLayer: function (layer) {
+    this.addLayers([layer]);
+  },
 
-  addElement: function (element) {
+  addLayers: function (layersArray) {
+    for (var li in layersArray) {
+      this._addPoint(layersArray[li]);
+    }
+  },
+
+  _addPoint: function (element) {
     // todo - filter non point and group data
     this._elements[this.lastelmid] = {
       "id": this.lastelmid,

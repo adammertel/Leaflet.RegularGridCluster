@@ -163,7 +163,15 @@
             this._index();
             this.refresh();
         },
-        addElement: function(element) {
+        addLayer: function(layer) {
+            this.addLayers([ layer ]);
+        },
+        addLayers: function(layersArray) {
+            for (var li in layersArray) {
+                this._addPoint(layersArray[li]);
+            }
+        },
+        _addPoint: function(element) {
             this._elements[this.lastelmid] = {
                 id: this.lastelmid,
                 geometry: element.geometry.coordinates,
