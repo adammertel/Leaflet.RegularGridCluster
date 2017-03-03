@@ -2,147 +2,58 @@
 
 <head>
   <link rel="stylesheet" href="../lib/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="./main.css" />
 
   <script type="text/javascript" src="../lib/leaflet/dist/leaflet.js"></script>
   <script type="text/javascript" src="../dist/leaflet-regulargridcluster.src.js"></script>
+  <script type="text/javascript" src="./main.js"></script>
+
+  <link href="https://fonts.googleapis.com/css?family=PT+Sans+Narrow" rel="stylesheet">
+
+  <title>Leaflet regular-grid-cluster plugin demo</title>
 </head>
-
-<style>
-#map-content {
-  width: 100%;
-  height: 100%
-}
-
-.marker-cluster {
-  opacity: 1 !important
-}
-</style>
 
 
 <body>
   <div id="map-content"></div>
-  <script>
+  <div id="panel">
+    <h2>Leaflet regular-grid-cluster plugin</h2>
+      
+    <p class="select-row">no steps:</p>
+    <select id="select-no-steps" onChange="render()">
+      <option value="5">5</option>    
+      <option value="10" selected>10</option>    
+      <option value="15">15</option>    
+      <option value="20">20</option>    
+      <option value="25">25</option>    
+      <option value="30">30</option>    
+    </select>
 
-    // global variables
-    var map;
+    <p class="select-row">max distance of carousel (m)</p>
+    <select id="select-max-distance" onChange="render()">
+      <option value="10000">10000</option>    
+      <option value="20000">20000</option>    
+      <option value="40000">40000</option>    
+      <option value="60000">60000</option>    
+      <option value="80000">80000</option>    
+      <option value="100000" selected>10000</option>    
+      <option value="150000">10000</option>    
+      <option value="200000">20000</option>    
+      <option value="300000">30000</option>    
+    </select>
 
-    document.addEventListener("DOMContentLoaded", function(event) {
+    <p class="select-row">angle of segment:</p>
+    <select id="select-angle" onChange="render()">
+      <option value="3">3</option>    
+      <option value="9">9</option>    
+      <option value="10">10</option>    
+      <option value="15" selected>15</option>    
+      <option value="18">18</option>    
+    </select>
 
-      var colors = ['#e41a1c','#377eb8','#4daf4a','#984ea3','#ff7f00'];
-      var noTestData = 1000;
 
-      // setting map
-      map = L.map('map-content').setView([0, 0], 4);
-
-      L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
-        opacity: .3
-      }).addTo(map);
-
-      var rules = {
-        "grid": {
-          "fillColor": {
-            "method": "mean",
-            "attribute": "b",
-            "scale": "size",
-            "style": ["white", "black", "purple"]
-          },
-          "weight": {
-            "method": "count",
-            "attribute": "b",
-            "scale": "continuous",
-            "style": [0.3, 0.4, 0.9]
-          },
-          "color": 'black',
-          "weight": 3,
-        },
-        "markers": {
-          "color": 'black',
-          "fillColor": {
-            "method": "mean",
-            "attribute": "b",
-            "scale": "size",
-            "style": ["white", "blue"]
-          },
-          "radius": {
-            "method": "mean",
-            "attribute": "b",
-            "scale": "continuous",
-            "style": [5, 30]
-          },
-        },
-        "texts": {
-          // "color": {
-          //   "method": "count",
-          //   "attribute": "",
-          //   "scale": "quantile",
-          //   "style": ["white", "orange", "red"]
-          // },
-          "font-size": {
-            "method": "count",
-            "attribute": "",
-            "scale": "continuous",
-            "style": [12, 22]
-          },
-          "text": {
-            "method": "count",
-            "attribute": ""
-          },
-          "anchorOffsetX": {
-            "method": "count",
-            "attribute": "",
-            "scale": "continuous",
-            "style": [5, 25]
-          },
-          "anchorOffsetY": {
-            "method": "count",
-            "attribute": "",
-            "scale": "continuous",
-            "style": [-15, -30]
-          },
-        }
-      }
-
-      // define RegularGridCluster instance
-      var grid = L.regularGridCluster(
-        {
-          rules: rules,
-          showElementsZoom: 5,
-          gridMode: 'hexagon'
-        }
-      );
-
-      // boundaries of random data
-      var maxX = 50, minX = 0, maxY = 49.5, minY = 0;
-      map.fitBounds([[minY, minX], [maxY, maxX]]);
-
-      // putting some random point data
-      for (var i=0; i < noTestData; i++) {
-        var pointData = {
-          x: minX + Math.random() * (maxX - minX),
-          y: minY + Math.random() * (maxY - minY),
-          type: Math.floor(Math.random() * 5)
-        };
-        //var circle = L.circleMarker([pointData.y, pointData.x], circleStyle(pointData));
-
-        grid.addElement(
-          {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [pointData.y, pointData.x]
-            },
-            "properties": {
-                "a": Math.floor(Math.random() * 20),
-                "b": Math.floor(Math.random() * 10)
-            }
-          }
-        );
-      };
-      grid.addTo(map);
-
-    })
-  </script>
+    <p><i><b>Data:</b> Random data</i></p>
+  </div>
 </body>
 
 </html>
