@@ -1,5 +1,3 @@
- /* Adam Mertel|UNIVIE */
-
 (function(exports, global) {
     L.RegularGridClusterCell = L.Polygon.extend({
         options: {
@@ -76,21 +74,17 @@
         return new L.RegularGridClusterMarkersGroup(options);
     };
     L.RegularGridClusterText = L.Marker.extend({
-        options: {
-            style: {
-                border: "0px !important"
-            }
-        },
+        options: {},
         initialize: function(centroid, options) {
             this.options = L.extend(this.options, options);
             L.Util.setOptions(this, options);
             var iconOptions = JSON.stringify(options).substring(1, JSON.stringify(options).length - 2).replace(/,/g, ";").replace(/\"/g, "");
             options.icon = L.divIcon({
-                html: '<span style="' + iconOptions + ' ; text-align: center">' + this.options.text + "</span>",
+                html: '<span class="regular-grid-text-html" style="' + iconOptions + ' ; text-align: center">' + this.options.text + "</span>",
                 iconSize: [ 0, 0 ],
-                iconAnchor: [ options.anchorOffsetX || -10, options.anchorOffsetY || -30 ]
+                iconAnchor: [ options.anchorOffsetX || -10, options.anchorOffsetY || -30 ],
+                className: "regular-grid-text-marker"
             });
-            options.border = "3px solid black";
             L.Marker.prototype.initialize.call(this, centroid, options);
         }
     });
@@ -135,6 +129,7 @@
             this.lastelmid = 0;
             this.elementDisplayed = false;
             L.Util.setOptions(this, options);
+            this._actions = [];
             this._elements = {};
             this._displayedElsGroup = L.featureGroup([]);
             this._cells = [];
@@ -157,9 +152,9 @@
             this._grid.addTo(this._map);
             this._markers.addTo(this._map);
             this._texts.addTo(this._map);
-            this._map.on("zoomend", function() {
+            this._actions.push(this._map.on("zoomend", function() {
                 that.refresh();
-            });
+            }));
             this._index();
             this.refresh();
         },
@@ -170,6 +165,20 @@
             for (var li in layersArray) {
                 this._addPoint(layersArray[li]);
             }
+        },
+        _unregisterActions: function() {
+            for (var ai in this._actions) {
+                var action = this._actions[ai];
+                action.off();
+            }
+        },
+        unregister: function() {
+            this.clearLayers();
+            this._unregisterActions();
+            this._map.removeLayer(this._grid);
+            this._map.removeLayer(this._markers);
+            this._map.removeLayer(this._texts);
+            this._map.removeLayer(this._displayedElsGroup);
         },
         _addPoint: function(element) {
             this._elements[this.lastelmid] = {
@@ -189,11 +198,6 @@
             var time2 = new Date();
             this._indexElements();
             var time3 = new Date();
-            console.log("//////////////////////////////////");
-            console.log("cells indexed in " + (time2.valueOf() - time1.valueOf()) + "ms");
-            console.log("elements indexed in " + (time3.valueOf() - time2.valueOf()) + "ms");
-            console.log("indexing took " + (time3.valueOf() - time1.valueOf()) + "ms");
-            console.log("//////////////////////////////////");
         },
         addData: function(element) {},
         _displayElements: function() {
@@ -236,14 +240,6 @@
                 var time5 = new Date();
                 this._buildTexts();
                 var time6 = new Date();
-                console.log("********************");
-                console.log("cells prepared in " + (time2.valueOf() - time1.valueOf()) + "ms");
-                console.log("elements found in " + (time3.valueOf() - time2.valueOf()) + "ms");
-                console.log("grid built in " + (time4.valueOf() - time3.valueOf()) + "ms");
-                console.log("markers built in " + (time5.valueOf() - time4.valueOf()) + "ms");
-                console.log("texts built in " + (time6.valueOf() - time5.valueOf()) + "ms");
-                console.log(this._cells.length + " cells refreshed in " + (time6.valueOf() - time1.valueOf()) + "ms");
-                console.log("********************");
             }
         },
         _truncateLayers: function() {
