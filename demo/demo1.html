@@ -19,27 +19,17 @@
   <div id="panel">
     <h2>Leaflet regular-grid-cluster plugin</h2>
       
-    <p class="select-row">grid-width:</p>
-    <select class="render-on-change" id="select-grid-width">
-      <option value="1">1</option>    
-      <option value="2" selected>2</option>    
-      <option value="3">3</option>    
-      <option value="4">4</option>    
-      <option value="5">5</option>    
-      <option value="6">6</option>    
+    <p class="select-row">cell size:</p>
+    <select class="render-on-change" id="select-cell-size">
+      <option value="5000">5000</option>    
+      <option value="7500">7500</option>    
+      <option value="10000" selected>10000</option>    
+      <option value="15000">15000</option>    
+      <option value="20000">20000</option>    
+      <option value="50000">50000</option>    
     </select>
 
-    <p class="select-row">grid-fill:</p>
-    <select class="render-on-change" id="select-grid-fill">
-      <option value="1">1</option>    
-      <option value="2" selected>2</option>    
-      <option value="3">3</option>    
-      <option value="4">4</option>    
-      <option value="5">5</option>    
-      <option value="6">6</option>    
-    </select>
-
-    <p class="select-row">grid-mode:</p>
+    <p class="select-row">grid mode:</p>
     <select class="render-on-change" id="select-grid-mode">
       <option value="hexagon">hexagon</option>    
       <option value="square" selected>square</option>    
@@ -62,6 +52,7 @@
 "color": "black",
 "weight": 2
     </textarea>
+
 
     <p class="select-row">rules - markers</p>
     <textarea class="render-on-change textarea-rules" id="textarea-rules-markers" rows="10" cols="40">
@@ -112,6 +103,7 @@
   "style": [-15, -30]
 }
     </textarea>
+
 
     <p><i><b>Data:</b> Random data</i></p>
   </div>

@@ -49,6 +49,7 @@ var render = function () {
     {
       rules: getRules(),
       showElementsZoom: 5,
+      cellSize: document.getElementById('select-cell-size').value,
       gridMode: document.getElementById('select-grid-mode').value
     }
   );
