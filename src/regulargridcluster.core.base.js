@@ -24,6 +24,8 @@ L.RegularGridCluster = L.GeoJSON.extend({
     this.elementDisplayed = false;
     L.Util.setOptions(this, options);
 
+
+    this._actions = []; 
     this._elements = {};
     this._displayedElsGroup = L.featureGroup([]);
     this._cells = [];
@@ -46,9 +48,9 @@ L.RegularGridCluster = L.GeoJSON.extend({
     this._markers.addTo(this._map);
     this._texts.addTo(this._map);
 
-    this._map.on('zoomend', function(){
+    this._actions.push(this._map.on('zoomend', function(){
       that.refresh();
-    });
+    }));
     this._index();
     this.refresh();
   },
@@ -61,6 +63,25 @@ L.RegularGridCluster = L.GeoJSON.extend({
     for (var li in layersArray) {
       this._addPoint(layersArray[li]);
     }
+  },
+
+  _unregisterActions: function () {
+    for (var ai in this._actions) {
+      var action = this._actions[ai];
+      action.off();
+    }
+  },
+
+  unregister: function () {
+    this.clearLayers();
+    this._unregisterActions()
+
+    this._map.removeLayer(this._grid);
+    this._map.removeLayer(this._markers);
+    this._map.removeLayer(this._texts);
+    this._map.removeLayer(this._displayedElsGroup);
+
+    
   },
 
   _addPoint: function (element) {
@@ -87,11 +108,11 @@ L.RegularGridCluster = L.GeoJSON.extend({
     this._indexElements();
     var time3 = new Date();
 
-    console.log('//////////////////////////////////');
-    console.log('cells indexed in ' + (time2.valueOf() - time1.valueOf()) + 'ms');
-    console.log('elements indexed in ' + (time3.valueOf() - time2.valueOf()) + 'ms');
-    console.log('indexing took ' + (time3.valueOf() - time1.valueOf()) + 'ms');
-    console.log('//////////////////////////////////');
+    // console.log('//////////////////////////////////');
+    // console.log('cells indexed in ' + (time2.valueOf() - time1.valueOf()) + 'ms');
+    // console.log('elements indexed in ' + (time3.valueOf() - time2.valueOf()) + 'ms');
+    // console.log('indexing took ' + (time3.valueOf() - time1.valueOf()) + 'ms');
+    // console.log('//////////////////////////////////');
 
   },
 
@@ -155,14 +176,14 @@ L.RegularGridCluster = L.GeoJSON.extend({
       this._buildTexts();
       var time6 = new Date();
 
-      console.log('********************');
-      console.log('cells prepared in ' + (time2.valueOf() - time1.valueOf()) + 'ms');
-      console.log('elements found in ' + (time3.valueOf() - time2.valueOf()) + 'ms');
-      console.log('grid built in ' + (time4.valueOf() - time3.valueOf()) + 'ms');
-      console.log('markers built in ' + (time5.valueOf() - time4.valueOf()) + 'ms');
-      console.log('texts built in ' + (time6.valueOf() - time5.valueOf()) + 'ms');
-      console.log(this._cells.length + ' cells refreshed in ' + (time6.valueOf() - time1.valueOf()) + 'ms');
-      console.log('********************');
+      // console.log('********************');
+      // console.log('cells prepared in ' + (time2.valueOf() - time1.valueOf()) + 'ms');
+      // console.log('elements found in ' + (time3.valueOf() - time2.valueOf()) + 'ms');
+      // console.log('grid built in ' + (time4.valueOf() - time3.valueOf()) + 'ms');
+      // console.log('markers built in ' + (time5.valueOf() - time4.valueOf()) + 'ms');
+      // console.log('texts built in ' + (time6.valueOf() - time5.valueOf()) + 'ms');
+      // console.log(this._cells.length + ' cells refreshed in ' + (time6.valueOf() - time1.valueOf()) + 'ms');
+      // console.log('********************');
     }
 
   },
