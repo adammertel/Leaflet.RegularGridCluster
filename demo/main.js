@@ -3,9 +3,10 @@ var maxX = 50, minX = 0, maxY = 49.5, minY = 0;
 var noTestData = 1000;
 var randomData = [];
 
-var grid
+var grid;
 
 document.addEventListener("DOMContentLoaded", function(event) {
+  console.log('dom loaded')
 
   var colors = ['#e41a1c','#377eb8','#4daf4a','#984ea3','#ff7f00'];
   createRandomData()
@@ -19,21 +20,36 @@ document.addEventListener("DOMContentLoaded", function(event) {
     opacity: .3
   }).addTo(map);
 
-  render()
+  var selects = [].slice.call(document.getElementsByTagName('select'), 0);
+  for (var si in selects) {
+    var select = selects[si];
 
+    if (select.addEventListener) {
+      select.addEventListener('change', function () {
+        render()
+      });
+    };
+  }; 
+
+  render();
 })
 
 var render = function () {
-  if (grid) {
-    map.removeLayer(grid)
+  console.log('');
+  console.log('demo renders');
+  console.log('');
+  if (map.hasLayer(grid)) {
+    grid.unregister();
+    map.removeLayer(grid);
   }
+
 
   // define RegularGridCluster instance
   grid = L.regularGridCluster(
     {
       rules: getRules(),
       showElementsZoom: 5,
-      gridMode: 'hexagon'
+      gridMode: document.getElementById('select-grid-mode').value
     }
   );
 
@@ -77,7 +93,7 @@ var getRules = function () {
         "style": [0.3, 0.4, 0.9]
       },
       "color": 'black',
-      "weight": 3,
+      "weight": parseInt(document.getElementById('select-grid-width').value),
     },
     "markers": {
       "color": 'black',
