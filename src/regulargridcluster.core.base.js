@@ -74,7 +74,7 @@ L.RegularGridCluster = L.GeoJSON.extend({
 
   unregister: function () {
     this.clearLayers();
-    this._unregisterActions()
+    this._unregisterActions();
 
     this._map.removeLayer(this._grid);
     this._map.removeLayer(this._markers);

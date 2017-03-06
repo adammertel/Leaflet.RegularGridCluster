@@ -7,7 +7,6 @@ L.RegularGridClusterText = L.Marker.extend({
     L.Util.setOptions(this, options);
 
     var iconOptions = JSON.stringify(options).substring(1, JSON.stringify(options).length - 2).replace(/,/g, ';').replace(/\"/g, "");
-    //console.log(iconOptions);
 
     options.icon = L.divIcon({
       html: '<span class="regular-grid-text-html" style="' + iconOptions + ' ; text-align: center">' + this.options.text + '</span>',
@@ -17,7 +16,7 @@ L.RegularGridClusterText = L.Marker.extend({
     });
 
     L.Marker.prototype.initialize.call(this, centroid, options);
-  },
+  }
 
 });
 
