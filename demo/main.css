@@ -14,16 +14,21 @@ body {
 #panel {
   position: absolute;
   height: 90%;
-  width: 150px;
+  width: 350px;
   background-color: white;
   top: 2%;
   right: 2%;
   z-index: 999;
   padding-left: 15px;
-  opacity: 0.9;
+  opacity: 0.95;
   border: 15px solid white;
   border-opacity: 0;
   font-size: 80%;
+}
+
+.textarea-rules {
+  width: 340px;
+  font-size: 10px;
 }
 
 .marker-cluster {

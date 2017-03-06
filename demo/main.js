@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
     opacity: .3
   }).addTo(map);
 
-  var selects = [].slice.call(document.getElementsByTagName('select'), 0);
+  var selects = [].slice.call(document.getElementsByClassName('render-on-change'), 0);
   for (var si in selects) {
     var select = selects[si];
 
@@ -77,68 +77,28 @@ var createRandomData = function () {
   };
 }
 
+
+var parseTextAreaValue = function (textAreaId) {
+  var textAreaValue = document.getElementById(textAreaId).value;
+  var textAreaObjectValue = '{' + textAreaValue + '}';
+
+  try {
+    return JSON.parse(textAreaObjectValue);
+  } catch (err) {
+    console.log(err);
+    alert('bad input ' + textAreaId + ', ' +  err);
+    return {}
+  }
+}
+
 var getRules = function () {
+  var rulesTextGrid = parseTextAreaValue('textarea-rules-grid');
+  var rulesTextMarkers = parseTextAreaValue('textarea-rules-markers');
+  var rulesTextTexts = parseTextAreaValue('textarea-rules-texts');
+
   return {
-    "grid": {
-      "fillColor": {
-        "method": "mean",
-        "attribute": "b",
-        "scale": "size",
-        "style": ["white", "black", "purple"]
-      },
-      "weight": {
-        "method": "count",
-        "attribute": "b",
-        "scale": "continuous",
-        "style": [0.3, 0.4, 0.9]
-      },
-      "color": 'black',
-      "weight": parseInt(document.getElementById('select-grid-width').value),
-    },
-    "markers": {
-      "color": 'black',
-      "fillColor": {
-        "method": "mean",
-        "attribute": "b",
-        "scale": "size",
-        "style": ["white", "blue"]
-      },
-      "radius": {
-        "method": "mean",
-        "attribute": "b",
-        "scale": "continuous",
-        "style": [5, 30]
-      },
-    },
-    "texts": {
-      // "color": {
-      //   "method": "count",
-      //   "attribute": "",
-      //   "scale": "quantile",
-      //   "style": ["white", "orange", "red"]
-      // },
-      "font-size": {
-        "method": "count",
-        "attribute": "",
-        "scale": "continuous",
-        "style": [12, 22]
-      },
-      "text": {
-        "method": "count",
-        "attribute": ""
-      },
-      "anchorOffsetX": {
-        "method": "count",
-        "attribute": "",
-        "scale": "continuous",
-        "style": [5, 25]
-      },
-      "anchorOffsetY": {
-        "method": "count",
-        "attribute": "",
-        "scale": "continuous",
-        "style": [-15, -30]
-      },
-    }
+    "grid": rulesTextGrid,
+    "markers": rulesTextMarkers,
+    "texts": rulesTextTexts
   }
 } 

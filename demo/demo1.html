@@ -19,38 +19,99 @@
   <div id="panel">
     <h2>Leaflet regular-grid-cluster plugin</h2>
       
-    <p class="select-row">no steps:</p>
-    <select id="select-no-steps" onChange="render()">
-      <option value="5">5</option>    
-      <option value="10" selected>10</option>    
-      <option value="15">15</option>    
-      <option value="20">20</option>    
-      <option value="25">25</option>    
-      <option value="30">30</option>    
-    </select>
-
-    <p class="select-row">max distance of carousel (m)</p>
-    <select id="select-max-distance" onChange="render()">
-      <option value="10000">10000</option>    
-      <option value="20000">20000</option>    
-      <option value="40000">40000</option>    
-      <option value="60000">60000</option>    
-      <option value="80000">80000</option>    
-      <option value="100000" selected>10000</option>    
-      <option value="150000">10000</option>    
-      <option value="200000">20000</option>    
-      <option value="300000">30000</option>    
-    </select>
-
-    <p class="select-row">angle of segment:</p>
-    <select id="select-angle" onChange="render()">
+    <p class="select-row">grid-width:</p>
+    <select class="render-on-change" id="select-grid-width">
+      <option value="1">1</option>    
+      <option value="2" selected>2</option>    
       <option value="3">3</option>    
-      <option value="9">9</option>    
-      <option value="10">10</option>    
-      <option value="15" selected>15</option>    
-      <option value="18">18</option>    
+      <option value="4">4</option>    
+      <option value="5">5</option>    
+      <option value="6">6</option>    
     </select>
 
+    <p class="select-row">grid-fill:</p>
+    <select class="render-on-change" id="select-grid-fill">
+      <option value="1">1</option>    
+      <option value="2" selected>2</option>    
+      <option value="3">3</option>    
+      <option value="4">4</option>    
+      <option value="5">5</option>    
+      <option value="6">6</option>    
+    </select>
+
+    <p class="select-row">grid-mode:</p>
+    <select class="render-on-change" id="select-grid-mode">
+      <option value="hexagon">hexagon</option>    
+      <option value="square" selected>square</option>    
+    </select>
+
+    <p class="select-row">rules - grid</p>
+    <textarea class="render-on-change textarea-rules" id="textarea-rules-grid" rows="10" cols="40">
+"fillColor": {
+  "method": "mean",
+  "attribute": "b",
+  "scale": "size",
+  "style": ["white", "black", "purple"]
+},
+"weight": {
+  "method": "count",
+  "attribute": "b",
+  "scale": "continuous",
+  "style": [0.3, 0.4, 0.9]
+},
+"color": "black",
+"weight": 2
+    </textarea>
+
+    <p class="select-row">rules - markers</p>
+    <textarea class="render-on-change textarea-rules" id="textarea-rules-markers" rows="10" cols="40">
+"color": "black",
+"fillColor": {
+  "method": "mean",
+  "attribute": "b",
+  "scale": "size",
+  "style": ["white", "blue"]
+},
+"radius": {
+  "method": "mean",
+  "attribute": "b",
+  "scale": "continuous",
+  "style": [5, 25]
+}
+    </textarea>
+
+
+    <p class="select-row">rules - texts</p>
+    <textarea class="render-on-change textarea-rules" id="textarea-rules-texts" rows="10" cols="40">
+"color": {
+  "method": "count",
+  "attribute": "",
+  "scale": "quantile",
+  "style": ["white", "orange", "red"]
+},
+"font-size": {
+  "method": "count",
+  "attribute": "",
+  "scale": "continuous",
+  "style": [12, 22]
+},
+"text": {
+  "method": "count",
+  "attribute": ""
+},
+"anchorOffsetX": {
+  "method": "count",
+  "attribute": "",
+  "scale": "continuous",
+  "style": [5, 25]
+},
+"anchorOffsetY": {
+  "method": "count",
+  "attribute": "",
+  "scale": "continuous",
+  "style": [-15, -30]
+}
+    </textarea>
 
     <p><i><b>Data:</b> Random data</i></p>
   </div>
