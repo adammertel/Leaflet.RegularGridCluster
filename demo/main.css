@@ -32,7 +32,7 @@ body {
 }
 
 .marker-cluster {
-  opacity: 1 !important
+  opacity: 1 !important;
 }
 
 .active-cluster-element {

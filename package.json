@@ -1,4 +1,4 @@
-{
+  {
   "name": "leaflet-regular-grid-cluster",
   "version": "0.0.1",
   "description": "clustering elements base on the define grid",
@@ -23,14 +23,20 @@
     "jshint": "^2.9.3",
     "leaflet": "*",
     "parallelshell": "^2.0.0",
-    "uglify-js": "^2.7.3"
+    "uglify-js": "^2.7.3",
+    "copyfiles": "^1.0.0"
   },
   "scripts": {
     "jshint": "jshint src",
+    
     "concat-js": "uglifyjs \"src/*.js\" -o dist/leaflet-regulargridcluster.src.js -b --preamble \" /* Adam Mertel|UNIVIE */ \" --wrap ",
     "minify-js": "uglifyjs dist/leaflet-regulargridcluster.src.js -o dist/leaflet-regulargridcluster.js -c -m --preamble \" /* Adam Mertel|UNIVIE */ \" --wrap ",
     "onchange-js": "onchange src/**/*.js -- npm run build",
-    "build": "parallelshell \"npm run jshint\" \"npm run concat-js\" \"npm run minify-js\" ",
+    
+    "onchange-css": "onchange src/**/*.css -- npm run move-css",
+    "move-css": "copyfiles -f src/leaflet-regulargridcluster.css dist",
+
+    "build": "parallelshell \"npm run jshint\" \"npm run concat-js\" \"npm run minify-js\" \"npm run move-css\" ",
     "start": "parallelshell \"npm run onchange-js\" \"npm run build\" "
   }
 }
