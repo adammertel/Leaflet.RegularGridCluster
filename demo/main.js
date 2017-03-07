@@ -35,9 +35,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 })
 
 var render = function () {
-  console.log('');
   console.log('demo renders');
-  console.log('');
   if (map.hasLayer(grid)) {
     grid.unregister();
     map.removeLayer(grid);

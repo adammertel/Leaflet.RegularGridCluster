@@ -1,8 +1,10 @@
+/*jshint esversion: 6 */
+
 L.RegularGridCluster.include( {
   _scaleOperations: {
     size: function (value, min, max, noInts, thresholds, style) {
       var diff = max - min;
-      interval = noInts - 1;
+      let interval = noInts - 1;
       if (value < max) {
         interval = Math.floor(((value - min)/diff) * noInts);
       }
@@ -10,7 +12,7 @@ L.RegularGridCluster.include( {
     },
 
     quantile: function (value, min, max, noInts, thresholds, style) {
-      interval = 0;
+      let interval = 0;
       for (var ti in thresholds) {
         if (value > thresholds[ti]) {
           interval = (parseInt(ti) + 1);
@@ -20,7 +22,7 @@ L.RegularGridCluster.include( {
     },
 
     continuous: function (value, min, max, noInts, thresholds, style) {
-      interval = 0;
+      let interval = 0;
 
       for (var tj in thresholds) {
         if (value > thresholds[tj]) {
