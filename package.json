@@ -19,6 +19,8 @@
   },
   "homepage": "https://github.com/adammertel/Leaflet.RegularGridCluster#readme",
   "devDependencies": {
+    "babel-cli": "^6.23.0",
+    "babel-preset-env": "^1.2.1",
     "bower": "^1.8.0",
     "copyfiles": "^1.0.0",
     "jshint": "^2.9.3",
@@ -28,12 +30,17 @@
   },
   "scripts": {
     "jshint": "jshint src",
-    "concat-js": "uglifyjs \"src/*.js\" -o dist/leaflet-regulargridcluster.src.js -b --preamble \" /* Adam Mertel|UNIVIE */ \" --wrap ",
+    
+    "babel": "babel src --out-file dist/leaflet-regulargridcluster.src.js",
+    "concat-js": "uglifyjs dist/leaflet-regulargridcluster.src.js -o dist/leaflet-regulargridcluster.src.js -b --preamble \" /* Adam Mertel|UNIVIE */ \" --wrap ",
     "minify-js": "uglifyjs dist/leaflet-regulargridcluster.src.js -o dist/leaflet-regulargridcluster.js -c -m --preamble \" /* Adam Mertel|UNIVIE */ \" --wrap ",
+    
     "onchange-js": "onchange src/**/*.js -- npm run build",
     "onchange-css": "onchange src/**/*.css -- npm run move-css",
+    
     "move-css": "copyfiles -f src/leaflet-regulargridcluster.css dist",
-    "build": "parallelshell \"npm run jshint\" \"npm run concat-js\" \"npm run minify-js\" \"npm run move-css\" ",
+    
+    "build": "parallelshell \"npm run jshint\" \"npm run babel\" \"npm run concat-js\" \"npm run minify-js\" \"npm run move-css\" ",
     "start": "parallelshell \"npm run onchange-js\" \"npm run build\" "
   }
 }
