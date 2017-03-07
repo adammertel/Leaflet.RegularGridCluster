@@ -47,12 +47,14 @@ L.RegularGridCluster = L.GeoJSON.extend({
     this._grid.addTo(this._map);
     this._markers.addTo(this._map);
     this._texts.addTo(this._map);
-
-    this._actions.push(this._map.on('zoomend', function(){
-      that.refresh();
-    }));
+  
+    this._addAction(this._map.on('zoomend', function(){ that.refresh();}));
     this._index();
     this.refresh();
+  },
+
+  _addAction: function (action) {
+    this._actions.push(action);
   },
 
   addLayer: function (layer) {
@@ -79,9 +81,7 @@ L.RegularGridCluster = L.GeoJSON.extend({
     this._map.removeLayer(this._grid);
     this._map.removeLayer(this._markers);
     this._map.removeLayer(this._texts);
-    this._map.removeLayer(this._displayedElsGroup);
-
-    
+    this._map.removeLayer(this._displayedElsGroup);    
   },
 
   _addPoint: function (element) {
@@ -113,10 +113,6 @@ L.RegularGridCluster = L.GeoJSON.extend({
     // console.log('elements indexed in ' + (time3.valueOf() - time2.valueOf()) + 'ms');
     // console.log('indexing took ' + (time3.valueOf() - time1.valueOf()) + 'ms');
     // console.log('//////////////////////////////////');
-
-  },
-
-  addData: function (element) {
 
   },
 

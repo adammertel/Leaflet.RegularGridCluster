@@ -152,11 +152,14 @@
             this._grid.addTo(this._map);
             this._markers.addTo(this._map);
             this._texts.addTo(this._map);
-            this._actions.push(this._map.on("zoomend", function() {
+            this._addAction(this._map.on("zoomend", function() {
                 that.refresh();
             }));
             this._index();
             this.refresh();
+        },
+        _addAction: function(action) {
+            this._actions.push(action);
         },
         addLayer: function(layer) {
             this.addLayers([ layer ]);
@@ -199,7 +202,6 @@
             this._indexElements();
             var time3 = new Date();
         },
-        addData: function(element) {},
         _displayElements: function() {
             if (!this.elementDisplayed) {
                 this._displayedElsGroup.clearLayers();
