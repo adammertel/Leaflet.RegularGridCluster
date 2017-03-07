@@ -122,7 +122,8 @@
             showTexts: true,
             showElementsZoom: 19,
             indexSize: 12,
-            rules: {}
+            rules: {},
+            trackingTime: true
         },
         initialize: function(options) {
             this.options = L.extend(this.options, options);
@@ -161,18 +162,18 @@
         _addAction: function(action) {
             this._actions.push(action);
         },
+        _unregisterActions: function() {
+            for (var ai in this._actions) {
+                var action = this._actions[ai];
+                action.off();
+            }
+        },
         addLayer: function(layer) {
             this.addLayers([ layer ]);
         },
         addLayers: function(layersArray) {
             for (var li in layersArray) {
                 this._addPoint(layersArray[li]);
-            }
-        },
-        _unregisterActions: function() {
-            for (var ai in this._actions) {
-                var action = this._actions[ai];
-                action.off();
             }
         },
         unregister: function() {
@@ -196,11 +197,19 @@
             }
         },
         _index: function() {
-            var time1 = new Date();
+            var times = [];
+            times.push(new Date());
             this._indexCells();
-            var time2 = new Date();
+            times.push(new Date());
             this._indexElements();
-            var time3 = new Date();
+            times.push(new Date());
+            if (this.options.trackingTime) {
+                console.log("//////////////////////////////////");
+                console.log("cells indexed in    " + (times[1].valueOf() - times[0].valueOf()) + "ms");
+                console.log("elements indexed in " + (times[2].valueOf() - times[1].valueOf()) + "ms");
+                console.log("indexing took       " + (times[2].valueOf() - times[0].valueOf()) + "ms");
+                console.log("//////////////////////////////////");
+            }
         },
         _displayElements: function() {
             if (!this.elementDisplayed) {
@@ -231,17 +240,28 @@
                 console.log("elements will be hidden");
                 this._hideElements();
                 this._truncateLayers();
-                var time1 = new Date();
+                var times = [];
+                times.push(new Date());
                 this._prepareCells();
-                var time2 = new Date();
+                times.push(new Date());
                 this._findElements();
-                var time3 = new Date();
+                times.push(new Date());
                 this._buildGrid();
-                var time4 = new Date();
+                times.push(new Date());
                 this._buildMarkers();
-                var time5 = new Date();
+                times.push(new Date());
                 this._buildTexts();
-                var time6 = new Date();
+                times.push(new Date());
+                if (this.options.trackingTime) {
+                    console.log("********************");
+                    console.log("cells prepared in " + (times[1].valueOf() - times[0].valueOf()) + "ms");
+                    console.log("elements found in " + (times[2].valueOf() - times[1].valueOf()) + "ms");
+                    console.log("grid built in     " + (times[3].valueOf() - times[2].valueOf()) + "ms");
+                    console.log("markers built in  " + (times[4].valueOf() - times[3].valueOf()) + "ms");
+                    console.log("texts built in    " + (times[5].valueOf() - times[4].valueOf()) + "ms");
+                    console.log(this._cells.length + " cells refreshed in " + (times[5].valueOf() - times[0].valueOf()) + "ms");
+                    console.log("********************");
+                }
             }
         },
         _truncateLayers: function() {

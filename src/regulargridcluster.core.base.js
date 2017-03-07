@@ -15,6 +15,7 @@ L.RegularGridCluster = L.GeoJSON.extend({
     indexSize: 12,
 
     rules: {},
+    trackingTime: true // for developement purposes 
 
   },
 
@@ -57,6 +58,13 @@ L.RegularGridCluster = L.GeoJSON.extend({
     this._actions.push(action);
   },
 
+  _unregisterActions: function () {
+    for (var ai in this._actions) {
+      var action = this._actions[ai];
+      action.off();
+    }
+  },
+
   addLayer: function (layer) {
     this.addLayers([layer]);
   },
@@ -64,13 +72,6 @@ L.RegularGridCluster = L.GeoJSON.extend({
   addLayers: function (layersArray) {
     for (var li in layersArray) {
       this._addPoint(layersArray[li]);
-    }
-  },
-
-  _unregisterActions: function () {
-    for (var ai in this._actions) {
-      var action = this._actions[ai];
-      action.off();
     }
   },
 
@@ -102,17 +103,20 @@ L.RegularGridCluster = L.GeoJSON.extend({
   },
 
   _index: function () {
-    var time1 = new Date();
+    var times = [];
+    times.push(new Date());
     this._indexCells();
-    var time2 = new Date();
+    times.push(new Date());
     this._indexElements();
-    var time3 = new Date();
+    times.push(new Date());
 
-    // console.log('//////////////////////////////////');
-    // console.log('cells indexed in ' + (time2.valueOf() - time1.valueOf()) + 'ms');
-    // console.log('elements indexed in ' + (time3.valueOf() - time2.valueOf()) + 'ms');
-    // console.log('indexing took ' + (time3.valueOf() - time1.valueOf()) + 'ms');
-    // console.log('//////////////////////////////////');
+    if (this.options.trackingTime) {
+      console.log('//////////////////////////////////');
+      console.log('cells indexed in    ' + (times[1].valueOf() - times[0].valueOf()) + 'ms');
+      console.log('elements indexed in ' + (times[2].valueOf() - times[1].valueOf()) + 'ms');
+      console.log('indexing took       ' + (times[2].valueOf() - times[0].valueOf()) + 'ms');
+      console.log('//////////////////////////////////');
+    }
 
   },
 
@@ -155,31 +159,35 @@ L.RegularGridCluster = L.GeoJSON.extend({
       this._hideElements();
       this._truncateLayers();
 
-      var time1 = new Date();
+      var times = [];
+
+      times.push(new Date());
 
       this._prepareCells();
-      var time2 = new Date();
+      times.push(new Date());
 
       this._findElements();
-      var time3 = new Date();
+      times.push(new Date());
 
       this._buildGrid();
-      var time4 = new Date();
+      times.push(new Date());
 
       this._buildMarkers();
-      var time5 = new Date();
+      times.push(new Date());
 
       this._buildTexts();
-      var time6 = new Date();
-
-      // console.log('********************');
-      // console.log('cells prepared in ' + (time2.valueOf() - time1.valueOf()) + 'ms');
-      // console.log('elements found in ' + (time3.valueOf() - time2.valueOf()) + 'ms');
-      // console.log('grid built in ' + (time4.valueOf() - time3.valueOf()) + 'ms');
-      // console.log('markers built in ' + (time5.valueOf() - time4.valueOf()) + 'ms');
-      // console.log('texts built in ' + (time6.valueOf() - time5.valueOf()) + 'ms');
-      // console.log(this._cells.length + ' cells refreshed in ' + (time6.valueOf() - time1.valueOf()) + 'ms');
-      // console.log('********************');
+      times.push(new Date());
+      
+      if (this.options.trackingTime) {
+        console.log('********************');
+        console.log('cells prepared in ' + (times[1].valueOf() - times[0].valueOf()) + 'ms');
+        console.log('elements found in ' + (times[2].valueOf() - times[1].valueOf()) + 'ms');
+        console.log('grid built in     ' + (times[3].valueOf() - times[2].valueOf()) + 'ms');
+        console.log('markers built in  ' + (times[4].valueOf() - times[3].valueOf()) + 'ms');
+        console.log('texts built in    ' + (times[5].valueOf() - times[4].valueOf()) + 'ms');
+        console.log(this._cells.length + ' cells refreshed in ' + (times[5].valueOf() - times[0].valueOf()) + 'ms');
+        console.log('********************');
+      }
     }
 
   },
