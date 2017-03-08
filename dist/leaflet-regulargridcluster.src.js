@@ -304,9 +304,7 @@ L.RegularGridCluster = L.GeoJSON.extend({
     }
   },
   refresh: function refresh() {
-    var zoom = this._map.getZoom();
-
-    if (zoom > this.options.showElementsZoom) {
+    if (this._map.getZoom() > this.options.showElementsZoom) {
       console.log('elements will be displayed');
       this._displayElements();
     } else {
@@ -431,12 +429,9 @@ L.RegularGridCluster = L.GeoJSON.extend({
   _indexElements: function _indexElements() {
     var _this7 = this;
 
-    var elements = this._getElementsCollection();
-
-    elements.map(function (element) {
+    this._getElementsCollection().map(function (element) {
       for (var ici in _this7._indexedCells) {
-        var indexedCell = _this7._indexedCells[ici];
-        if (indexedCell.b.contains(element.g)) {
+        if (_this7._indexedCells[ici].b.contains(element.g)) {
           _this7._elements[element.id].index = ici;
           break;
         }
@@ -531,15 +526,12 @@ L.RegularGridCluster = L.GeoJSON.extend({
   _findElements: function _findElements() {
     var _this9 = this;
 
-    var elements = this._getElementsCollection();
-
-    elements.map(function (element) {
+    this._getElementsCollection().map(function (element) {
       var ei = element.id;
       var ex = element.g[1];
       var ey = element.g[0];
-      var cellsAtIndex = _this9._indexedCells[element.i].cs;
 
-      cellsAtIndex.map(function (cell) {
+      _this9._indexedCells[element.i].cs.map(function (cell) {
         if (_this9._elmInsideOperations[_this9.options.gridMode].call(_this9, ex, ey, cell)) {
           cell.elms.push(ei);
         }
@@ -554,9 +546,6 @@ L.RegularGridCluster = L.GeoJSON.extend({
 
   _visualise: function _visualise(featureType) {
     var _this10 = this;
-
-    var cj = void 0;
-    var cell = void 0;
 
     if (this.options.rules[featureType]) {
 
@@ -855,15 +844,12 @@ L.RegularGridCluster.include({
       var ratioDif = (value - edgeValues[interval]) / (edgeValues[interval + 1] - edgeValues[interval]);
       var bottomValue = style[interval];
       var upperValue = style[interval + 1];
-      var styleValue = void 0;
 
       if (cluster._isNumber(bottomValue)) {
-        styleValue = bottomValue + ratioDif * (upperValue - bottomValue);
+        return bottomValue + ratioDif * (upperValue - bottomValue);
       } else {
-        styleValue = cluster._colorMix(upperValue, bottomValue, ratioDif);
+        return cluster._colorMix(upperValue, bottomValue, ratioDif);
       }
-
-      return styleValue;
     }
   },
 

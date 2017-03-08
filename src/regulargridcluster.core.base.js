@@ -152,9 +152,7 @@ L.RegularGridCluster = L.GeoJSON.extend({
   },
 
   refresh () {
-    const zoom = this._map.getZoom();
-
-    if (zoom > this.options.showElementsZoom) {
+    if (this._map.getZoom() > this.options.showElementsZoom) {
       console.log('elements will be displayed');
       this._displayElements();
     } else {
@@ -280,12 +278,9 @@ L.RegularGridCluster = L.GeoJSON.extend({
   },
 
   _indexElements () {
-    const elements = this._getElementsCollection();
-
-    elements.map( element => {
+    this._getElementsCollection().map( element => {
       for (const ici in this._indexedCells) {
-        const indexedCell = this._indexedCells[ici];
-        if (indexedCell.b.contains(element.g)) {
+        if (this._indexedCells[ici].b.contains(element.g)) {
           this._elements[element.id].index = ici;
           break;
         }
@@ -379,15 +374,12 @@ L.RegularGridCluster = L.GeoJSON.extend({
   },
 
   _findElements () {
-    const elements = this._getElementsCollection();
-
-    elements.map( element => {
+    this._getElementsCollection().map( element => {
       const ei = element.id;
       const ex = element.g[1];
       const ey = element.g[0];
-      const cellsAtIndex = this._indexedCells[element.i].cs;
 
-      cellsAtIndex.map ( cell => {
+      this._indexedCells[element.i].cs.map ( cell => {
         if (this._elmInsideOperations[this.options.gridMode].call(this, ex, ey, cell)) {
           cell.elms.push(ei);
         }
@@ -400,9 +392,6 @@ L.RegularGridCluster = L.GeoJSON.extend({
   },
 
   _visualise (featureType) {
-    let cj; 
-    let cell;
-    
     if (this.options.rules[featureType]) {
 
       Object.keys(this.options.rules[featureType]).map( option => {

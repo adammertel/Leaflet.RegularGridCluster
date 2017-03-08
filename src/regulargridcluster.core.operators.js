@@ -37,15 +37,12 @@ L.RegularGridCluster.include( {
       const ratioDif = (value - edgeValues[interval]) / (edgeValues[interval + 1] - edgeValues[interval]);
       const bottomValue = style[interval];
       const upperValue = style[interval + 1];
-      let styleValue;
 
       if (cluster._isNumber(bottomValue)) {
-        styleValue = bottomValue + ratioDif * (upperValue - bottomValue);
+        return bottomValue + ratioDif * (upperValue - bottomValue);
       } else {
-        styleValue = cluster._colorMix(upperValue, bottomValue, ratioDif);
+        return cluster._colorMix(upperValue, bottomValue, ratioDif);
       }
-
-      return styleValue;
     }
   },
 
