@@ -360,11 +360,7 @@ L.RegularGridCluster = L.GeoJSON.extend({
     this._grid.truncate();
     this._markers.truncate();
     this._texts.truncate();
-    this._map.invalidateSize();
   },
-
-
-  // Controlling grid
   _buildGrid: function _buildGrid() {
     if (this.options.rules.grid && this.options.showGrid) {
       this._visualise('grid');
@@ -416,17 +412,16 @@ L.RegularGridCluster = L.GeoJSON.extend({
   _indexCells: function _indexCells() {
     var origin = this._gridOrigin();
     var gridEnd = this._gridExtent().getNorthEast();
-    var maxX = gridEnd.lng;
-    var maxY = gridEnd.lat;
-
-    var x = origin.lng;
-    var y = origin.lat;
+    var maxX = gridEnd.lng,
+        maxY = gridEnd.lat;
+    var x = origin.lng,
+        y = origin.lat;
 
     var indexPortion = this.options.indexSize;
-    var diffX = (maxX - x) / indexPortion;
-    var diffY = (maxY - y) / indexPortion;
-    this._indexedCells = {};
+    var diffX = (maxX - x) / indexPortion,
+        diffY = (maxY - y) / indexPortion;
 
+    this._indexedCells = {};
     var cellId = 0;
 
     for (var xi = x; xi < maxX; xi += diffX) {
@@ -467,21 +462,21 @@ L.RegularGridCluster = L.GeoJSON.extend({
   _prepareCells: function _prepareCells() {
     this._cells = [];
     this._truncateIndexedCells();
+
     var cellId = 1;
 
     var cellSize = this._cellSize();
-
     var origin = this._gridOrigin();
     var gridEnd = this._gridExtent().getNorthEast();
-    var maxX = gridEnd.lng;
-    var maxY = gridEnd.lat;
+    var maxX = gridEnd.lng,
+        maxY = gridEnd.lat;
 
-    var x = origin.lng;
-    var y = origin.lat;
-    var cellW = cellSize / 111319;
-
-    var indexedCellsCollection = this._indexedCellsCollection();
+    var x = origin.lng,
+        y = origin.lat;
     var row = 1;
+
+    var cellW = cellSize / 111319;
+    var indexedCellsCollection = this._indexedCellsCollection();
 
     var indexCellsInCollection = function indexCellsInCollection(cell, cellBounds) {
       indexedCellsCollection.map(function (indexedCell) {
@@ -516,6 +511,7 @@ L.RegularGridCluster = L.GeoJSON.extend({
 
           elms: []
         };
+
         var cellBounds = L.latLngBounds([y, x], [y + cellH, x + cellW]);
 
         cell.path = this._buildPathOperations[this.options.gridMode].call(this, cell);
@@ -542,8 +538,8 @@ L.RegularGridCluster = L.GeoJSON.extend({
 
     this._getElementsCollection().map(function (element) {
       var ei = element.id;
-      var ex = element.g[1];
-      var ey = element.g[0];
+      var ex = element.g[1],
+          ey = element.g[0];
 
       _this10._indexedCells[element.i].cs.map(function (cell) {
         if (_this10._elmInsideOperations[_this10.options.gridMode].call(_this10, ex, ey, cell)) {

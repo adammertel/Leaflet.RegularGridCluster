@@ -206,16 +206,12 @@ L.RegularGridCluster = L.GeoJSON.extend({
     }
   },
  
-
-
   _truncateLayers () {
     this._grid.truncate();
     this._markers.truncate();
     this._texts.truncate();
-    this._map.invalidateSize();
   },
 
-  // Controlling grid
   _buildGrid () {
     if (this.options.rules.grid && this.options.showGrid) {
       this._visualise('grid');
@@ -246,7 +242,6 @@ L.RegularGridCluster = L.GeoJSON.extend({
 
       this._markers.addTo(this._map);
     }
-
   },
 
   _buildTexts () {
@@ -268,17 +263,13 @@ L.RegularGridCluster = L.GeoJSON.extend({
   _indexCells () {
     const origin = this._gridOrigin();
     const gridEnd = this._gridExtent().getNorthEast();
-    const maxX = gridEnd.lng;
-    const maxY = gridEnd.lat;
-
-    const x = origin.lng;
-    const y = origin.lat;
+    const maxX = gridEnd.lng, maxY = gridEnd.lat;
+    const x = origin.lng, y = origin.lat;
 
     const indexPortion = this.options.indexSize;
-    const diffX = (maxX - x) / indexPortion;
-    const diffY = (maxY - y) / indexPortion;
+    const diffX = (maxX - x) / indexPortion, diffY = (maxY - y) / indexPortion;
+    
     this._indexedCells = {};
-
     let cellId = 0;
 
     for (var xi = x; xi < maxX; xi += diffX){
@@ -317,21 +308,19 @@ L.RegularGridCluster = L.GeoJSON.extend({
   _prepareCells () {
     this._cells = [];
     this._truncateIndexedCells();
+    
     let cellId = 1;
 
     const cellSize = this._cellSize();
-
     const origin = this._gridOrigin();
     const gridEnd = this._gridExtent().getNorthEast();
-    const maxX = gridEnd.lng;
-    const maxY = gridEnd.lat;
+    const maxX = gridEnd.lng, maxY = gridEnd.lat;
 
-    let x = origin.lng;
-    let y = origin.lat;
-    const cellW = cellSize/111319;
-
-    const indexedCellsCollection = this._indexedCellsCollection();
+    let x = origin.lng, y = origin.lat;
     let row = 1;
+
+    const cellW = cellSize/111319;
+    const indexedCellsCollection = this._indexedCellsCollection();
 
     const indexCellsInCollection = (cell, cellBounds) => {
       indexedCellsCollection.map (indexedCell => {
@@ -366,6 +355,7 @@ L.RegularGridCluster = L.GeoJSON.extend({
 
           elms: []
         };
+
         const cellBounds = L.latLngBounds([y, x], [y + cellH, x + cellW]);
 
         cell.path = this._buildPathOperations[this.options.gridMode].call(this, cell);
@@ -392,8 +382,7 @@ L.RegularGridCluster = L.GeoJSON.extend({
   _findElements () {
     this._getElementsCollection().map( element => {
       const ei = element.id;
-      const ex = element.g[1];
-      const ey = element.g[0];
+      const ex = element.g[1], ey = element.g[0];
 
       this._indexedCells[element.i].cs.map ( cell => {
         if (this._elmInsideOperations[this.options.gridMode].call(this, ex, ey, cell)) {
