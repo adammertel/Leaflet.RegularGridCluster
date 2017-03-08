@@ -453,7 +453,7 @@ L.RegularGridCluster = L.GeoJSON.extend({
     if (this._scaleOperations[scale]){
       this._cells.map ( cell => {
         if (this._isDefined(cell.value)) {
-          cell.options[featureType][option] = this._scaleOperations[scale].call(
+          cell.options[featureType][option] = this._scaleOperations[scale](
             this, 
             cell.value, 
             min, max, noInts, 
@@ -472,7 +472,7 @@ L.RegularGridCluster = L.GeoJSON.extend({
         if (method !== 'count') {
           cellValues = this._cellAttrValues(cell, attr);
         }
-        cell.value = this._methodOperations[method].call(this, cell, cellValues);
+        cell.value = this._methodOperations[method](this, cell, cellValues);
       }
     });
   },

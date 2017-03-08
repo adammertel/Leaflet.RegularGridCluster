@@ -1,3 +1,5 @@
+/*jshint esversion: 6 */
+
 L.RegularGridClusterText = L.Marker.extend({
   options: {
   },
@@ -20,6 +22,6 @@ L.RegularGridClusterText = L.Marker.extend({
 
 });
 
-L.regularGridClusterText = function(centroid, options) {
+L.regularGridClusterText = (centroid, options) => {
   return new L.RegularGridClusterText(centroid, options);
 };

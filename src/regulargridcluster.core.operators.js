@@ -2,8 +2,8 @@
 
 L.RegularGridCluster.include( {
   _scaleOperations: {
-    size: function (value, min, max, noInts, thresholds, style) {
-      var diff = max - min;
+    size: (cluster, value, min, max, noInts, thresholds, style) => {
+      const diff = max - min;
       let interval = noInts - 1;
       if (value < max) {
         interval = Math.floor(((value - min)/diff) * noInts);
@@ -11,38 +11,38 @@ L.RegularGridCluster.include( {
       return style[interval];
     },
 
-    quantile: function (value, min, max, noInts, thresholds, style) {
+    quantile: (cluster, value, min, max, noInts, thresholds, style) => {
       let interval = 0;
-      for (var ti in thresholds) {
-        if (value > thresholds[ti]) {
+      thresholds.map ( (threshold, ti) => {
+        if (value > threshold) {
           interval = (parseInt(ti) + 1);
         }
-      }
+      });
       return style[interval];
     },
 
-    continuous: function (value, min, max, noInts, thresholds, style) {
+    continuous: (cluster, value, min, max, noInts, thresholds, style) => {
       let interval = 0;
 
-      for (var tj in thresholds) {
-        if (value > thresholds[tj]) {
-          interval = parseInt(tj) + 1;
+      thresholds.map ( (threshold, ti) => {
+        if (value > threshold) {
+          interval = parseInt(ti) + 1;
         }
-      }
+      });
 
-      var edgeValues = thresholds.slice(0);
+      const edgeValues = thresholds.slice(0);
       edgeValues.push(max);
       edgeValues.unshift(min);
 
-      var ratioDif = (value - edgeValues[interval]) / (edgeValues[interval + 1] - edgeValues[interval]);
-      var bottomValue = style[interval];
-      var upperValue = style[interval + 1];
-      var styleValue;
+      const ratioDif = (value - edgeValues[interval]) / (edgeValues[interval + 1] - edgeValues[interval]);
+      const bottomValue = style[interval];
+      const upperValue = style[interval + 1];
+      let styleValue;
 
-      if (this._isNumber(bottomValue)) {
+      if (cluster._isNumber(bottomValue)) {
         styleValue = bottomValue + ratioDif * (upperValue - bottomValue);
       } else {
-        styleValue = this._colorMix(upperValue, bottomValue, ratioDif);
+        styleValue = cluster._colorMix(upperValue, bottomValue, ratioDif);
       }
 
       return styleValue;
@@ -50,18 +50,18 @@ L.RegularGridCluster.include( {
   },
 
   _methodOperations: {
-    count: function (cell, values) {return cell.elms.length;},
-    mean: function (cell, values) {return this._math_mean(values);},
-    median: function (cell, values) {return this._math_median(values);},
-    mode: function (cell, values) {return this._math_mode(values);},
-    max: function (cell, values) {return this._math_max(values);},
-    min: function (cell, values) {return this._math_min(values);},
-    sum: function (cell, values) {return this._math_sum(values);},
+    count: (cluster, cell, values) => cell.elms.length,
+    mean: (cluster, cell, values) => cluster._math_mean(values),
+    median: (cluster, cell, values) => cluster._math_median(values),
+    mode: (cluster, cell, values) => cluster._math_mode(values),
+    max: (cluster, cell, values) => cluster._math_max(values),
+    min: (cluster, cell, values) => cluster._math_min(values),
+    sum: (cluster, cell, values) => cluster._math_sum(values),
   },
 
   _elmInsideOperations: {
-    square: function (ex, ey, cell) {
-      var x1 = cell.x, x2 = cell.x + cell.w, y1 = cell.y, y2 = cell.y + cell.h;
+    square: (ex, ey, cell) => {
+      const x1 = cell.x, x2 = cell.x + cell.w, y1 = cell.y, y2 = cell.y + cell.h;
       if (ex > x1) {
         if (ey > y1) {
           if (ex < x2) {
@@ -73,17 +73,17 @@ L.RegularGridCluster.include( {
       }
       return false;
     },
-    hexagon: function (ex, ey, cell) {
-      var x1 = cell.x, x2 = cell.x + cell.w, y1 = cell.y, y2 = cell.y + cell.h;
+    hexagon: (ex, ey, cell) => {
+      const x1 = cell.x, x2 = cell.x + cell.w, y1 = cell.y, y2 = cell.y + cell.h;
       if (ex > x1) {
         if (ey > y1) {
           if (ex < x2) {
             if (ey < y2) {
-              var yh1 = y1 + cell.h * 1/4, yh2 = y1 + cell.h * 3/4;
+              const yh1 = y1 + cell.h * 1/4, yh2 = y1 + cell.h * 3/4;
               if (ey > yh1 && ey < yh2) {
                 return true;
               } else {
-                var tx = ex - x1, ty = ey - y1;
+                let tx = ex - x1, ty = ey - y1;
                 if (ty > (cell.h/4) * 3) {ty = cell.h - ty;}
                 if (tx > cell.w/2) {tx = cell.w - tx;}
                 return ty/(cell.h/4) + tx/(cell.w/2) > 1;
@@ -97,10 +97,10 @@ L.RegularGridCluster.include( {
   },
 
   _buildPathOperations: {
-    square: function (c) {
+    square: (c) => {
       return [[c.y, c.x], [c.y, c.x + c.w], [c.y + c.h, c.x + c.w], [c.y + c.h, c.x], [c.y, c.x]];
     },
-    hexagon: function (c) {
+    hexagon: (c) => {
       return [
         [c.y + c.h/4, c.x],
         [c.y, c.x + c.w/2],

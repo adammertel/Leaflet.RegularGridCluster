@@ -1,3 +1,5 @@
+/*jshint esversion: 6 */
+
 L.RegularGridClusterCell = L.Polygon.extend({
   options: {
     weight: 1,
@@ -9,7 +11,7 @@ L.RegularGridClusterCell = L.Polygon.extend({
     strokeLocation: 'inside'
   },
   
-  initialize: function (path, options) {
+  initialize (path, options) {
     this.options = L.extend(this.options, options);
     L.Util.setOptions(this, this.options);
 
@@ -17,6 +19,6 @@ L.RegularGridClusterCell = L.Polygon.extend({
   },
 });
 
-L.regularGridClusterCell = function(path, options) {
+L.regularGridClusterCell = (path, options) => {
   return new L.RegularGridClusterCell(path, options);
 };

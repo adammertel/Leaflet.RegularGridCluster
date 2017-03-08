@@ -1,8 +1,10 @@
+/*jshint esversion: 6 */
+
 L.RegularGridClusterGrid = L.FeatureGroup.extend({
   options: {
 
   },
-  initialize: function (options) {
+  initialize (options) {
     this.controller = options.controller;
     this.options = L.extend(this.options, options);
     L.Util.setOptions(this, options);
@@ -12,19 +14,19 @@ L.RegularGridClusterGrid = L.FeatureGroup.extend({
     }, options);
   },
 
-  render: function (cellSize, origin) {
+  render (cellSize, origin) {
 
   },
 
-  addLayer: function (cell) {
+  addLayer (cell) {
     L.FeatureGroup.prototype.addLayer.call(this, cell);
   },
 
-  truncate: function () {
+  truncate () {
     this.clearLayers();
   }
 });
 
-L.regularGridClusterGrid = function(options) {
+L.regularGridClusterGrid = (options) => {
   return new L.RegularGridClusterGrid(options);
 };
