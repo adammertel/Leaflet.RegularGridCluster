@@ -11,7 +11,8 @@ L.RegularGridCluster = L.GeoJSON.extend({
     showMarkers: true,
     showTexts: true,
 
-    showElementsZoom: 19,
+    zoomShowElements: 10,
+    zoomHideGrid: 10,
 
     indexSize: 12,
 
@@ -47,18 +48,19 @@ L.RegularGridCluster = L.GeoJSON.extend({
     this._markers.addTo(this._map);
     this._texts.addTo(this._map);
   
-    this._addAction(this._map.on('zoomend', () => { this.refresh();}));
+    this._addAction(() => { this.refresh();}, 'zoomend');
     this._index();
     this.refresh();
   },
 
-  _addAction (action) {
-    this._actions.push(action);
+  _addAction (callback, type) {
+    this._actions.push({callback: callback, type: type});
+    this._map.on(type, callback);
   },
 
   _unregisterActions () {
     this._actions.map (action => {
-      action.off();
+       this._map.off(action.type, action.callback);
     });
   },
 
@@ -71,13 +73,12 @@ L.RegularGridCluster = L.GeoJSON.extend({
   },
 
   unregister () {
-    this.clearLayers();
     this._unregisterActions();
-
-    this._map.removeLayer(this._grid);
-    this._map.removeLayer(this._markers);
-    this._map.removeLayer(this._texts);
-    this._map.removeLayer(this._displayedElsGroup);    
+    this._truncateLayers();
+    // this._map.removeLayer(this._grid);
+    // this._map.removeLayer(this._markers);
+    // this._map.removeLayer(this._texts);
+    // this._map.removeLayer(this._displayedElsGroup);    
   },
 
   _addPoint (element) {
@@ -152,16 +153,26 @@ L.RegularGridCluster = L.GeoJSON.extend({
   },
 
   refresh () {
-    if (this._map.getZoom() > this.options.showElementsZoom) {
+    this._renderElements();
+    this._renderGrid();
+  },
+
+  _renderElements () {
+    if (this._map.getZoom() >= this.options.zoomShowElements) {
       console.log('elements will be displayed');
       this._displayElements();
     } else {
-      console.log('elements will be hidden');
       this._hideElements();
+    }
+  },
+
+
+  _renderGrid () {
+    if (this._map.getZoom() < this.options.zoomHideGrid) {
+      console.log('grid will be displayed');
       this._truncateLayers();
 
       const times = [];
-
       times.push(new Date());
 
       this._prepareCells();
@@ -189,14 +200,19 @@ L.RegularGridCluster = L.GeoJSON.extend({
         console.log(this._cells.length + ' cells refreshed in ' + (times[5].valueOf() - times[0].valueOf()) + 'ms');
         console.log('********************');
       }
+    } else {
+      console.log('grid will be hidden');
+      this._truncateLayers();
     }
-
   },
+ 
+
 
   _truncateLayers () {
     this._grid.truncate();
     this._markers.truncate();
     this._texts.truncate();
+    this._map.invalidateSize();
   },
 
   // Controlling grid

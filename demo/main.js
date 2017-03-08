@@ -46,8 +46,9 @@ var render = function () {
   grid = L.regularGridCluster(
     {
       rules: getRules(),
-      showElementsZoom: 5,
-      cellSize: document.getElementById('select-cell-size').value,
+      zoomShowElements: parseInt(document.getElementById('select-elements-zoom').value),
+      zoomHideGrid: parseInt(document.getElementById('select-grid-zoom').value),
+      cellSize: parseInt(document.getElementById('select-cell-size').value),
       gridMode: document.getElementById('select-grid-mode').value,
       trackingTime: true
     }
