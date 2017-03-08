@@ -185,7 +185,7 @@ L.RegularGridCluster = L.GeoJSON.extend({
 
     this._actions = [];
     this._elements = {};
-    this._displayedElsGroup = L.featureGroup([]);
+    this._displayedElements = L.featureGroup([]);
     this._cells = [];
 
     this._grid = new L.regularGridClusterGrid({ controller: this });
@@ -230,8 +230,12 @@ L.RegularGridCluster = L.GeoJSON.extend({
     var _this3 = this;
 
     layersArray.map(function (layer) {
-      return _this3._addPoint(layer);
+      return _this3._addElement(layer);
     });
+    if (this._map) {
+      this._index();
+      this.refresh();
+    }
   },
   unregister: function unregister() {
     this._unregisterActions();
@@ -239,23 +243,19 @@ L.RegularGridCluster = L.GeoJSON.extend({
     // this._map.removeLayer(this._grid);
     // this._map.removeLayer(this._markers);
     // this._map.removeLayer(this._texts);
-    // this._map.removeLayer(this._displayedElsGroup);    
+    // this._map.removeLayer(this._displayedElements);    
   },
-  _addPoint: function _addPoint(element) {
+  _addElement: function _addElement(element) {
     // todo - filter non point and group data
     this._elements[this.lastelmid] = {
       "id": this.lastelmid,
-      "geometry": element.geometry.coordinates,
-      "properties": element.properties
+      "latlng": element.marker.getLatLng(),
+      "properties": element.properties,
+      "marker": element.marker
     };
 
     this.lastelmid++;
     //L.GeoJSON.prototype.addData.call(this, element);
-
-    if (this._map) {
-      this._index();
-      this.refresh();
-    }
   },
   _index: function _index() {
     var times = [];
@@ -279,36 +279,41 @@ L.RegularGridCluster = L.GeoJSON.extend({
     return Object.keys(this._elements).map(function (key) {
       return {
         id: _this4._elements[key].id,
-        g: _this4._elements[key].geometry,
+        g: _this4._elements[key].latlng,
         i: _this4._elements[key].index
       };
     });
   },
-  _displayElements: function _displayElements() {
+  _getElementMarkers: function _getElementMarkers() {
     var _this5 = this;
 
+    return Object.keys(this._elements).map(function (key) {
+      return _this5._elements[key].marker;
+    });
+  },
+  _displayElements: function _displayElements() {
+    var _this6 = this;
+
     if (!this.elementDisplayed) {
-      this._displayedElsGroup.clearLayers();
+      this._displayedElements.clearLayers();
       this.elementDisplayed = true;
 
-      this._getElementsCollection().map(function (element) {
-        var newMarker = L.circleMarker([element.g[0], element.g[1]], 50, { fillColor: 'lightblue', stroke: false });
-
-        _this5._displayedElsGroup.addLayer(newMarker);
+      this._getElementMarkers().map(function (marker) {
+        _this6._displayedElements.addLayer(marker);
       });
 
-      this._displayedElsGroup.addTo(this._map);
+      this._displayedElements.addTo(this._map);
     }
   },
   _hideElements: function _hideElements() {
     if (this.elementDisplayed) {
       this.elementDisplayed = false;
-      this._displayedElsGroup.clearLayers();
+      this._displayedElements.clearLayers();
     }
   },
   refresh: function refresh() {
     this._renderElements();
-    this._renderGrid();
+    this._renderComponents();
   },
   _renderElements: function _renderElements() {
     if (this._map.getZoom() >= this.options.zoomShowElements) {
@@ -318,9 +323,9 @@ L.RegularGridCluster = L.GeoJSON.extend({
       this._hideElements();
     }
   },
-  _renderGrid: function _renderGrid() {
+  _renderComponents: function _renderComponents() {
     if (this._map.getZoom() < this.options.zoomHideGrid) {
-      console.log('grid will be displayed');
+      console.log('grid components will be displayed');
       this._truncateLayers();
 
       var times = [];
@@ -376,16 +381,16 @@ L.RegularGridCluster = L.GeoJSON.extend({
     }
   },
   _buildMarkers: function _buildMarkers() {
-    var _this6 = this;
+    var _this7 = this;
 
     if (this.options.rules.markers && this.options.showMarkers) {
       this._visualise('markers');
 
       this._cells.map(function (cell) {
-        if (_this6._cellIsNotEmpty(cell)) {
+        if (_this7._cellIsNotEmpty(cell)) {
           var cellCentroid = [cell.y + cell.h / 2, cell.x + cell.w / 2];
           var marker = new L.regularGridClusterMarker(cellCentroid, cell.options.markers);
-          _this6._markers.addLayer(marker);
+          _this7._markers.addLayer(marker);
         }
       });
 
@@ -393,16 +398,16 @@ L.RegularGridCluster = L.GeoJSON.extend({
     }
   },
   _buildTexts: function _buildTexts() {
-    var _this7 = this;
+    var _this8 = this;
 
     if (this.options.rules.texts && this.options.showTexts) {
       this._visualise('texts');
 
       this._cells.map(function (cell) {
-        if (_this7._cellIsNotEmpty(cell)) {
+        if (_this8._cellIsNotEmpty(cell)) {
           var cellCentroid = [cell.y + cell.h / 2, cell.x + cell.w / 2];
           var text = new L.regularGridClusterText(cellCentroid, cell.options.texts);
-          _this7._texts.addLayer(text);
+          _this8._texts.addLayer(text);
         }
       });
 
@@ -436,22 +441,22 @@ L.RegularGridCluster = L.GeoJSON.extend({
     }
   },
   _indexElements: function _indexElements() {
-    var _this8 = this;
+    var _this9 = this;
 
     this._getElementsCollection().map(function (element) {
-      for (var ici in _this8._indexedCells) {
-        if (_this8._indexedCells[ici].b.contains(element.g)) {
-          _this8._elements[element.id].index = ici;
+      for (var ici in _this9._indexedCells) {
+        if (_this9._indexedCells[ici].b.contains(element.g)) {
+          _this9._elements[element.id].index = ici;
           break;
         }
       }
     });
   },
   _indexedCellsCollection: function _indexedCellsCollection() {
-    var _this9 = this;
+    var _this10 = this;
 
     return Object.keys(this._indexedCells).map(function (key) {
-      return _this9._indexedCells[key];
+      return _this10._indexedCells[key];
     });
   },
   _truncateIndexedCells: function _truncateIndexedCells() {
@@ -534,15 +539,15 @@ L.RegularGridCluster = L.GeoJSON.extend({
     }
   },
   _findElements: function _findElements() {
-    var _this10 = this;
+    var _this11 = this;
 
     this._getElementsCollection().map(function (element) {
       var ei = element.id;
-      var ex = element.g[1],
-          ey = element.g[0];
+      var ex = element.g.lng,
+          ey = element.g.lat;
 
-      _this10._indexedCells[element.i].cs.map(function (cell) {
-        if (_this10._elmInsideOperations[_this10.options.gridMode].call(_this10, ex, ey, cell)) {
+      _this11._indexedCells[element.i].cs.map(function (cell) {
+        if (_this11._elmInsideOperations[_this11.options.gridMode].call(_this11, ex, ey, cell)) {
           cell.elms.push(ei);
         }
       });
@@ -555,26 +560,26 @@ L.RegularGridCluster = L.GeoJSON.extend({
   },
 
   _visualise: function _visualise(featureType) {
-    var _this11 = this;
+    var _this12 = this;
 
     if (this.options.rules[featureType]) {
 
       Object.keys(this.options.rules[featureType]).map(function (option) {
-        var rule = _this11.options.rules[featureType][option];
+        var rule = _this12.options.rules[featureType][option];
 
         if (option == 'text') {
-          _this11._cellsValues(rule.method, rule.attribute);
-          _this11._cells.map(function (cell) {
-            if (_this11._cellIsNotEmpty(cell)) {
+          _this12._cellsValues(rule.method, rule.attribute);
+          _this12._cells.map(function (cell) {
+            if (_this12._cellIsNotEmpty(cell)) {
               cell.options.texts.text = cell.value;
             }
           });
-        } else if (_this11._isDynamicalRule(rule)) {
-          _this11._cellsValues(rule.method, rule.attribute);
-          _this11._applyOptions(featureType, rule.scale, rule.style, option);
+        } else if (_this12._isDynamicalRule(rule)) {
+          _this12._cellsValues(rule.method, rule.attribute);
+          _this12._applyOptions(featureType, rule.scale, rule.style, option);
         } else {
-          _this11._cells.map(function (cell) {
-            if (_this11._cellIsNotEmpty(cell)) {
+          _this12._cells.map(function (cell) {
+            if (_this12._cellIsNotEmpty(cell)) {
               cell.options[featureType][option] = rule;
             }
           });
@@ -583,7 +588,7 @@ L.RegularGridCluster = L.GeoJSON.extend({
     }
   },
   _applyOptions: function _applyOptions(featureType, scale, style, option) {
-    var _this12 = this;
+    var _this13 = this;
 
     var values = this._cellValues(true).sort(function (a, b) {
       return a - b;
@@ -608,23 +613,23 @@ L.RegularGridCluster = L.GeoJSON.extend({
 
     if (this._scaleOperations[scale]) {
       this._cells.map(function (cell) {
-        if (_this12._isDefined(cell.value)) {
-          cell.options[featureType][option] = _this12._scaleOperations[scale](_this12, cell.value, min, max, noInts, thresholds, style);
+        if (_this13._isDefined(cell.value)) {
+          cell.options[featureType][option] = _this13._scaleOperations[scale](_this13, cell.value, min, max, noInts, thresholds, style);
         }
       });
     }
   },
   _cellsValues: function _cellsValues(method, attr) {
-    var _this13 = this;
+    var _this14 = this;
 
     this._cells.map(function (cell) {
-      if (_this13._cellIsNotEmpty(cell)) {
+      if (_this14._cellIsNotEmpty(cell)) {
         var cellValues = void 0;
 
         if (method !== 'count') {
-          cellValues = _this13._cellAttrValues(cell, attr);
+          cellValues = _this14._cellAttrValues(cell, attr);
         }
-        cell.value = _this13._methodOperations[method](_this13, cell, cellValues);
+        cell.value = _this14._methodOperations[method](_this14, cell, cellValues);
       }
     });
   },
@@ -642,10 +647,10 @@ L.RegularGridCluster = L.GeoJSON.extend({
     }
   },
   _cellAttrValues: function _cellAttrValues(cell, attr) {
-    var _this14 = this;
+    var _this15 = this;
 
     return cell.elms.map(function (elm) {
-      return _this14._elements[elm].properties[attr];
+      return _this15._elements[elm].properties[attr];
     });
   },
   _isDynamicalRule: function _isDynamicalRule(rule) {

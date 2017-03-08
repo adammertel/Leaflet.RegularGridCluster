@@ -28,7 +28,7 @@ L.RegularGridCluster = L.GeoJSON.extend({
 
     this._actions = []; 
     this._elements = {};
-    this._displayedElsGroup = L.featureGroup([]);
+    this._displayedElements = L.featureGroup([]);
     this._cells = [];
 
     this._grid = new L.regularGridClusterGrid({controller: this});
@@ -69,7 +69,11 @@ L.RegularGridCluster = L.GeoJSON.extend({
   },
 
   addLayers (layersArray) {
-    layersArray.map ( layer => this._addPoint (layer));
+    layersArray.map ( layer => this._addElement (layer));
+    if (this._map) {
+      this._index();
+      this.refresh();
+    }
   },
 
   unregister () {
@@ -78,24 +82,20 @@ L.RegularGridCluster = L.GeoJSON.extend({
     // this._map.removeLayer(this._grid);
     // this._map.removeLayer(this._markers);
     // this._map.removeLayer(this._texts);
-    // this._map.removeLayer(this._displayedElsGroup);    
+    // this._map.removeLayer(this._displayedElements);    
   },
 
-  _addPoint (element) {
+  _addElement (element) {
     // todo - filter non point and group data
     this._elements[this.lastelmid] = {
       "id": this.lastelmid,
-      "geometry": element.geometry.coordinates,
-      "properties": element.properties
+      "latlng": element.marker.getLatLng(),
+      "properties": element.properties,
+      "marker": element.marker
     };
 
     this.lastelmid++;
     //L.GeoJSON.prototype.addData.call(this, element);
-
-    if (this._map) {
-      this._index();
-      this.refresh();
-    }
   },
 
   _index () {
@@ -113,48 +113,47 @@ L.RegularGridCluster = L.GeoJSON.extend({
       console.log('indexing took       ' + (times[2].valueOf() - times[0].valueOf()) + 'ms');
       console.log('//////////////////////////////////');
     }
-
   },
 
-  _getElementsCollection (){
+  _getElementsCollection () {
     return Object.keys(this._elements).map( key => {
       return {
         id: this._elements[key].id,
-        g: this._elements[key].geometry,
+        g: this._elements[key].latlng,
         i: this._elements[key].index
       };
     });
   },
 
+  _getElementMarkers () {
+    return Object.keys(this._elements).map( key => {
+      return this._elements[key].marker;
+    });
+  },
+
   _displayElements () {
     if (!this.elementDisplayed) {
-      this._displayedElsGroup.clearLayers();
+      this._displayedElements.clearLayers();
       this.elementDisplayed = true;
 
-      this._getElementsCollection().map( element => {
-        const newMarker = L.circleMarker(
-          [element.g[0], element.g[1]],
-          50,
-          {fillColor: 'lightblue', stroke: false}
-        );
-
-        this._displayedElsGroup.addLayer(newMarker);
+      this._getElementMarkers().map( marker => {
+        this._displayedElements.addLayer(marker);
       });
 
-      this._displayedElsGroup.addTo(this._map);
+      this._displayedElements.addTo(this._map);
     }
   },
 
   _hideElements () {
     if (this.elementDisplayed) {
       this.elementDisplayed = false;
-      this._displayedElsGroup.clearLayers();
+      this._displayedElements.clearLayers();
     }
   },
 
   refresh () {
     this._renderElements();
-    this._renderGrid();
+    this._renderComponents();
   },
 
   _renderElements () {
@@ -166,10 +165,9 @@ L.RegularGridCluster = L.GeoJSON.extend({
     }
   },
 
-
-  _renderGrid () {
+  _renderComponents () {
     if (this._map.getZoom() < this.options.zoomHideGrid) {
-      console.log('grid will be displayed');
+      console.log('grid components will be displayed');
       this._truncateLayers();
 
       const times = [];
@@ -225,7 +223,6 @@ L.RegularGridCluster = L.GeoJSON.extend({
 
       this._grid.addTo(this._map);
     }
-
   },
 
   _buildMarkers () {
@@ -376,13 +373,12 @@ L.RegularGridCluster = L.GeoJSON.extend({
       }
       row += 1;
     }
-
   },
 
   _findElements () {
     this._getElementsCollection().map( element => {
       const ei = element.id;
-      const ex = element.g[1], ey = element.g[0];
+      const ex = element.g.lng, ey = element.g.lat;
 
       this._indexedCells[element.i].cs.map ( cell => {
         if (this._elmInsideOperations[this.options.gridMode].call(this, ex, ey, cell)) {
@@ -421,7 +417,6 @@ L.RegularGridCluster = L.GeoJSON.extend({
             }
           });
         }
-
       });
     }
   },

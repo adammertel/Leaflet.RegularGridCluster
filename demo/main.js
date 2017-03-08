@@ -41,7 +41,6 @@ var render = function () {
     map.removeLayer(grid);
   }
 
-
   // define RegularGridCluster instance
   grid = L.regularGridCluster(
     {
@@ -65,16 +64,13 @@ var createRandomData = function () {
       minX + Math.random() * (maxX - minX),
       minY + Math.random() * (maxY - minY)
     ];
-    //var circle = L.circleMarker([pointData.y, pointData.x], circleStyle(pointData));
-
-    var marker = L.marker(coordinates);
-    var mGeoJSON = marker.toGeoJSON();
-    mGeoJSON.properties = {
+    var properties = {
       a: Math.floor(Math.random() * 20),
-      b: Math.floor(Math.random() * 10)
+      b: Math.floor(Math.random() * 5)
     };
 
-    randomData.push(mGeoJSON);
+    var marker = L.circleMarker(coordinates, circleStyle(properties.b));
+    randomData.push({marker: marker, properties: properties});
   };
 }
 
@@ -103,3 +99,12 @@ var getRules = function () {
     "texts": rulesTextTexts
   }
 } 
+
+var circleStyle = function (type) {
+  return {
+    fillColor: ['blue', 'red', 'green', 'yellow', 'orange'][type],
+    color: 'black',
+    weight: 1,
+    radius: 5
+  }
+}
