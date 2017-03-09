@@ -7,7 +7,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     gridMode: 'square',
     cellSize: 10000, // size of the cell at a scale of 10
 
-    showGrid: true,
+    showCells: true,
     showMarkers: true,
     showTexts: true,
 
@@ -227,7 +227,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
   },
 
   _buildCells () {
-    if (this.options.rules.grid && this.options.showGrid) {
+    if (this.options.rules.grid && this.options.showCells) {
       this._visualise('grid');
 
       this._cells.forEach(function (cell) {

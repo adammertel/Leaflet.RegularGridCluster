@@ -49,6 +49,9 @@ var render = function () {
       zoomHideGrid: parseInt(document.getElementById('select-grid-zoom').value),
       cellSize: parseInt(document.getElementById('select-cell-size').value),
       gridMode: document.getElementById('select-grid-mode').value,
+      showCells: (document.getElementById('select-show-cells').value == "1"),
+      showMarkers: (document.getElementById('select-show-markers').value == "1"),
+      showTexts: (document.getElementById('select-show-texts').value == "1"),
       trackingTime: true
     }
   );
