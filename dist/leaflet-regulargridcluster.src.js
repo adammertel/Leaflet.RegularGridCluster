@@ -1,7 +1,5 @@
 'use strict';
 
-/*jshint esversion: 6 */
-
 L.RegularGridClusterCell = L.Polygon.extend({
   options: {
     weight: 1,
@@ -27,8 +25,6 @@ L.regularGridClusterCell = function (path, options) {
   return new L.RegularGridClusterCell(path, options);
 };
 "use strict";
-
-/*jshint esversion: 6 */
 
 L.RegularGridClusterCellsGroup = L.FeatureGroup.extend({
   options: {
@@ -103,8 +99,6 @@ L.regularGridClusterMarkersGroup = function (options) {
 };
 'use strict';
 
-/*jshint esversion: 6 */
-
 L.RegularGridClusterText = L.Marker.extend({
   options: {
     pane: 'grid-texts-pane',
@@ -133,8 +127,6 @@ L.regularGridClusterText = function (centroid, options) {
 };
 "use strict";
 
-/*jshint esversion: 6 */
-
 L.RegularGridClusterTextsGroup = L.FeatureGroup.extend({
   options: {},
   initialize: function initialize(options) {
@@ -162,14 +154,11 @@ L.regularGridClusterTextsGroup = function (options) {
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
-/*jshint esversion: 6 */
-// main class, controller, ...
-
 L.RegularGridCluster = L.FeatureGroup.extend({
   options: {
     gridBoundsPadding: 0.1,
     gridMode: 'square',
-    cellSize: 10000, // size of the cell at a scale of 10
+    cellSize: 10000,
 
     showGrid: true,
     showMarkers: true,
@@ -186,8 +175,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     indexSize: 12,
 
     rules: {},
-    trackingTime: true // for developement purposes 
-  },
+    trackingTime: true },
 
   initialize: function initialize(options) {
     this.options = L.extend(this.options, options);
@@ -216,7 +204,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     this._addPane('grid-markers-pane', this.options.paneMarkersZ);
     this._addPane('grid-cells-pane', this.options.paneCellsZ);
     this._addPane('grid-texts-pane', this.options.paneTextsZ);
-    //L.GeoJSON.prototype.onAdd.call(this, map);
+
 
     this._grid.addTo(this._map);
     this._markers.addTo(this._map);
@@ -260,13 +248,8 @@ L.RegularGridCluster = L.FeatureGroup.extend({
   unregister: function unregister() {
     this._unregisterActions();
     this._truncateLayers();
-    // this._map.removeLayer(this._grid);
-    // this._map.removeLayer(this._markers);
-    // this._map.removeLayer(this._texts);
-    // this._map.removeLayer(this._displayedElements);    
   },
   _addElement: function _addElement(element) {
-    // todo - filter non point and group data
     this._elements[this.lastelmid] = {
       "id": this.lastelmid,
       "latlng": element.marker.getLatLng(),
@@ -275,7 +258,6 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     };
 
     this.lastelmid++;
-    //L.GeoJSON.prototype.addData.call(this, element);
   },
   _index: function _index() {
     var times = [];
@@ -550,7 +532,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
       }
 
       x = origin.lng;
-      //y += cellH;
+
       if (this.options.gridMode == 'hexagon') {
         y += 3 / 4 * cellH;
       } else {
@@ -681,9 +663,6 @@ L.RegularGridCluster = L.FeatureGroup.extend({
   _isDynamicalRule: function _isDynamicalRule(rule) {
     return rule.method && rule.scale && rule.style;
   },
-
-
-  // return size of the cell in meters
   _cellSize: function _cellSize() {
     return this.options.cellSize * Math.pow(2, 10 - this._mapZoom());
   },
@@ -708,17 +687,9 @@ L.RegularGridCluster = L.FeatureGroup.extend({
       return false;
     }
   },
-
-
-  // BASE FUNCTIONS
-  // longitude delta for given latitude
   _cellHeightAtY: function _cellHeightAtY(y, cellSize) {
     return cellSize / 111319;
-    // return (cellSize/111319) * this._deltaHeightAtY(y);
   },
-
-
-  // multiplier for y size at given latitude
   _deltaHeightAtY: function _deltaHeightAtY(lat) {
     return Math.abs(1 / Math.cos(lat * Math.PI / 180));
   },
@@ -735,11 +706,7 @@ L.regularGridCluster = function (options) {
 };
 "use strict";
 
-/*jshint esversion: 6 */
-// COLORS FUNCTIONS
-
 L.RegularGridCluster.include({
-  // COLORS
   colors: { "aliceblue": "#f0f8ff", "antiquewhite": "#faebd7", "aqua": "#00ffff", "aquamarine": "#7fffd4", "azure": "#f0ffff", "beige": "#f5f5dc", "bisque": "#ffe4c4", "black": "#000000", "blanchedalmond": "#ffebcd", "blue": "#0000ff", "blueviolet": "#8a2be2", "brown": "#a52a2a", "burlywood": "#deb887",
     "cadetblue": "#5f9ea0", "chartreuse": "#7fff00", "chocolate": "#d2691e", "coral": "#ff7f50", "cornflowerblue": "#6495ed", "cornsilk": "#fff8dc", "crimson": "#dc143c", "cyan": "#00ffff", "darkblue": "#00008b", "darkcyan": "#008b8b", "darkgoldenrod": "#b8860b", "darkgray": "#a9a9a9", "darkgreen": "#006400", "darkkhaki": "#bdb76b", "darkmagenta": "#8b008b", "darkolivegreen": "#556b2f",
     "darkorange": "#ff8c00", "darkorchid": "#9932cc", "darkred": "#8b0000", "darksalmon": "#e9967a", "darkseagreen": "#8fbc8f", "darkslateblue": "#483d8b", "darkslategray": "#2f4f4f", "darkturquoise": "#00ced1",
@@ -785,9 +752,6 @@ L.RegularGridCluster.include({
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
-/*jshint esversion: 6 */
-// MATH FUNCTIONS
-
 L.RegularGridCluster.include({
   _math_max: function _math_max(arr) {
     return Math.max.apply(Math, _toConsumableArray(arr));
@@ -815,7 +779,6 @@ L.RegularGridCluster.include({
           maxEl = el;
           maxCount = modeMap[el];
         }
-        // extendable to solve ties
       }
     }
     return maxEl;
@@ -844,8 +807,6 @@ L.RegularGridCluster.include({
   }
 });
 "use strict";
-
-/*jshint esversion: 6 */
 
 L.RegularGridCluster.include({
   _scaleOperations: {
