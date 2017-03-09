@@ -126,7 +126,6 @@ L.RegularGridClusterText = L.Marker.extend({
 
     L.Marker.prototype.initialize.call(this, centroid, this.options);
   }
-
 });
 
 L.regularGridClusterText = function (centroid, options) {
@@ -359,7 +358,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
       this._findElements();
       times.push(new Date());
 
-      this._buildGrid();
+      this._buildCells();
       times.push(new Date());
 
       this._buildMarkers();
@@ -388,7 +387,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     this._markers.truncate();
     this._texts.truncate();
   },
-  _buildGrid: function _buildGrid() {
+  _buildCells: function _buildCells() {
     if (this.options.rules.grid && this.options.showGrid) {
       this._visualise('grid');
 
@@ -575,12 +574,9 @@ L.RegularGridCluster = L.FeatureGroup.extend({
       });
     });
   },
-
-
   _cellIsNotEmpty: function _cellIsNotEmpty(cell) {
     return cell.elms.length !== 0;
   },
-
   _visualise: function _visualise(featureType) {
     var _this12 = this;
 

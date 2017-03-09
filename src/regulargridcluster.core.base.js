@@ -195,7 +195,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
       this._findElements();
       times.push(new Date());
 
-      this._buildGrid();
+      this._buildCells();
       times.push(new Date());
 
       this._buildMarkers();
@@ -226,7 +226,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     this._texts.truncate();
   },
 
-  _buildGrid () {
+  _buildCells () {
     if (this.options.rules.grid && this.options.showGrid) {
       this._visualise('grid');
 
@@ -404,7 +404,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     });
   },
 
-  _cellIsNotEmpty:function (cell) {
+  _cellIsNotEmpty (cell) {
     return cell.elms.length !== 0;
   },
 

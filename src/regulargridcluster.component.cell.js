@@ -18,7 +18,7 @@ L.RegularGridClusterCell = L.Polygon.extend({
     L.Util.setOptions(this, this.options);
 
     L.Polygon.prototype.initialize.call(this, path, this.options);
-  },
+  }
 });
 
 L.regularGridClusterCell = (path, options) => {

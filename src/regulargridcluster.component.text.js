@@ -21,7 +21,6 @@ L.RegularGridClusterText = L.Marker.extend({
 
     L.Marker.prototype.initialize.call(this, centroid, this.options);
   }
-
 });
 
 L.regularGridClusterText = (centroid, options) => {
