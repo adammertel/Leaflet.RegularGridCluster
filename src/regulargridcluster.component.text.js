@@ -2,6 +2,8 @@
 
 L.RegularGridClusterText = L.Marker.extend({
   options: {
+    pane: 'grid-texts-pane',
+    clickable: false
   },
 
   initialize: function (centroid, options) {

@@ -10,7 +10,8 @@ L.RegularGridClusterCell = L.Polygon.extend({
     color: 'grey',
     lineJoin: 'miter',
     fillRule: 'evenodd',
-    strokeLocation: 'inside'
+    strokeLocation: 'inside',
+    pane: 'grid-cells-pane'
   },
 
   initialize: function initialize(path, options) {
@@ -29,7 +30,9 @@ L.regularGridClusterCell = function (path, options) {
 /*jshint esversion: 6 */
 
 L.RegularGridClusterGrid = L.FeatureGroup.extend({
-  options: {},
+  options: {
+    clickable: false
+  },
   initialize: function initialize(options) {
     this.controller = options.controller;
     this.options = L.extend(this.options, options);
@@ -51,11 +54,12 @@ L.RegularGridClusterGrid = L.FeatureGroup.extend({
 L.regularGridClusterGrid = function (options) {
   return new L.RegularGridClusterGrid(options);
 };
-"use strict";
+'use strict';
 
 L.RegularGridClusterMarker = L.CircleMarker.extend({
   options: {
-    radius: 10
+    pane: 'grid-markers-pane',
+    clickable: false
   },
   initialize: function initialize(centroid, options) {
     this.options = L.extend(this.options, options);
@@ -101,7 +105,10 @@ L.regularGridClusterMarkersGroup = function (options) {
 /*jshint esversion: 6 */
 
 L.RegularGridClusterText = L.Marker.extend({
-  options: {},
+  options: {
+    pane: 'grid-texts-pane',
+    clickable: false
+  },
 
   initialize: function initialize(centroid, options) {
     this.options = L.extend(this.options, options);
@@ -158,7 +165,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 /*jshint esversion: 6 */
 // main class, controller, ...
 
-L.RegularGridCluster = L.GeoJSON.extend({
+L.RegularGridCluster = L.FeatureGroup.extend({
   options: {
     gridBoundsPadding: 0.1,
     gridMode: 'square',
@@ -167,6 +174,11 @@ L.RegularGridCluster = L.GeoJSON.extend({
     showGrid: true,
     showMarkers: true,
     showTexts: true,
+
+    paneElementsZ: 1000,
+    paneCellsZ: 700,
+    paneMarkersZ: 800,
+    paneTextsZ: 900,
 
     zoomShowElements: 10,
     zoomHideGrid: 10,
@@ -200,6 +212,10 @@ L.RegularGridCluster = L.GeoJSON.extend({
     var _this = this;
 
     this._map = map;
+    this._addPane('grid-elements-pane', this.options.paneElementsZ);
+    this._addPane('grid-markers-pane', this.options.paneMarkersZ);
+    this._addPane('grid-cells-pane', this.options.paneCellsZ);
+    this._addPane('grid-texts-pane', this.options.paneTextsZ);
     //L.GeoJSON.prototype.onAdd.call(this, map);
 
     this._grid.addTo(this._map);
@@ -211,6 +227,11 @@ L.RegularGridCluster = L.GeoJSON.extend({
     }, 'zoomend');
     this._index();
     this.refresh();
+  },
+  _addPane: function _addPane(paneName, zIndex) {
+    this._map.createPane(paneName);
+    this._map.getPane(paneName).style.zIndex = zIndex;
+    this._map.getPane(paneName).style.pointerEvents = 'none';
   },
   _addAction: function _addAction(callback, type) {
     this._actions.push({ callback: callback, type: type });
@@ -299,6 +320,7 @@ L.RegularGridCluster = L.GeoJSON.extend({
       this.elementDisplayed = true;
 
       this._getElementMarkers().map(function (marker) {
+        marker.setStyle({ pane: 'grid-elements-pane' });
         _this6._displayedElements.addLayer(marker);
       });
 
@@ -312,8 +334,8 @@ L.RegularGridCluster = L.GeoJSON.extend({
     }
   },
   refresh: function refresh() {
-    this._renderElements();
     this._renderComponents();
+    this._renderElements();
   },
   _renderElements: function _renderElements() {
     if (this._map.getZoom() >= this.options.zoomShowElements) {

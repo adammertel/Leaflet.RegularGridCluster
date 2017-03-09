@@ -1,6 +1,7 @@
 L.RegularGridClusterMarker = L.CircleMarker.extend({
   options: {
-    radius: 10
+    pane: 'grid-markers-pane',
+    clickable: false
   },
   initialize: function (centroid, options) {
     this.options = L.extend(this.options, options);

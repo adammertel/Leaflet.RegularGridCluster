@@ -1,7 +1,7 @@
 /*jshint esversion: 6 */
 // main class, controller, ...
 
-L.RegularGridCluster = L.GeoJSON.extend({
+L.RegularGridCluster = L.FeatureGroup.extend({
   options: {
     gridBoundsPadding: 0.1,
     gridMode: 'square',
@@ -10,6 +10,11 @@ L.RegularGridCluster = L.GeoJSON.extend({
     showGrid: true,
     showMarkers: true,
     showTexts: true,
+
+    paneElementsZ: 1000,
+    paneCellsZ: 700,
+    paneMarkersZ: 800,
+    paneTextsZ: 900,
 
     zoomShowElements: 10,
     zoomHideGrid: 10,
@@ -40,8 +45,13 @@ L.RegularGridCluster = L.GeoJSON.extend({
     }, options);
   },
 
+
   onAdd (map) {
     this._map = map;
+    this._addPane('grid-elements-pane', this.options.paneElementsZ);
+    this._addPane('grid-markers-pane', this.options.paneMarkersZ);
+    this._addPane('grid-cells-pane', this.options.paneCellsZ);
+    this._addPane('grid-texts-pane', this.options.paneTextsZ);
     //L.GeoJSON.prototype.onAdd.call(this, map);
 
     this._grid.addTo(this._map);
@@ -51,6 +61,12 @@ L.RegularGridCluster = L.GeoJSON.extend({
     this._addAction(() => { this.refresh();}, 'zoomend');
     this._index();
     this.refresh();
+  },
+
+  _addPane (paneName, zIndex) {
+    this._map.createPane(paneName);
+    this._map.getPane(paneName).style.zIndex = zIndex;
+    this._map.getPane(paneName).style.pointerEvents = 'none';
   },
 
   _addAction (callback, type) {
@@ -137,6 +153,7 @@ L.RegularGridCluster = L.GeoJSON.extend({
       this.elementDisplayed = true;
 
       this._getElementMarkers().map( marker => {
+        marker.setStyle({pane: 'grid-elements-pane'});
         this._displayedElements.addLayer(marker);
       });
 
@@ -152,8 +169,8 @@ L.RegularGridCluster = L.GeoJSON.extend({
   },
 
   refresh () {
-    this._renderElements();
     this._renderComponents();
+    this._renderElements();
   },
 
   _renderElements () {

@@ -1,6 +1,5 @@
 L.RegularGridClusterMarkersGroup = L.FeatureGroup.extend({
   options: {
-
   },
   initialize: function (options) {
     this.controller = options.controller;
