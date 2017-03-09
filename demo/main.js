@@ -65,11 +65,11 @@ var createRandomData = function () {
       minY + Math.random() * (maxY - minY)
     ];
     var properties = {
-      a: Math.floor(Math.random() * 20),
+      a: 5 + Math.floor(Math.random() * 5),
       b: Math.floor(Math.random() * 5)
     };
 
-    var marker = L.circleMarker(coordinates, circleStyle(properties.b));
+    var marker = L.circleMarker(coordinates, circleStyle(properties));
     randomData.push({marker: marker, properties: properties});
   };
 }
@@ -100,11 +100,12 @@ var getRules = function () {
   }
 } 
 
-var circleStyle = function (type) {
+var circleStyle = function (props) {
   return {
-    fillColor: ['blue', 'red', 'green', 'yellow', 'orange'][type],
+    fillColor: ['#ffffcc','#a1dab4','#41b6c4','#2c7fb8','#253494'][props.b],
     color: 'black',
     weight: 1,
-    radius: 5
+    radius: props.a,
+    fillOpacity: 1
   }
 }

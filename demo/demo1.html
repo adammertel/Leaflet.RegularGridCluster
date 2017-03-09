@@ -32,8 +32,8 @@
 
     <p class="select-row">grid mode:</p>
     <select class="render-on-change" id="select-grid-mode">
-      <option value="hexagon">hexagon</option>    
-      <option value="square" selected>square</option>    
+      <option value="hexagon" selected>hexagon</option>    
+      <option value="square">square</option>    
     </select>
 
     <p class="select-row">hide grid zoom:</p>
@@ -63,31 +63,30 @@
   "method": "mean",
   "attribute": "b",
   "scale": "size",
-  "style": ["green", "yellow", "orange"]
+  "style": ["#d7191c","#fdae61","#ffffbf","#a6d96a","#1a9641"]
 },
 "color": "black",
 "fillOpacity": 0.2,
-"weight": 0
-    
+"weight": 0    
     </textarea>
 
 
     <p class="select-row">rules - markers</p>
     <textarea class="render-on-change textarea-rules" id="textarea-rules-markers" rows="10" cols="40">
-"color": "black",
+"color": "white",
 "weight": 2,
 "fillOpacity": 0.9,
 "fillColor": {
   "method": "mean",
   "attribute": "b",
   "scale": "continuous",
-  "style": ["white", "teal"]
+  "style": ["#ffffb2","#fecc5c","#fd8d3c","#e31a1c"]
 },
 "radius": {
-  "method": "mean",
-  "attribute": "b",
+  "method": "count",
+  "attribute": "",
   "scale": "continuous",
-  "style": [5, 20]
+  "style": [7, 17]
 }
     </textarea>
 
@@ -115,7 +114,7 @@
   "method": "count",
   "attribute": "",
   "scale": "continuous",
-  "style": [5, 12]
+  "style": [3, 12]
 },
 "anchorOffsetY": {
   "method": "count",
