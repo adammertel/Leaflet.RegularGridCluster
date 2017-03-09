@@ -438,34 +438,41 @@ L.RegularGridCluster = L.FeatureGroup.extend({
   },
 
   _applyOptions (featureType, scale, style, option) {
-    const values = this._cellValues(true).sort(function(a,b){return a-b;});
-    let noInts = style.length;
-
-    if (scale === 'continuous') { noInts = noInts - 1;}
-    const max = Math.max(...values);
-    const min = Math.min(...values);
-
-    const thresholds = [];
-
-    if (scale != 'size') {
-      const qLen = Math.floor(values.length / noInts);
-
-      for (var i = 1; i != noInts; i++ ) {
-        thresholds.push(values[qLen * i]);
-      }
-    }
-
-    if (this._scaleOperations[scale]){
+    if (style.length == 1) {
       this._cells.map ( cell => {
-        if (this._isDefined(cell.value)) {
-          cell.options[featureType][option] = this._scaleOperations[scale](
-            this, 
-            cell.value, 
-            min, max, noInts, 
-            thresholds, style
-          );
-        }
+        cell.options[featureType][option] = style[0];
       });
+    } else if (style.length > 1) {
+      
+      const values = this._cellValues(true).sort(function(a,b){return a-b;});
+      let noInts = style.length;
+
+      if (scale === 'continuous') { noInts = noInts - 1;}
+      const max = Math.max(...values);
+      const min = Math.min(...values);
+
+      const thresholds = [];
+
+      if (scale != 'size') {
+        const qLen = Math.floor(values.length / noInts);
+
+        for (var i = 1; i != noInts; i++ ) {
+          thresholds.push(values[qLen * i]);
+        }
+      }
+
+      if (this._scaleOperations[scale]){
+        this._cells.map ( cell => {
+          if (this._isDefined(cell.value)) {
+            cell.options[featureType][option] = this._scaleOperations[scale](
+              this, 
+              cell.value, 
+              min, max, noInts, 
+              thresholds, style
+            );
+          }
+        });
+      }
     }
   },
 

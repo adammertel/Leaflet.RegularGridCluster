@@ -608,33 +608,40 @@ L.RegularGridCluster = L.FeatureGroup.extend({
   _applyOptions: function _applyOptions(featureType, scale, style, option) {
     var _this13 = this;
 
-    var values = this._cellValues(true).sort(function (a, b) {
-      return a - b;
-    });
-    var noInts = style.length;
-
-    if (scale === 'continuous') {
-      noInts = noInts - 1;
-    }
-    var max = Math.max.apply(Math, _toConsumableArray(values));
-    var min = Math.min.apply(Math, _toConsumableArray(values));
-
-    var thresholds = [];
-
-    if (scale != 'size') {
-      var qLen = Math.floor(values.length / noInts);
-
-      for (var i = 1; i != noInts; i++) {
-        thresholds.push(values[qLen * i]);
-      }
-    }
-
-    if (this._scaleOperations[scale]) {
+    if (style.length == 1) {
       this._cells.map(function (cell) {
-        if (_this13._isDefined(cell.value)) {
-          cell.options[featureType][option] = _this13._scaleOperations[scale](_this13, cell.value, min, max, noInts, thresholds, style);
-        }
+        cell.options[featureType][option] = style[0];
       });
+    } else if (style.length > 1) {
+
+      var values = this._cellValues(true).sort(function (a, b) {
+        return a - b;
+      });
+      var noInts = style.length;
+
+      if (scale === 'continuous') {
+        noInts = noInts - 1;
+      }
+      var max = Math.max.apply(Math, _toConsumableArray(values));
+      var min = Math.min.apply(Math, _toConsumableArray(values));
+
+      var thresholds = [];
+
+      if (scale != 'size') {
+        var qLen = Math.floor(values.length / noInts);
+
+        for (var i = 1; i != noInts; i++) {
+          thresholds.push(values[qLen * i]);
+        }
+      }
+
+      if (this._scaleOperations[scale]) {
+        this._cells.map(function (cell) {
+          if (_this13._isDefined(cell.value)) {
+            cell.options[featureType][option] = _this13._scaleOperations[scale](_this13, cell.value, min, max, noInts, thresholds, style);
+          }
+        });
+      }
     }
   },
   _cellsValues: function _cellsValues(method, attr) {

@@ -15,7 +15,7 @@ L.RegularGridCluster.include( {
       let interval = 0;
       thresholds.map ( (threshold, ti) => {
         if (value > threshold) {
-          interval = (parseInt(ti) + 1);
+          interval = parseInt(ti) + 1;
         }
       });
       return style[interval];
