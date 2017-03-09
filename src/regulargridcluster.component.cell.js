@@ -9,7 +9,8 @@ L.RegularGridClusterCell = L.Polygon.extend({
     lineJoin: 'miter',
     fillRule: 'evenodd',
     strokeLocation: 'inside',
-    pane: 'grid-cells-pane'
+    pane: 'grid-cells-pane',
+    interactive: false
   },
   
   initialize (path, options) {

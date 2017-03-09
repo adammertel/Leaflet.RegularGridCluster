@@ -11,7 +11,8 @@ L.RegularGridClusterCell = L.Polygon.extend({
     lineJoin: 'miter',
     fillRule: 'evenodd',
     strokeLocation: 'inside',
-    pane: 'grid-cells-pane'
+    pane: 'grid-cells-pane',
+    interactive: false
   },
 
   initialize: function initialize(path, options) {
@@ -30,7 +31,9 @@ L.regularGridClusterCell = function (path, options) {
 /*jshint esversion: 6 */
 
 L.RegularGridClusterCellsGroup = L.FeatureGroup.extend({
-  options: {},
+  options: {
+    interactive: false
+  },
   initialize: function initialize(options) {
     this.controller = options.controller;
     this.options = L.extend(this.options, options);
@@ -57,13 +60,13 @@ L.regularGridClusterCellsGroup = function (options) {
 L.RegularGridClusterMarker = L.CircleMarker.extend({
   options: {
     pane: 'grid-markers-pane',
-    clickable: false
+    interactive: false
   },
   initialize: function initialize(centroid, options) {
     this.options = L.extend(this.options, options);
     L.Util.setOptions(this, options);
 
-    L.CircleMarker.prototype.initialize.call(this, centroid, options);
+    L.CircleMarker.prototype.initialize.call(this, centroid, this.options);
   }
 });
 
@@ -105,7 +108,7 @@ L.regularGridClusterMarkersGroup = function (options) {
 L.RegularGridClusterText = L.Marker.extend({
   options: {
     pane: 'grid-texts-pane',
-    clickable: false
+    interactive: false
   },
 
   initialize: function initialize(centroid, options) {
@@ -114,14 +117,14 @@ L.RegularGridClusterText = L.Marker.extend({
 
     var iconOptions = JSON.stringify(options).substring(1, JSON.stringify(options).length - 2).replace(/,/g, ';').replace(/\"/g, "");
 
-    options.icon = L.divIcon({
+    this.options.icon = L.divIcon({
       html: '<span class="regular-grid-text-html" style="' + iconOptions + ' ; text-align: center">' + this.options.text + '</span>',
       iconSize: [0, 0],
       iconAnchor: [options.anchorOffsetX || -10, options.anchorOffsetY || -30],
       className: 'regular-grid-text-marker'
     });
 
-    L.Marker.prototype.initialize.call(this, centroid, options);
+    L.Marker.prototype.initialize.call(this, centroid, this.options);
   }
 
 });

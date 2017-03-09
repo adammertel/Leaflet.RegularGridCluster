@@ -2,7 +2,7 @@
 
 L.RegularGridClusterCellsGroup = L.FeatureGroup.extend({
   options: {
-    
+    interactive: false
   },
   initialize (options) {
     this.controller = options.controller;
