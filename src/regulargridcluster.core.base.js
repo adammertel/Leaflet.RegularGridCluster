@@ -36,7 +36,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     this._displayedElements = L.featureGroup([]);
     this._cells = [];
 
-    this._grid = new L.regularGridClusterGrid({controller: this});
+    this._grid = new L.regularGridClusterCellsGroup({controller: this});
     this._markers = new L.regularGridClusterMarkersGroup({controller: this});
     this._texts = new L.regularGridClusterTextsGroup({controller: this});
 
@@ -66,7 +66,6 @@ L.RegularGridCluster = L.FeatureGroup.extend({
   _addPane (paneName, zIndex) {
     this._map.createPane(paneName);
     this._map.getPane(paneName).style.zIndex = zIndex;
-    this._map.getPane(paneName).style.pointerEvents = 'none';
   },
 
   _addAction (callback, type) {

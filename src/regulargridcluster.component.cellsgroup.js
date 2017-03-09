@@ -1,8 +1,8 @@
 /*jshint esversion: 6 */
 
-L.RegularGridClusterGrid = L.FeatureGroup.extend({
+L.RegularGridClusterCellsGroup = L.FeatureGroup.extend({
   options: {
-    clickable: false
+    
   },
   initialize (options) {
     this.controller = options.controller;
@@ -11,7 +11,7 @@ L.RegularGridClusterGrid = L.FeatureGroup.extend({
 
     L.FeatureGroup.prototype.initialize.call(this, {
       features: []
-    }, options);
+    }, this.options);
   },
 
   render (cellSize, origin) {
@@ -27,6 +27,6 @@ L.RegularGridClusterGrid = L.FeatureGroup.extend({
   }
 });
 
-L.regularGridClusterGrid = (options) => {
-  return new L.RegularGridClusterGrid(options);
+L.regularGridClusterCellsGroup = (options) => {
+  return new L.RegularGridClusterCellsGroup(options);
 };

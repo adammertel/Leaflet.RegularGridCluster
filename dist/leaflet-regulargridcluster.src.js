@@ -29,10 +29,8 @@ L.regularGridClusterCell = function (path, options) {
 
 /*jshint esversion: 6 */
 
-L.RegularGridClusterGrid = L.FeatureGroup.extend({
-  options: {
-    clickable: false
-  },
+L.RegularGridClusterCellsGroup = L.FeatureGroup.extend({
+  options: {},
   initialize: function initialize(options) {
     this.controller = options.controller;
     this.options = L.extend(this.options, options);
@@ -40,7 +38,7 @@ L.RegularGridClusterGrid = L.FeatureGroup.extend({
 
     L.FeatureGroup.prototype.initialize.call(this, {
       features: []
-    }, options);
+    }, this.options);
   },
   render: function render(cellSize, origin) {},
   addLayer: function addLayer(cell) {
@@ -51,8 +49,8 @@ L.RegularGridClusterGrid = L.FeatureGroup.extend({
   }
 });
 
-L.regularGridClusterGrid = function (options) {
-  return new L.RegularGridClusterGrid(options);
+L.regularGridClusterCellsGroup = function (options) {
+  return new L.RegularGridClusterCellsGroup(options);
 };
 'use strict';
 
@@ -200,7 +198,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     this._displayedElements = L.featureGroup([]);
     this._cells = [];
 
-    this._grid = new L.regularGridClusterGrid({ controller: this });
+    this._grid = new L.regularGridClusterCellsGroup({ controller: this });
     this._markers = new L.regularGridClusterMarkersGroup({ controller: this });
     this._texts = new L.regularGridClusterTextsGroup({ controller: this });
 
@@ -231,7 +229,6 @@ L.RegularGridCluster = L.FeatureGroup.extend({
   _addPane: function _addPane(paneName, zIndex) {
     this._map.createPane(paneName);
     this._map.getPane(paneName).style.zIndex = zIndex;
-    this._map.getPane(paneName).style.pointerEvents = 'none';
   },
   _addAction: function _addAction(callback, type) {
     this._actions.push({ callback: callback, type: type });
