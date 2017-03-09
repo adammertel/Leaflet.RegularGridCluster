@@ -97,7 +97,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     // this._map.removeLayer(this._grid);
     // this._map.removeLayer(this._markers);
     // this._map.removeLayer(this._texts);
-    // this._map.removeLayer(this._displayedElements);    
+    this._map.removeLayer(this._displayedElements);    
   },
 
   _addElement (element) {
@@ -146,6 +146,20 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     });
   },
 
+  refresh () {
+    this._renderComponents();
+    this._renderElements();
+  },
+
+  _renderElements () {
+    if (this._map.getZoom() >= this.options.zoomShowElements) {
+      console.log('elements will be displayed');
+      this._displayElements();
+    } else {
+      this._hideElements();
+    }
+  },
+
   _displayElements () {
     if (!this.elementDisplayed) {
       this._displayedElements.clearLayers();
@@ -164,20 +178,6 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     if (this.elementDisplayed) {
       this.elementDisplayed = false;
       this._displayedElements.clearLayers();
-    }
-  },
-
-  refresh () {
-    this._renderComponents();
-    this._renderElements();
-  },
-
-  _renderElements () {
-    if (this._map.getZoom() >= this.options.zoomShowElements) {
-      console.log('elements will be displayed');
-      this._displayElements();
-    } else {
-      this._hideElements();
     }
   },
 

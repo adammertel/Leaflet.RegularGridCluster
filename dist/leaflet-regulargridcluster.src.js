@@ -248,6 +248,8 @@ L.RegularGridCluster = L.FeatureGroup.extend({
   unregister: function unregister() {
     this._unregisterActions();
     this._truncateLayers();
+
+    this._map.removeLayer(this._displayedElements);
   },
   _addElement: function _addElement(element) {
     this._elements[this.lastelmid] = {
@@ -293,6 +295,18 @@ L.RegularGridCluster = L.FeatureGroup.extend({
       return _this5._elements[key].marker;
     });
   },
+  refresh: function refresh() {
+    this._renderComponents();
+    this._renderElements();
+  },
+  _renderElements: function _renderElements() {
+    if (this._map.getZoom() >= this.options.zoomShowElements) {
+      console.log('elements will be displayed');
+      this._displayElements();
+    } else {
+      this._hideElements();
+    }
+  },
   _displayElements: function _displayElements() {
     var _this6 = this;
 
@@ -312,18 +326,6 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     if (this.elementDisplayed) {
       this.elementDisplayed = false;
       this._displayedElements.clearLayers();
-    }
-  },
-  refresh: function refresh() {
-    this._renderComponents();
-    this._renderElements();
-  },
-  _renderElements: function _renderElements() {
-    if (this._map.getZoom() >= this.options.zoomShowElements) {
-      console.log('elements will be displayed');
-      this._displayElements();
-    } else {
-      this._hideElements();
     }
   },
   _renderComponents: function _renderComponents() {
