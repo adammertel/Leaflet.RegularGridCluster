@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
   createRandomData()
 
   // setting map
-  map = L.map('map-content')
+  map = L.map('map-content');
   map.fitBounds([[minY, minX], [maxY, maxX]]);
 
   L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {

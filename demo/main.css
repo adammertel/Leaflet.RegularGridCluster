@@ -29,6 +29,7 @@ body {
 .textarea-rules {
   width: 340px;
   font-size: 10px;
+  margin-left: 4px;
 }
 
 .marker-cluster {
