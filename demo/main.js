@@ -8,7 +8,7 @@ var grid;
 document.addEventListener("DOMContentLoaded", function(event) {
   console.log('dom loaded')
 
-  var colors = ['#e41a1c','#377eb8','#4daf4a','#984ea3','#ff7f00'];
+  const colors = ['#e41a1c','#377eb8','#4daf4a','#984ea3','#ff7f00'];
   createRandomData()
 
   // setting map
@@ -60,27 +60,27 @@ var render = function () {
   grid.addTo(map);
 }
 
-var createRandomData = function () {
+const createRandomData = function () {
   // putting some random point data
   for (var i=0; i < noTestData; i++) {
-    var coordinates = [
+    const coordinates = [
       minX + Math.random() * (maxX - minX),
       minY + Math.random() * (maxY - minY)
     ];
-    var properties = {
+    const properties = {
       a: 5 + Math.floor(Math.random() * 5),
       b: Math.floor(Math.random() * 5)
     };
 
-    var marker = L.circleMarker(coordinates, circleStyle(properties));
+    const marker = L.circleMarker(coordinates, circleStyle(properties));
     randomData.push({marker: marker, properties: properties});
   };
 }
 
 
-var parseTextAreaValue = function (textAreaId) {
-  var textAreaValue = document.getElementById(textAreaId).value;
-  var textAreaObjectValue = '{' + textAreaValue + '}';
+const parseTextAreaValue = function (textAreaId) {
+  const textAreaValue = document.getElementById(textAreaId).value;
+  const textAreaObjectValue = '{' + textAreaValue + '}';
 
   try {
     return JSON.parse(textAreaObjectValue);
@@ -91,10 +91,10 @@ var parseTextAreaValue = function (textAreaId) {
   }
 }
 
-var getRules = function () {
-  var rulesTextGrid = parseTextAreaValue('textarea-rules-grid');
-  var rulesTextMarkers = parseTextAreaValue('textarea-rules-markers');
-  var rulesTextTexts = parseTextAreaValue('textarea-rules-texts');
+const getRules = function () {
+  const rulesTextGrid = parseTextAreaValue('textarea-rules-grid');
+  const rulesTextMarkers = parseTextAreaValue('textarea-rules-markers');
+  const rulesTextTexts = parseTextAreaValue('textarea-rules-texts');
 
   return {
     "grid": rulesTextGrid,
@@ -103,7 +103,7 @@ var getRules = function () {
   }
 } 
 
-var circleStyle = function (props) {
+const circleStyle = function (props) {
   return {
     fillColor: ['#ffffcc','#a1dab4','#41b6c4','#2c7fb8','#253494'][props.b],
     color: 'black',

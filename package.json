@@ -1,7 +1,7 @@
 {
   "name": "leaflet-regular-grid-cluster",
   "version": "0.1.0",
-  "description": "clustering elements base on the define grid",
+  "description": "leaflet plugin that implements custom grid-style visualisation and clustering method",
   "main": "dist/leaflet-regulargridcluster.js",
   "repository": {
     "type": "git",
@@ -10,7 +10,8 @@
   "keywords": [
     "leaflet",
     "grid",
-    "cluster"
+    "cluster",
+    "visualisation",
   ],
   "author": "Adam Mertel, University of Vienna",
   "license": "ISC",
