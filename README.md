@@ -1,6 +1,6 @@
 # (experimental) Regular-grid-cluster plugin/library for Leaflet
 
-![image](https://cloud.githubusercontent.com/adammertel/Leaflet.RegularGridCluster/img.png)
+![image](./img.png)
 
 ## random data demo
 [demo](https://adammertel.github.io/Leaflet.RegularGridCluster/demo/demo1.html )
