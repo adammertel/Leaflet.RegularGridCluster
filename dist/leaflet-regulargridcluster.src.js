@@ -499,10 +499,8 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     while (y < maxY) {
       var cellH = this._cellHeightAtY(y, cellSize);
 
-      if (this.options.gridMode == 'hexagon') {
-        if (row % 2) {
-          x -= cellW / 2;
-        }
+      if (this.options.gridMode == 'hexagon' && row % 2) {
+        x -= cellW / 2;
       }
 
       while (x < maxX) {
@@ -534,12 +532,8 @@ L.RegularGridCluster = L.FeatureGroup.extend({
       }
 
       x = origin.lng;
+      y = this.options.gridMode === 'hexagon' ? y + 3 / 4 * cellH : y + cellH;
 
-      if (this.options.gridMode == 'hexagon') {
-        y += 3 / 4 * cellH;
-      } else {
-        y += cellH;
-      }
       row += 1;
     }
   },
@@ -683,17 +677,10 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     });
   },
   _mapZoom: function _mapZoom() {
-    if (this._map) {
-      return this._map.getZoom();
-    } else {
-      return false;
-    }
+    return this._map ? this._map.getZoom() : false;
   },
   _cellHeightAtY: function _cellHeightAtY(y, cellSize) {
     return cellSize / 111319;
-  },
-  _deltaHeightAtY: function _deltaHeightAtY(lat) {
-    return Math.abs(1 / Math.cos(lat * Math.PI / 180));
   },
   _isDefined: function _isDefined(value) {
     return !(!value && value !== 0);

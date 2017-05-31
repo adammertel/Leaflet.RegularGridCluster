@@ -346,10 +346,8 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     while (y < maxY) {
       const cellH = this._cellHeightAtY(y, cellSize);
 
-      if (this.options.gridMode == 'hexagon') {
-        if (row%2) {
-          x -= cellW/2;
-        }
+      if (this.options.gridMode == 'hexagon' && row % 2) {
+        x -= cellW/2;
       }
 
       while (x < maxX) {
@@ -381,12 +379,8 @@ L.RegularGridCluster = L.FeatureGroup.extend({
       }
 
       x = origin.lng;
-      //y += cellH;
-      if (this.options.gridMode == 'hexagon') {
-        y += 3/4 * cellH;
-      } else {
-        y += cellH;
-      }
+      y = this.options.gridMode === 'hexagon' ? y + 3/4 * cellH : y + cellH;
+      
       row += 1;
     }
   },
@@ -456,7 +450,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
       if (scale != 'size') {
         const qLen = Math.floor(values.length / noInts);
 
-        for (var i = 1; i != noInts; i++ ) {
+        for (let i = 1; i != noInts; i++ ) {
           thresholds.push(values[qLen * i]);
         }
       }
@@ -493,12 +487,12 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     if (onlyDefined) {
       return this._cells.filter(cell => typeof cell.value !== 'undefined' && !isNaN(cell.value)).map ( cell => cell.value);
     } else {
-      return this._cells.map ( cell => cell.value);
+      return this._cells.map( cell => cell.value);
     }
   },
 
   _cellAttrValues (cell, attr) {
-    return cell.elms.map ( elm => this._elements[elm].properties[attr]);
+    return cell.elms.map( elm => this._elements[elm].properties[attr]);
   },
 
   _isDynamicalRule (rule) {
@@ -527,11 +521,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
   },
 
   _mapZoom () {
-    if (this._map) {
-      return this._map.getZoom();
-    } else {
-      return false;
-    }
+    return this._map ? this._map.getZoom() : false;
   },
 
   // BASE FUNCTIONS
@@ -539,11 +529,6 @@ L.RegularGridCluster = L.FeatureGroup.extend({
   _cellHeightAtY (y, cellSize) {
     return cellSize/111319;
     // return (cellSize/111319) * this._deltaHeightAtY(y);
-  },
-
-  // multiplier for y size at given latitude
-  _deltaHeightAtY (lat) {
-    return Math.abs(1/Math.cos(lat * Math.PI / 180));
   },
 
   _isDefined (value) {

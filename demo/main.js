@@ -108,7 +108,7 @@ var circleStyle = function (props) {
     fillColor: ['#ffffcc','#a1dab4','#41b6c4','#2c7fb8','#253494'][props.b],
     color: 'black',
     weight: 1,
-    radius: props.a,
+    radius: props.a / 3,
     fillOpacity: 1
   }
 }
