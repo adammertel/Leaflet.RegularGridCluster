@@ -53,16 +53,16 @@ the basic idea of this library is to present the custom method to both **visuali
             "weight": 2,
             "fillOpacity": 0.9,
             "fillColor": {
-            "method": "mean",
-            "attribute": "b",
-            "scale": "continuous",
-            "style": ["#ffffb2","#fecc5c","#fd8d3c","#e31a1c"]
+                "method": "mean",
+                "attribute": "b",
+                "scale": "continuous",
+                "style": ["#ffffb2","#fecc5c","#fd8d3c","#e31a1c"]
             },
             "radius": {
-            "method": "count",
-            "attribute": "",
-            "scale": "continuous",
-            "style": [7, 17]
+                "method": "count",
+                "attribute": "",
+                "scale": "continuous",
+                "style": [7, 17]
             }
         },
         texts: {}
