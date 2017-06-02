@@ -25,22 +25,27 @@
     "babel-cli": "^6.23.0",
     "babel-plugin-transform-remove-console": "^6.8.3",
     "babel-preset-env": "^1.2.1",
+    "babel-preset-es2015": "^6.24.1",
     "bower": "^1.8.0",
     "copyfiles": "^1.0.0",
     "jshint": "^2.9.3",
     "leaflet": "*",
-    "parallelshell": "^2.0.0",
-    "uglify-js": "github:mishoo/UglifyJS2#harmony"
+    "npm-run-all": "^4.0.2"
   },
   "scripts": {
     "jshint": "jshint src",
     "babel": "babel src --out-file dist/leaflet-regulargridcluster.src.js --no-coments",
-    "unglify-js": "uglifyjs dist/leaflet-regulargridcluster.src.js -o dist/leaflet-regulargridcluster.src.js -b --wrap ",
     "minify-js": "babel --plugins transform-remove-console dist/leaflet-regulargridcluster.src.js --out-file dist/leaflet-regulargridcluster.js --minified",
     "onchange-js": "onchange src/**/*.js -- npm run build",
     "onchange-css": "onchange src/**/*.css -- npm run move-css",
     "move-css": "copyfiles -f src/leaflet-regulargridcluster.css dist",
-    "build": "parallelshell \"npm run jshint\" \"npm run babel\" \"npm run minify-js\" \"npm run move-css\" ",
-    "start": "parallelshell \"npm run onchange-js\" \"npm run build\" "
+    "build": "run-s jshint babel minify-js move-css",
+    "start": "run-p onchange-js build",
+
+    "patch": "npm version patch",
+    "patch-minor": "npm version minor",
+    "publish": "npm publish",
+    "update": "run-s patch publish",
+    "update-minor": "run-s patch-minor publish"
   }
 }
