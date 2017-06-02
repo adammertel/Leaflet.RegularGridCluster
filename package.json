@@ -35,7 +35,7 @@
   "scripts": {
     "jshint": "jshint src",
     "babel": "babel src --out-file dist/leaflet-regulargridcluster.src.js --no-coments",
-    "unglify-js": "uglifyjs dist/leaflet-regulargridcluster.src.js -o dist/leaflet-regulargridcluster.src.js -b --preamble \" /* Adam Mertel | UNIVIE */ \" --wrap ",
+    "unglify-js": "uglifyjs dist/leaflet-regulargridcluster.src.js -o dist/leaflet-regulargridcluster.src.js -b --wrap ",
     "minify-js": "babel --plugins transform-remove-console dist/leaflet-regulargridcluster.src.js --out-file dist/leaflet-regulargridcluster.js --minified",
     "onchange-js": "onchange src/**/*.js -- npm run build",
     "onchange-css": "onchange src/**/*.css -- npm run move-css",

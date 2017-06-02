@@ -1,5 +1,3 @@
-/*jshint esversion: 6 */
-
 L.RegularGridClusterCell = L.Polygon.extend({
   options: {
     weight: 1,

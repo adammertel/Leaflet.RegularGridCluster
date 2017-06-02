@@ -1,6 +1,3 @@
-/*jshint esversion: 6 */
-// MATH FUNCTIONS
-
 L.RegularGridCluster.include( {
   _math_max (arr) {
     return Math.max(...arr);

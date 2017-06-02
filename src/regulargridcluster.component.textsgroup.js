@@ -1,5 +1,3 @@
-/*jshint esversion: 6 */
-
 L.RegularGridClusterTextsGroup = L.FeatureGroup.extend({
   options: {
 

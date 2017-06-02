@@ -1,5 +1,3 @@
-/*jshint esversion: 6 */
-
 L.RegularGridCluster.include( {
   _scaleOperations: {
     size: (cluster, value, min, max, noInts, thresholds, style) => {

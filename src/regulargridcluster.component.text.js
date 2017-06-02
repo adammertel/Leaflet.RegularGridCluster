@@ -1,5 +1,3 @@
-/*jshint esversion: 6 */
-
 L.RegularGridClusterText = L.Marker.extend({
   options: {
     pane: 'grid-texts-pane',

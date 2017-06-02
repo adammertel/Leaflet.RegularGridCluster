@@ -1,4 +1,9 @@
 {
   "presets": ["env"],
-  "comments": false
+  "comments": false,
+  "plugins": [
+    ["@comandeer/babel-plugin-banner", {
+      "banner": "/* Adam Mertel | UNIVIE */"
+    }]
+  ]
 }

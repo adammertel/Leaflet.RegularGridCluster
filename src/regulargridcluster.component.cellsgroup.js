@@ -1,5 +1,3 @@
-/*jshint esversion: 6 */
-
 L.RegularGridClusterCellsGroup = L.FeatureGroup.extend({
   options: {
     interactive: false
