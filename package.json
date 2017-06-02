@@ -1,6 +1,6 @@
 {
   "name": "leaflet-regular-grid-cluster",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "leaflet plugin that implements custom grid-style visualisation and clustering method",
   "main": "dist/leaflet-regulargridcluster.js",
   "repository": {
@@ -41,7 +41,6 @@
     "move-css": "copyfiles -f src/leaflet-regulargridcluster.css dist",
     "build": "run-s jshint babel minify-js move-css",
     "start": "run-p onchange-js build",
-
     "patch": "npm version patch",
     "patch-minor": "npm version minor",
     "publish": "npm publish",
