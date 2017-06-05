@@ -29,7 +29,6 @@
     "bower": "^1.8.0",
     "copyfiles": "^1.0.0",
     "jshint": "^2.9.3",
-    "leaflet": "*",
     "npm-run-all": "^4.0.2"
   },
   "scripts": {
@@ -40,11 +39,9 @@
     "onchange-css": "onchange src/**/*.css -- npm run move-css",
     "move-css": "copyfiles -f src/leaflet-regulargridcluster.css dist",
     "build": "run-s jshint babel minify-js move-css",
-    "start": "run-p onchange-js build",
-    "patch": "npm version patch",
-    "patch-minor": "npm version minor",
-    "publish": "npm publish",
-    "update": "run-s patch publish",
-    "update-minor": "run-s patch-minor publish"
+    "start": "run-p onchange-js build"
+  },
+  "dependencies": {
+    "leaflet": "^1.0.3"
   }
 }
