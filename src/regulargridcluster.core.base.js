@@ -2,9 +2,11 @@
 
 L.RegularGridCluster = L.FeatureGroup.extend({
   options: {
-    gridBoundsPadding: 0.1,
     gridMode: 'square',
     cellSize: 10000, // size of the cell at a scale of 10
+
+    gridBoundsPadding: 0.1,
+    gridOrigin: 'auto', // SW corner for grid extent. 'auto' for getting this value from data. Useful for more independent datasets 
 
     showCells: true,
     showMarkers: true,
@@ -18,10 +20,10 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     zoomShowElements: 10,
     zoomHideGrid: 10,
 
-    indexSize: 12,
+    indexSize: 12, // ratio for pre-indexing elements in grid
 
     rules: {},
-    trackingTime: true // for developement purposes 
+    trackingTime: false // for developement purposes 
   },
 
   initialize (options) {
@@ -504,7 +506,9 @@ L.RegularGridCluster = L.FeatureGroup.extend({
   },
 
   _gridOrigin () {
-    return this._gridExtent().getSouthWest();
+    return this.oprions.gridOrigin === 'auto' ? 
+      this._gridExtent().getSouthWest() :
+      this.oprions.gridOrigin;
   },
 
   _gridExtent () {

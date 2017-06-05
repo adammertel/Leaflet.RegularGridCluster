@@ -156,9 +156,11 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 L.RegularGridCluster = L.FeatureGroup.extend({
   options: {
-    gridBoundsPadding: 0.1,
     gridMode: 'square',
     cellSize: 10000,
+
+    gridBoundsPadding: 0.1,
+    gridOrigin: 'auto',
 
     showCells: true,
     showMarkers: true,
@@ -175,7 +177,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     indexSize: 12,
 
     rules: {},
-    trackingTime: true },
+    trackingTime: false },
 
   initialize: function initialize(options) {
     this.options = L.extend(this.options, options);
@@ -663,7 +665,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     return this.options.cellSize * Math.pow(2, 10 - this._mapZoom());
   },
   _gridOrigin: function _gridOrigin() {
-    return this._gridExtent().getSouthWest();
+    return this.oprions.gridOrigin === 'auto' ? this._gridExtent().getSouthWest() : this.oprions.gridOrigin;
   },
   _gridExtent: function _gridExtent() {
     return this._getBounds().pad(this.options.gridBoundsPadding);
