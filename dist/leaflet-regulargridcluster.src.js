@@ -152,6 +152,8 @@ L.regularGridClusterTextsGroup = function (options) {
 };
 'use strict';
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
 L.RegularGridCluster = L.FeatureGroup.extend({
@@ -180,10 +182,14 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     trackingTime: false },
 
   initialize: function initialize(options) {
-    this.options = L.extend(this.options, options);
+    console.log('init');
+    if (gridMarkers.options) console.log('init', gridMarkers.options.showCells);
+
+    if (gridMarkers.options) console.log('init2', gridMarkers.options.showCells);
     this.lastelmid = 0;
     this.elementDisplayed = false;
     L.Util.setOptions(this, options);
+    if (gridMarkers.options) console.log('init3', gridMarkers.options.showCells);
 
     this._actions = [];
     this._elements = {};
@@ -194,9 +200,12 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     this._markers = new L.regularGridClusterMarkersGroup({ controller: this });
     this._texts = new L.regularGridClusterTextsGroup({ controller: this });
 
+    if (gridMarkers.options) console.log('init4', gridMarkers.options.showCells);
+
     L.FeatureGroup.prototype.initialize.call(this, {
       features: []
     }, options);
+    if (gridMarkers.options) console.log('init_end', gridMarkers.options.showCells);
   },
   onAdd: function onAdd(map) {
     var _this = this;
@@ -547,11 +556,13 @@ L.RegularGridCluster = L.FeatureGroup.extend({
       var ex = element.g.lng,
           ey = element.g.lat;
 
-      _this11._indexedCells[element.i].cs.map(function (cell) {
-        if (_this11._elmInsideOperations[_this11.options.gridMode].call(_this11, ex, ey, cell)) {
-          cell.elms.push(ei);
-        }
-      });
+      if (_typeof(_this11._indexedCells[element.i]) === 'object') {
+        _this11._indexedCells[element.i].cs.map(function (cell) {
+          if (_this11._elmInsideOperations[_this11.options.gridMode].call(_this11, ex, ey, cell)) {
+            cell.elms.push(ei);
+          }
+        });
+      }
     });
   },
   _cellIsNotEmpty: function _cellIsNotEmpty(cell) {
@@ -665,7 +676,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     return this.options.cellSize * Math.pow(2, 10 - this._mapZoom());
   },
   _gridOrigin: function _gridOrigin() {
-    return this.oprions.gridOrigin === 'auto' ? this._gridExtent().getSouthWest() : this.oprions.gridOrigin;
+    return this.options.gridOrigin === 'auto' ? this._gridExtent().getSouthWest() : this.options.gridOrigin;
   },
   _gridExtent: function _gridExtent() {
     return this._getBounds().pad(this.options.gridBoundsPadding);
@@ -692,7 +703,8 @@ L.RegularGridCluster = L.FeatureGroup.extend({
   }
 });
 
-L.regularGridCluster = function (options) {
+L.regularGridCluster = function (options, secondGrid) {
+  if (gridMarkers.options) console.log('constructor', gridMarkers.options.showCells);
   return new L.RegularGridCluster(options);
 };
 "use strict";
