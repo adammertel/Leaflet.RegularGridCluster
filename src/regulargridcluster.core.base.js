@@ -27,7 +27,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
   },
 
   initialize (options) {
-    this.options = L.extend(this.options, options);
+    //this.options = L.extend(this.options, options);
     this.lastelmid = 0;
     this.elementDisplayed = false;
     L.Util.setOptions(this, options);
@@ -41,6 +41,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     this._markers = new L.regularGridClusterMarkersGroup({controller: this});
     this._texts = new L.regularGridClusterTextsGroup({controller: this});
 
+    
     L.FeatureGroup.prototype.initialize.call(this, {
       features: []
     }, options);
@@ -391,11 +392,13 @@ L.RegularGridCluster = L.FeatureGroup.extend({
       const ei = element.id;
       const ex = element.g.lng, ey = element.g.lat;
 
-      this._indexedCells[element.i].cs.map ( cell => {
-        if (this._elmInsideOperations[this.options.gridMode].call(this, ex, ey, cell)) {
-          cell.elms.push(ei);
-        }
-      });
+      if (typeof this._indexedCells[element.i] === 'object') {
+        this._indexedCells[element.i].cs.map ( cell => {
+          if (this._elmInsideOperations[this.options.gridMode].call(this, ex, ey, cell)) {
+            cell.elms.push(ei);
+          }
+        });
+      }
     });
   },
 
@@ -506,9 +509,9 @@ L.RegularGridCluster = L.FeatureGroup.extend({
   },
 
   _gridOrigin () {
-    return this.oprions.gridOrigin === 'auto' ? 
+    return this.options.gridOrigin === 'auto' ? 
       this._gridExtent().getSouthWest() :
-      this.oprions.gridOrigin;
+      this.options.gridOrigin;
   },
 
   _gridExtent () {
@@ -543,6 +546,6 @@ L.RegularGridCluster = L.FeatureGroup.extend({
   }
 });
 
-L.regularGridCluster = function(options) {
+L.regularGridCluster = function(options, secondGrid) {
   return new L.RegularGridCluster(options);
 };

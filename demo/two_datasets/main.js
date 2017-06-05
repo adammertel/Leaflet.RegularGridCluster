@@ -1,15 +1,13 @@
 var map;
 var maxX = 50, minX = 0, maxY = 49.5, minY = 0;
 var noTestData = 1000;
-var randomData = [];
-
-var grid;
+var gridMarkers = {}
 
 document.addEventListener("DOMContentLoaded", function(event) {
   console.log('dom loaded')
 
-  const colors = ['#e41a1c','#377eb8','#4daf4a','#984ea3','#ff7f00'];
-  createRandomData()
+  const randomDataCells = createRandomData('cells');
+  const randomDataMarkers = createRandomData('markers');
 
   // setting map
   map = L.map('map-content');
@@ -20,95 +18,95 @@ document.addEventListener("DOMContentLoaded", function(event) {
     opacity: .3
   }).addTo(map);
 
-  var selects = [].slice.call(document.getElementsByClassName('render-on-change'), 0);
-  for (var si in selects) {
-    var select = selects[si];
-
-    if (select.addEventListener) {
-      select.addEventListener('change', function () {
-        render()
-      });
-    };
-  }; 
-
-  render();
-})
-
-var render = function () {
-  console.log('demo renders');
-  if (map.hasLayer(grid)) {
-    grid.unregister();
-    map.removeLayer(grid);
-  }
-
-  // define RegularGridCluster instance
-  grid = L.regularGridCluster(
+  gridMarkers = L.regularGridCluster(
     {
-      rules: getRules(),
-      zoomShowElements: parseInt(document.getElementById('select-elements-zoom').value),
-      zoomHideGrid: parseInt(document.getElementById('select-grid-zoom').value),
-      cellSize: parseInt(document.getElementById('select-cell-size').value),
-      gridMode: document.getElementById('select-grid-mode').value,
-      showCells: (document.getElementById('select-show-cells').value == "1"),
-      showMarkers: (document.getElementById('select-show-markers').value == "1"),
-      showTexts: (document.getElementById('select-show-texts').value == "1"),
-      trackingTime: true
+      rules: {
+        markers: {
+            "radius": {
+                "method": "count",
+                "attribute": "",
+                "scale": "continuous",
+                "style": [3, 10]
+            },
+            'color': 'black'
+        },
+        grid: {},
+        texts: {}
+      },
+      zoomShowElements: 10,
+      gridOrigin: {lng: 0, lat: 0},
+      zoomHideGrid: 9,
+      cellSize: 10000,
+      gridMode: 'hexagon',
+      showCells: false,
+      showMarkers: true,
+      showTexts: false,
+      trackingTime: false
     }
   );
 
-  grid.addLayers(randomData);
-  grid.addTo(map);
-}
+  gridMarkers.addLayers(randomDataMarkers);
+  gridMarkers.addTo(map);
 
-const createRandomData = function () {
+
+  const gridCells = L.regularGridCluster(
+    {
+      rules: {
+        grid: {
+            "fillColor": {
+                "method": "count",
+                "attribute": "",
+                "scale": "continuous",
+                "style": ['yellow', 'red']
+            },
+            'color': 'black'
+        },
+        markers: {},
+        texts: {}
+      },
+      zoomShowElements: 10,
+      gridOrigin: {lng: 0, lat: 0},
+      zoomHideGrid: 9,
+      cellSize: 10000,
+      gridMode: 'hexagon',
+      showCells: true,
+      showMarkers: false,
+      showTexts: false,
+      trackingTime: false
+    }
+  );
+  console.log(gridMarkers.options.showCells, 'should be false')
+
+  gridCells.addLayers(randomDataCells);
+  gridCells.addTo(map);
+
+});
+
+const createRandomData = function (mode) {
   // putting some random point data
+  const randomData = []
   for (var i=0; i < noTestData; i++) {
     const coordinates = [
       minX + Math.random() * (maxX - minX),
       minY + Math.random() * (maxY - minY)
     ];
     const properties = {
-      a: 5 + Math.floor(Math.random() * 5),
-      b: Math.floor(Math.random() * 5)
+      a: Math.floor(Math.random() * 5)
     };
 
-    const marker = L.circleMarker(coordinates, circleStyle(properties));
+    const marker = L.circleMarker(coordinates, circleStyle(properties, mode));
     randomData.push({marker: marker, properties: properties});
   };
+  return randomData;
 }
 
-
-const parseTextAreaValue = function (textAreaId) {
-  const textAreaValue = document.getElementById(textAreaId).value;
-  const textAreaObjectValue = '{' + textAreaValue + '}';
-
-  try {
-    return JSON.parse(textAreaObjectValue);
-  } catch (err) {
-    console.log(err);
-    alert('bad input ' + textAreaId + ', ' +  err);
-    return {}
-  }
-}
-
-const getRules = function () {
-  const rulesTextGrid = parseTextAreaValue('textarea-rules-grid');
-  const rulesTextMarkers = parseTextAreaValue('textarea-rules-markers');
-  const rulesTextTexts = parseTextAreaValue('textarea-rules-texts');
-
+const circleStyle = function (props, mode) {
+  const fillColor = mode === 'cells' ? 'red' : 'black';
   return {
-    "grid": rulesTextGrid,
-    "markers": rulesTextMarkers,
-    "texts": rulesTextTexts
-  }
-} 
-
-const circleStyle = function (props) {
-  return {
-    fillColor: ['#ffffcc','#a1dab4','#41b6c4','#2c7fb8','#253494'][props.b],
+    fillColor: fillColor,
     color: 'black',
     weight: 1,
-    radius: props.a / 3,
-    fillOpacity: 1
+    radius: props.a / 2,
+    fillOpacity: .5
   }
 }

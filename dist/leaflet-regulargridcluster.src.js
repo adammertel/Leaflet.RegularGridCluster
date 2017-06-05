@@ -182,14 +182,9 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     trackingTime: false },
 
   initialize: function initialize(options) {
-    console.log('init');
-    if (gridMarkers.options) console.log('init', gridMarkers.options.showCells);
-
-    if (gridMarkers.options) console.log('init2', gridMarkers.options.showCells);
     this.lastelmid = 0;
     this.elementDisplayed = false;
     L.Util.setOptions(this, options);
-    if (gridMarkers.options) console.log('init3', gridMarkers.options.showCells);
 
     this._actions = [];
     this._elements = {};
@@ -200,12 +195,9 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     this._markers = new L.regularGridClusterMarkersGroup({ controller: this });
     this._texts = new L.regularGridClusterTextsGroup({ controller: this });
 
-    if (gridMarkers.options) console.log('init4', gridMarkers.options.showCells);
-
     L.FeatureGroup.prototype.initialize.call(this, {
       features: []
     }, options);
-    if (gridMarkers.options) console.log('init_end', gridMarkers.options.showCells);
   },
   onAdd: function onAdd(map) {
     var _this = this;
@@ -704,7 +696,6 @@ L.RegularGridCluster = L.FeatureGroup.extend({
 });
 
 L.regularGridCluster = function (options, secondGrid) {
-  if (gridMarkers.options) console.log('constructor', gridMarkers.options.showCells);
   return new L.RegularGridCluster(options);
 };
 "use strict";
