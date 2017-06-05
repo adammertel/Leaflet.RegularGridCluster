@@ -34,11 +34,11 @@ document.addEventListener("DOMContentLoaded", function(event) {
         texts: {}
       },
       zoomShowElements: 10,
-      gridOrigin: {lng: 0, lat: 0},
       zoomHideGrid: 9,
       cellSize: 10000,
       gridMode: 'hexagon',
       showCells: false,
+      gridOrigin: {lat: 0, lng: 0},
       showMarkers: true,
       showTexts: false,
       trackingTime: false
@@ -65,17 +65,16 @@ document.addEventListener("DOMContentLoaded", function(event) {
         texts: {}
       },
       zoomShowElements: 10,
-      gridOrigin: {lng: 0, lat: 0},
       zoomHideGrid: 9,
       cellSize: 10000,
       gridMode: 'hexagon',
       showCells: true,
+      gridOrigin: {lat: 0, lng: 0},
       showMarkers: false,
       showTexts: false,
       trackingTime: false
     }
   );
-  console.log(gridMarkers.options.showCells, 'should be false')
 
   gridCells.addLayers(randomDataCells);
   gridCells.addTo(map);
@@ -85,9 +84,10 @@ document.addEventListener("DOMContentLoaded", function(event) {
 const createRandomData = function (mode) {
   // putting some random point data
   const randomData = []
+  const x = mode === 'cells' ? minX : minX + 6 
   for (var i=0; i < noTestData; i++) {
     const coordinates = [
-      minX + Math.random() * (maxX - minX),
+      x + Math.random() * (maxX - x),
       minY + Math.random() * (maxY - minY)
     ];
     const properties = {
