@@ -2,8 +2,9 @@
 
 ![image](./img.png)
 
-## random data demo
-[demo](https://adammertel.github.io/Leaflet.RegularGridCluster/demo/demo1.html )
+## demo
+[random data example](https://adammertel.github.io/Leaflet.RegularGridCluster/demo/random_data )
+[two datasets example](https://adammertel.github.io/Leaflet.RegularGridCluster/demo/two_datasets )
 
 ## motivation
 the basic idea of this library is to present the custom method to both **visualise and cluster** spatial data. This method is based on **regular grid** (hexagonal or square) that could be extended with centered circle markers and/or labels. Plugin can work with **point data** in the form of L.Marker or L.Circle/L.CircleMarker. This concept is suitable to display **multivariate datasets**.
