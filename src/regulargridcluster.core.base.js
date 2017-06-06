@@ -3,7 +3,7 @@
 L.RegularGridCluster = L.FeatureGroup.extend({
   options: {
     gridMode: 'square',
-    cellSize: 10000, // size of the cell at a scale of 10
+    zoneSize: 10000, // size of the cell at a scale of 10
 
     gridBoundsPadding: 0.1,
     gridOrigin: 'auto', // SW corner for grid extent. 'auto' for getting this value from data. Useful for more independent datasets 
@@ -35,9 +35,9 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     this._actions = []; 
     this._elements = {};
     this._displayedElements = L.featureGroup([]);
-    this._cells = [];
+    this._zones = [];
 
-    this._grid = new L.regularGridClusterCellsGroup({controller: this});
+    this._cells = new L.regularGridClusterCellsGroup({controller: this});
     this._markers = new L.regularGridClusterMarkersGroup({controller: this});
     this._texts = new L.regularGridClusterTextsGroup({controller: this});
 
@@ -56,7 +56,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     this._addPane('grid-texts-pane', this.options.paneTextsZ);
     //L.GeoJSON.prototype.onAdd.call(this, map);
 
-    this._grid.addTo(this._map);
+    this._cells.addTo(this._map);
     this._markers.addTo(this._map);
     this._texts.addTo(this._map);
   
@@ -96,7 +96,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
   unregister () {
     this._unregisterActions();
     this._truncateLayers();
-    // this._map.removeLayer(this._grid);
+    // this._map.removeLayer(this._cells);
     // this._map.removeLayer(this._markers);
     // this._map.removeLayer(this._texts);
     this._map.removeLayer(this._displayedElements);    
@@ -118,7 +118,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
   _index () {
     const times = [];
     times.push(new Date());
-    this._indexCells();
+    this._indexZones();
     times.push(new Date());
     this._indexElements();
     times.push(new Date());
@@ -191,7 +191,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
       const times = [];
       times.push(new Date());
 
-      this._prepareCells();
+      this._prepareZones();
       times.push(new Date());
 
       this._findElements();
@@ -210,10 +210,10 @@ L.RegularGridCluster = L.FeatureGroup.extend({
         console.log('********************');
         console.log('cells prepared in ' + (times[1].valueOf() - times[0].valueOf()) + 'ms');
         console.log('elements found in ' + (times[2].valueOf() - times[1].valueOf()) + 'ms');
-        console.log('grid built in     ' + (times[3].valueOf() - times[2].valueOf()) + 'ms');
+        console.log('cells built in     ' + (times[3].valueOf() - times[2].valueOf()) + 'ms');
         console.log('markers built in  ' + (times[4].valueOf() - times[3].valueOf()) + 'ms');
         console.log('texts built in    ' + (times[5].valueOf() - times[4].valueOf()) + 'ms');
-        console.log(this._cells.length + ' cells refreshed in ' + (times[5].valueOf() - times[0].valueOf()) + 'ms');
+        console.log(this._zones.length + ' cells refreshed in ' + (times[5].valueOf() - times[0].valueOf()) + 'ms');
         console.log('********************');
       }
     } else {
@@ -223,23 +223,23 @@ L.RegularGridCluster = L.FeatureGroup.extend({
   },
  
   _truncateLayers () {
-    this._grid.truncate();
+    this._cells.truncate();
     this._markers.truncate();
     this._texts.truncate();
   },
 
   _buildCells () {
-    if (this.options.rules.grid && this.options.showCells) {
-      this._visualise('grid');
+    if (this.options.rules.cells && this.options.showCells) {
+      this._visualise('cells');
 
-      this._cells.forEach(function (cell) {
-        if (this._cellIsNotEmpty(cell)){
-          const regularCell = new L.regularGridClusterCell(cell.path, cell.options.grid);
-          this._grid.addLayer(regularCell);
+      this._zones.forEach(function (zone) {
+        if (this._zoneIsNotEmpty(zone)){
+          const regularCell = new L.regularGridClusterCell(zone.path, zone.options.cells);
+          this._cells.addLayer(regularCell);
         }
       }.bind(this));
 
-      this._grid.addTo(this._map);
+      this._cells.addTo(this._map);
     }
   },
 
@@ -247,10 +247,10 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     if (this.options.rules.markers && this.options.showMarkers) {
       this._visualise('markers');
 
-      this._cells.map( cell => {
-        if (this._cellIsNotEmpty(cell)){
-          const cellCentroid = [cell.y + cell.h/2, cell.x + cell.w/2];
-          const marker = new L.regularGridClusterMarker(cellCentroid, cell.options.markers);
+      this._zones.map(zone => {
+        if (this._zoneIsNotEmpty(zone)){
+          const zoneCentroid = [zone.y + zone.h/2, zone.x + zone.w/2];
+          const marker = new L.regularGridClusterMarker(zoneCentroid, zone.options.markers);
           this._markers.addLayer(marker);
         }
       });
@@ -263,8 +263,8 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     if (this.options.rules.texts && this.options.showTexts) {
       this._visualise('texts');
 
-      this._cells.map ( cell => {
-        if (this._cellIsNotEmpty(cell)){
+      this._zones.map ( cell => {
+        if (this._zoneIsNotEmpty(cell)){
           const cellCentroid = [cell.y + cell.h/2, cell.x + cell.w/2];
           const text = new L.regularGridClusterText(cellCentroid, cell.options.texts);
           this._texts.addLayer(text);
@@ -275,7 +275,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     }
   },
 
-  _indexCells () {
+  _indexZones () {
     const origin = this._gridOrigin();
     const gridEnd = this._gridExtent().getNorthEast();
     const maxX = gridEnd.lng, maxY = gridEnd.lat;
@@ -284,25 +284,25 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     const indexPortion = this.options.indexSize;
     const diffX = (maxX - x) / indexPortion, diffY = (maxY - y) / indexPortion;
     
-    this._indexedCells = {};
-    let cellId = 0;
+    this._indexedZones = {};
+    let zoneId = 0;
 
     for (var xi = x; xi < maxX; xi += diffX){
       for (var yi = y; yi < maxY; yi += diffY){
         const bounds = L.latLngBounds([yi, xi], [yi + diffY, xi + diffX]);
-        this._indexedCells[cellId] = {
+        this._indexedZones[zoneId] = {
           b: bounds,
           cs: []
         };
-        cellId = cellId + 1;
+        zoneId++;
       }
     }
   },
 
   _indexElements () {
     this._getElementsCollection().map( element => {
-      for (const ici in this._indexedCells) {
-        if (this._indexedCells[ici].b.contains(element.g)) {
+      for (const ici in this._indexedZones) {
+        if (this._indexedZones[ici].b.contains(element.g)) {
           this._elements[element.id].index = ici;
           break;
         }
@@ -310,23 +310,23 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     });
   },
 
-  _indexedCellsCollection () {
-    return Object.keys(this._indexedCells).map( key => this._indexedCells[key]);
+  _indexedZonesCollection () {
+    return Object.keys(this._indexedZones).map( key => this._indexedZones[key]);
   },
 
-  _truncateIndexedCells () {
-    this._indexedCellsCollection().map( indexedCell => {
-      indexedCell.cs = [];
+  _truncateIndexedZones () {
+    this._indexedZonesCollection().map( indexedZone => {
+      indexedZone.cs = [];
     });
   },
 
-  _prepareCells () {
-    this._cells = [];
-    this._truncateIndexedCells();
+  _prepareZones () {
+    this._zones = [];
+    this._truncateIndexedZones();
     
-    let cellId = 1;
+    let zoneId = 1;
 
-    const cellSize = this._cellSize();
+    const zoneSize = this._zoneSize();
     const origin = this._gridOrigin();
     const gridEnd = this._gridExtent().getNorthEast();
     const maxX = gridEnd.lng, maxY = gridEnd.lat;
@@ -334,34 +334,34 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     let x = origin.lng, y = origin.lat;
     let row = 1;
 
-    const cellW = cellSize/111319;
-    const indexedCellsCollection = this._indexedCellsCollection();
+    const zoneW = zoneSize/111319;
+    const indexedZonesCollection = this._indexedZonesCollection();
 
-    const indexCellsInCollection = (cell, cellBounds) => {
-      indexedCellsCollection.map (indexedCell => {
-        if (indexedCell.b.overlaps(cellBounds)){
-          indexedCell.cs.push(cell);
+    const indexZonesInCollection = (zone, zoneBounds) => {
+      indexedZonesCollection.map (indexedZone => {
+        if (indexedZone.b.overlaps(zoneBounds)){
+          indexedZone.cs.push(zone);
         }
       });
     };
 
     while (y < maxY) {
-      const cellH = this._cellHeightAtY(y, cellSize);
+      const zoneH = this._zoneHeightAtY(y, zoneSize);
 
       if (this.options.gridMode == 'hexagon' && row % 2) {
-        x -= cellW/2;
+        x -= zoneW/2;
       }
 
       while (x < maxX) {
-        const cell = {
-          id: cellId,
+        const zone = {
+          id: zoneId,
           x: x,
           y: y,
-          h: cellH,
-          w: cellW,
+          h: zoneH,
+          w: zoneW,
 
           options: {
-            grid: {},
+            cells: {},
             markers: {},
             texts: {}
           },
@@ -369,19 +369,19 @@ L.RegularGridCluster = L.FeatureGroup.extend({
           elms: []
         };
 
-        const cellBounds = L.latLngBounds([y, x], [y + cellH, x + cellW]);
+        const zoneBounds = L.latLngBounds([y, x], [y + zoneH, x + zoneW]);
 
-        cell.path = this._buildPathOperations[this.options.gridMode].call(this, cell);
-        this._cells.push(cell);
+        zone.path = this._buildPathOperations[this.options.gridMode].call(this, zone);
+        this._zones.push(zone);
 
-        indexCellsInCollection(cell, cellBounds);
-        cellId++;
+        indexZonesInCollection(zone, zoneBounds);
+        zoneId++;
 
-        x += cellW;
+        x += zoneW;
       }
 
       x = origin.lng;
-      y = this.options.gridMode === 'hexagon' ? y + 3/4 * cellH : y + cellH;
+      y = this.options.gridMode === 'hexagon' ? y + 3/4 * zoneH : y + zoneH;
       
       row += 1;
     }
@@ -392,18 +392,18 @@ L.RegularGridCluster = L.FeatureGroup.extend({
       const ei = element.id;
       const ex = element.g.lng, ey = element.g.lat;
 
-      if (typeof this._indexedCells[element.i] === 'object') {
-        this._indexedCells[element.i].cs.map ( cell => {
-          if (this._elmInsideOperations[this.options.gridMode].call(this, ex, ey, cell)) {
-            cell.elms.push(ei);
+      if (typeof this._indexedZones[element.i] === 'object') {
+        this._indexedZones[element.i].cs.map( zone => {
+          if (this._elmInsideOperations[this.options.gridMode].call(this, ex, ey, zone)) {
+            zone.elms.push(ei);
           }
         });
       }
     });
   },
 
-  _cellIsNotEmpty (cell) {
-    return cell.elms.length !== 0;
+  _zoneIsNotEmpty (zone) {
+    return zone.elms.length !== 0;
   },
 
   _visualise (featureType) {
@@ -413,21 +413,21 @@ L.RegularGridCluster = L.FeatureGroup.extend({
         const rule = this.options.rules[featureType][option];
 
         if (option == 'text') {
-          this._cellsValues(rule.method, rule.attribute);
-          this._cells.map ( cell => {
-            if (this._cellIsNotEmpty(cell)) {
-              cell.options.texts.text = cell.value;
+          this._zonesValues(rule.method, rule.attribute);
+          this._zones.map ( zone => {
+            if (this._zoneIsNotEmpty(zone)) {
+              zone.options.texts.text = zone.value;
             }
           });
 
         } else if (this._isDynamicalRule(rule)) {
-          this._cellsValues(rule.method, rule.attribute);
+          this._zonesValues(rule.method, rule.attribute);
           this._applyOptions(featureType, rule.scale, rule.style, option);
         
         } else {
-          this._cells.map ( cell => {
-            if (this._cellIsNotEmpty(cell)) {
-              cell.options[featureType][option] = rule;
+          this._zones.map ( zone => {
+            if (this._zoneIsNotEmpty(zone)) {
+              zone.options[featureType][option] = rule;
             }
           });
         }
@@ -437,12 +437,12 @@ L.RegularGridCluster = L.FeatureGroup.extend({
 
   _applyOptions (featureType, scale, style, option) {
     if (style.length == 1) {
-      this._cells.map ( cell => {
-        cell.options[featureType][option] = style[0];
+      this._zones.map( zone => {
+        zone.options[featureType][option] = style[0];
       });
     } else if (style.length > 1) {
       
-      const values = this._cellValues(true).sort(function(a,b){return a-b;});
+      const values = this._zoneValues(true).sort(function(a,b){return a-b;});
       let noInts = style.length;
 
       if (scale === 'continuous') { noInts = noInts - 1;}
@@ -460,11 +460,11 @@ L.RegularGridCluster = L.FeatureGroup.extend({
       }
 
       if (this._scaleOperations[scale]){
-        this._cells.map ( cell => {
-          if (this._isDefined(cell.value)) {
-            cell.options[featureType][option] = this._scaleOperations[scale](
+        this._zones.map( zone => {
+          if (this._isDefined(zone.value)) {
+            zone.options[featureType][option] = this._scaleOperations[scale](
               this, 
-              cell.value, 
+              zone.value, 
               min, max, noInts, 
               thresholds, style
             );
@@ -474,38 +474,38 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     }
   },
 
-  _cellsValues (method, attr) {
-    this._cells.map ( cell => {
-      if (this._cellIsNotEmpty(cell)){
-        let cellValues;
+  _zonesValues (method, attr) {
+    this._zones.map ( zone => {
+      if (this._zoneIsNotEmpty(zone)){
+        let zoneValues;
 
         if (method !== 'count') {
-          cellValues = this._cellAttrValues(cell, attr);
+          zoneValues = this._zoneAttrValues(zone, attr);
         }
-        cell.value = this._methodOperations[method](this, cell, cellValues);
+        zone.value = this._methodOperations[method](this, zone, zoneValues);
       }
     });
   },
 
-  _cellValues (onlyDefined) {
+  _zoneValues (onlyDefined) {
     if (onlyDefined) {
-      return this._cells.filter(cell => typeof cell.value !== 'undefined' && !isNaN(cell.value)).map ( cell => cell.value);
+      return this._zones.filter(zone => typeof zone.value !== 'undefined' && !isNaN(zone.value)).map( zone => zone.value);
     } else {
-      return this._cells.map( cell => cell.value);
+      return this._zones.map( zone => zone.value);
     }
   },
 
-  _cellAttrValues (cell, attr) {
-    return cell.elms.map( elm => this._elements[elm].properties[attr]);
+  _zoneAttrValues (zone, attr) {
+    return zone.elms.map( elm => this._elements[elm].properties[attr]);
   },
 
   _isDynamicalRule (rule) {
     return rule.method && rule.scale && rule.style;
   },
 
-  // return size of the cell in meters
-  _cellSize () {
-    return this.options.cellSize * Math.pow(2, 10 - this._mapZoom());
+  // return size of the zone in meters
+  _zoneSize () {
+    return this.options.zoneSize * Math.pow(2, 10 - this._mapZoom());
   },
 
   _gridOrigin () {
@@ -532,8 +532,9 @@ L.RegularGridCluster = L.FeatureGroup.extend({
 
   // BASE FUNCTIONS
   // longitude delta for given latitude
-  _cellHeightAtY (y, cellSize) {
-    return cellSize/111319;
+  _zoneHeightAtY (y, zoneSize) {
+    console.log('zoneHeighr');
+    return zoneSize/111319;
     // return (cellSize/111319) * this._deltaHeightAtY(y);
   },
 

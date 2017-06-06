@@ -159,7 +159,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 L.RegularGridCluster = L.FeatureGroup.extend({
   options: {
     gridMode: 'square',
-    cellSize: 10000,
+    zoneSize: 10000,
 
     gridBoundsPadding: 0.1,
     gridOrigin: 'auto',
@@ -189,9 +189,9 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     this._actions = [];
     this._elements = {};
     this._displayedElements = L.featureGroup([]);
-    this._cells = [];
+    this._zones = [];
 
-    this._grid = new L.regularGridClusterCellsGroup({ controller: this });
+    this._cells = new L.regularGridClusterCellsGroup({ controller: this });
     this._markers = new L.regularGridClusterMarkersGroup({ controller: this });
     this._texts = new L.regularGridClusterTextsGroup({ controller: this });
 
@@ -209,7 +209,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     this._addPane('grid-texts-pane', this.options.paneTextsZ);
 
 
-    this._grid.addTo(this._map);
+    this._cells.addTo(this._map);
     this._markers.addTo(this._map);
     this._texts.addTo(this._map);
 
@@ -267,7 +267,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
   _index: function _index() {
     var times = [];
     times.push(new Date());
-    this._indexCells();
+    this._indexZones();
     times.push(new Date());
     this._indexElements();
     times.push(new Date());
@@ -339,7 +339,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
       var times = [];
       times.push(new Date());
 
-      this._prepareCells();
+      this._prepareZones();
       times.push(new Date());
 
       this._findElements();
@@ -358,10 +358,10 @@ L.RegularGridCluster = L.FeatureGroup.extend({
         console.log('********************');
         console.log('cells prepared in ' + (times[1].valueOf() - times[0].valueOf()) + 'ms');
         console.log('elements found in ' + (times[2].valueOf() - times[1].valueOf()) + 'ms');
-        console.log('grid built in     ' + (times[3].valueOf() - times[2].valueOf()) + 'ms');
+        console.log('cells built in     ' + (times[3].valueOf() - times[2].valueOf()) + 'ms');
         console.log('markers built in  ' + (times[4].valueOf() - times[3].valueOf()) + 'ms');
         console.log('texts built in    ' + (times[5].valueOf() - times[4].valueOf()) + 'ms');
-        console.log(this._cells.length + ' cells refreshed in ' + (times[5].valueOf() - times[0].valueOf()) + 'ms');
+        console.log(this._zones.length + ' cells refreshed in ' + (times[5].valueOf() - times[0].valueOf()) + 'ms');
         console.log('********************');
       }
     } else {
@@ -370,22 +370,22 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     }
   },
   _truncateLayers: function _truncateLayers() {
-    this._grid.truncate();
+    this._cells.truncate();
     this._markers.truncate();
     this._texts.truncate();
   },
   _buildCells: function _buildCells() {
-    if (this.options.rules.grid && this.options.showCells) {
-      this._visualise('grid');
+    if (this.options.rules.cells && this.options.showCells) {
+      this._visualise('cells');
 
-      this._cells.forEach(function (cell) {
-        if (this._cellIsNotEmpty(cell)) {
-          var regularCell = new L.regularGridClusterCell(cell.path, cell.options.grid);
-          this._grid.addLayer(regularCell);
+      this._zones.forEach(function (zone) {
+        if (this._zoneIsNotEmpty(zone)) {
+          var regularCell = new L.regularGridClusterCell(zone.path, zone.options.cells);
+          this._cells.addLayer(regularCell);
         }
       }.bind(this));
 
-      this._grid.addTo(this._map);
+      this._cells.addTo(this._map);
     }
   },
   _buildMarkers: function _buildMarkers() {
@@ -394,10 +394,10 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     if (this.options.rules.markers && this.options.showMarkers) {
       this._visualise('markers');
 
-      this._cells.map(function (cell) {
-        if (_this7._cellIsNotEmpty(cell)) {
-          var cellCentroid = [cell.y + cell.h / 2, cell.x + cell.w / 2];
-          var marker = new L.regularGridClusterMarker(cellCentroid, cell.options.markers);
+      this._zones.map(function (zone) {
+        if (_this7._zoneIsNotEmpty(zone)) {
+          var zoneCentroid = [zone.y + zone.h / 2, zone.x + zone.w / 2];
+          var marker = new L.regularGridClusterMarker(zoneCentroid, zone.options.markers);
           _this7._markers.addLayer(marker);
         }
       });
@@ -411,8 +411,8 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     if (this.options.rules.texts && this.options.showTexts) {
       this._visualise('texts');
 
-      this._cells.map(function (cell) {
-        if (_this8._cellIsNotEmpty(cell)) {
+      this._zones.map(function (cell) {
+        if (_this8._zoneIsNotEmpty(cell)) {
           var cellCentroid = [cell.y + cell.h / 2, cell.x + cell.w / 2];
           var text = new L.regularGridClusterText(cellCentroid, cell.options.texts);
           _this8._texts.addLayer(text);
@@ -422,7 +422,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
       this._texts.addTo(this._map);
     }
   },
-  _indexCells: function _indexCells() {
+  _indexZones: function _indexZones() {
     var origin = this._gridOrigin();
     var gridEnd = this._gridExtent().getNorthEast();
     var maxX = gridEnd.lng,
@@ -434,17 +434,17 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     var diffX = (maxX - x) / indexPortion,
         diffY = (maxY - y) / indexPortion;
 
-    this._indexedCells = {};
-    var cellId = 0;
+    this._indexedZones = {};
+    var zoneId = 0;
 
     for (var xi = x; xi < maxX; xi += diffX) {
       for (var yi = y; yi < maxY; yi += diffY) {
         var bounds = L.latLngBounds([yi, xi], [yi + diffY, xi + diffX]);
-        this._indexedCells[cellId] = {
+        this._indexedZones[zoneId] = {
           b: bounds,
           cs: []
         };
-        cellId = cellId + 1;
+        zoneId++;
       }
     }
   },
@@ -452,33 +452,33 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     var _this9 = this;
 
     this._getElementsCollection().map(function (element) {
-      for (var ici in _this9._indexedCells) {
-        if (_this9._indexedCells[ici].b.contains(element.g)) {
+      for (var ici in _this9._indexedZones) {
+        if (_this9._indexedZones[ici].b.contains(element.g)) {
           _this9._elements[element.id].index = ici;
           break;
         }
       }
     });
   },
-  _indexedCellsCollection: function _indexedCellsCollection() {
+  _indexedZonesCollection: function _indexedZonesCollection() {
     var _this10 = this;
 
-    return Object.keys(this._indexedCells).map(function (key) {
-      return _this10._indexedCells[key];
+    return Object.keys(this._indexedZones).map(function (key) {
+      return _this10._indexedZones[key];
     });
   },
-  _truncateIndexedCells: function _truncateIndexedCells() {
-    this._indexedCellsCollection().map(function (indexedCell) {
-      indexedCell.cs = [];
+  _truncateIndexedZones: function _truncateIndexedZones() {
+    this._indexedZonesCollection().map(function (indexedZone) {
+      indexedZone.cs = [];
     });
   },
-  _prepareCells: function _prepareCells() {
-    this._cells = [];
-    this._truncateIndexedCells();
+  _prepareZones: function _prepareZones() {
+    this._zones = [];
+    this._truncateIndexedZones();
 
-    var cellId = 1;
+    var zoneId = 1;
 
-    var cellSize = this._cellSize();
+    var zoneSize = this._zoneSize();
     var origin = this._gridOrigin();
     var gridEnd = this._gridExtent().getNorthEast();
     var maxX = gridEnd.lng,
@@ -488,34 +488,34 @@ L.RegularGridCluster = L.FeatureGroup.extend({
         y = origin.lat;
     var row = 1;
 
-    var cellW = cellSize / 111319;
-    var indexedCellsCollection = this._indexedCellsCollection();
+    var zoneW = zoneSize / 111319;
+    var indexedZonesCollection = this._indexedZonesCollection();
 
-    var indexCellsInCollection = function indexCellsInCollection(cell, cellBounds) {
-      indexedCellsCollection.map(function (indexedCell) {
-        if (indexedCell.b.overlaps(cellBounds)) {
-          indexedCell.cs.push(cell);
+    var indexZonesInCollection = function indexZonesInCollection(zone, zoneBounds) {
+      indexedZonesCollection.map(function (indexedZone) {
+        if (indexedZone.b.overlaps(zoneBounds)) {
+          indexedZone.cs.push(zone);
         }
       });
     };
 
     while (y < maxY) {
-      var cellH = this._cellHeightAtY(y, cellSize);
+      var zoneH = this._zoneHeightAtY(y, zoneSize);
 
       if (this.options.gridMode == 'hexagon' && row % 2) {
-        x -= cellW / 2;
+        x -= zoneW / 2;
       }
 
       while (x < maxX) {
-        var cell = {
-          id: cellId,
+        var zone = {
+          id: zoneId,
           x: x,
           y: y,
-          h: cellH,
-          w: cellW,
+          h: zoneH,
+          w: zoneW,
 
           options: {
-            grid: {},
+            cells: {},
             markers: {},
             texts: {}
           },
@@ -523,19 +523,19 @@ L.RegularGridCluster = L.FeatureGroup.extend({
           elms: []
         };
 
-        var cellBounds = L.latLngBounds([y, x], [y + cellH, x + cellW]);
+        var zoneBounds = L.latLngBounds([y, x], [y + zoneH, x + zoneW]);
 
-        cell.path = this._buildPathOperations[this.options.gridMode].call(this, cell);
-        this._cells.push(cell);
+        zone.path = this._buildPathOperations[this.options.gridMode].call(this, zone);
+        this._zones.push(zone);
 
-        indexCellsInCollection(cell, cellBounds);
-        cellId++;
+        indexZonesInCollection(zone, zoneBounds);
+        zoneId++;
 
-        x += cellW;
+        x += zoneW;
       }
 
       x = origin.lng;
-      y = this.options.gridMode === 'hexagon' ? y + 3 / 4 * cellH : y + cellH;
+      y = this.options.gridMode === 'hexagon' ? y + 3 / 4 * zoneH : y + zoneH;
 
       row += 1;
     }
@@ -548,17 +548,17 @@ L.RegularGridCluster = L.FeatureGroup.extend({
       var ex = element.g.lng,
           ey = element.g.lat;
 
-      if (_typeof(_this11._indexedCells[element.i]) === 'object') {
-        _this11._indexedCells[element.i].cs.map(function (cell) {
-          if (_this11._elmInsideOperations[_this11.options.gridMode].call(_this11, ex, ey, cell)) {
-            cell.elms.push(ei);
+      if (_typeof(_this11._indexedZones[element.i]) === 'object') {
+        _this11._indexedZones[element.i].cs.map(function (zone) {
+          if (_this11._elmInsideOperations[_this11.options.gridMode].call(_this11, ex, ey, zone)) {
+            zone.elms.push(ei);
           }
         });
       }
     });
   },
-  _cellIsNotEmpty: function _cellIsNotEmpty(cell) {
-    return cell.elms.length !== 0;
+  _zoneIsNotEmpty: function _zoneIsNotEmpty(zone) {
+    return zone.elms.length !== 0;
   },
   _visualise: function _visualise(featureType) {
     var _this12 = this;
@@ -569,19 +569,19 @@ L.RegularGridCluster = L.FeatureGroup.extend({
         var rule = _this12.options.rules[featureType][option];
 
         if (option == 'text') {
-          _this12._cellsValues(rule.method, rule.attribute);
-          _this12._cells.map(function (cell) {
-            if (_this12._cellIsNotEmpty(cell)) {
-              cell.options.texts.text = cell.value;
+          _this12._zonesValues(rule.method, rule.attribute);
+          _this12._zones.map(function (zone) {
+            if (_this12._zoneIsNotEmpty(zone)) {
+              zone.options.texts.text = zone.value;
             }
           });
         } else if (_this12._isDynamicalRule(rule)) {
-          _this12._cellsValues(rule.method, rule.attribute);
+          _this12._zonesValues(rule.method, rule.attribute);
           _this12._applyOptions(featureType, rule.scale, rule.style, option);
         } else {
-          _this12._cells.map(function (cell) {
-            if (_this12._cellIsNotEmpty(cell)) {
-              cell.options[featureType][option] = rule;
+          _this12._zones.map(function (zone) {
+            if (_this12._zoneIsNotEmpty(zone)) {
+              zone.options[featureType][option] = rule;
             }
           });
         }
@@ -592,12 +592,12 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     var _this13 = this;
 
     if (style.length == 1) {
-      this._cells.map(function (cell) {
-        cell.options[featureType][option] = style[0];
+      this._zones.map(function (zone) {
+        zone.options[featureType][option] = style[0];
       });
     } else if (style.length > 1) {
 
-      var values = this._cellValues(true).sort(function (a, b) {
+      var values = this._zoneValues(true).sort(function (a, b) {
         return a - b;
       });
       var noInts = style.length;
@@ -619,53 +619,53 @@ L.RegularGridCluster = L.FeatureGroup.extend({
       }
 
       if (this._scaleOperations[scale]) {
-        this._cells.map(function (cell) {
-          if (_this13._isDefined(cell.value)) {
-            cell.options[featureType][option] = _this13._scaleOperations[scale](_this13, cell.value, min, max, noInts, thresholds, style);
+        this._zones.map(function (zone) {
+          if (_this13._isDefined(zone.value)) {
+            zone.options[featureType][option] = _this13._scaleOperations[scale](_this13, zone.value, min, max, noInts, thresholds, style);
           }
         });
       }
     }
   },
-  _cellsValues: function _cellsValues(method, attr) {
+  _zonesValues: function _zonesValues(method, attr) {
     var _this14 = this;
 
-    this._cells.map(function (cell) {
-      if (_this14._cellIsNotEmpty(cell)) {
-        var cellValues = void 0;
+    this._zones.map(function (zone) {
+      if (_this14._zoneIsNotEmpty(zone)) {
+        var zoneValues = void 0;
 
         if (method !== 'count') {
-          cellValues = _this14._cellAttrValues(cell, attr);
+          zoneValues = _this14._zoneAttrValues(zone, attr);
         }
-        cell.value = _this14._methodOperations[method](_this14, cell, cellValues);
+        zone.value = _this14._methodOperations[method](_this14, zone, zoneValues);
       }
     });
   },
-  _cellValues: function _cellValues(onlyDefined) {
+  _zoneValues: function _zoneValues(onlyDefined) {
     if (onlyDefined) {
-      return this._cells.filter(function (cell) {
-        return typeof cell.value !== 'undefined' && !isNaN(cell.value);
-      }).map(function (cell) {
-        return cell.value;
+      return this._zones.filter(function (zone) {
+        return typeof zone.value !== 'undefined' && !isNaN(zone.value);
+      }).map(function (zone) {
+        return zone.value;
       });
     } else {
-      return this._cells.map(function (cell) {
-        return cell.value;
+      return this._zones.map(function (zone) {
+        return zone.value;
       });
     }
   },
-  _cellAttrValues: function _cellAttrValues(cell, attr) {
+  _zoneAttrValues: function _zoneAttrValues(zone, attr) {
     var _this15 = this;
 
-    return cell.elms.map(function (elm) {
+    return zone.elms.map(function (elm) {
       return _this15._elements[elm].properties[attr];
     });
   },
   _isDynamicalRule: function _isDynamicalRule(rule) {
     return rule.method && rule.scale && rule.style;
   },
-  _cellSize: function _cellSize() {
-    return this.options.cellSize * Math.pow(2, 10 - this._mapZoom());
+  _zoneSize: function _zoneSize() {
+    return this.options.zoneSize * Math.pow(2, 10 - this._mapZoom());
   },
   _gridOrigin: function _gridOrigin() {
     return this.options.gridOrigin === 'auto' ? this._gridExtent().getSouthWest() : this.options.gridOrigin;
@@ -684,8 +684,9 @@ L.RegularGridCluster = L.FeatureGroup.extend({
   _mapZoom: function _mapZoom() {
     return this._map ? this._map.getZoom() : false;
   },
-  _cellHeightAtY: function _cellHeightAtY(y, cellSize) {
-    return cellSize / 111319;
+  _zoneHeightAtY: function _zoneHeightAtY(y, zoneSize) {
+    console.log('zoneHeighr');
+    return zoneSize / 111319;
   },
   _isDefined: function _isDefined(value) {
     return !(!value && value !== 0);
@@ -849,35 +850,35 @@ L.RegularGridCluster.include({
   },
 
   _methodOperations: {
-    count: function count(cluster, cell, values) {
-      return cell.elms.length;
+    count: function count(cluster, zone, values) {
+      return zone.elms.length;
     },
-    mean: function mean(cluster, cell, values) {
+    mean: function mean(cluster, zone, values) {
       return cluster._math_mean(values);
     },
-    median: function median(cluster, cell, values) {
+    median: function median(cluster, zone, values) {
       return cluster._math_median(values);
     },
-    mode: function mode(cluster, cell, values) {
+    mode: function mode(cluster, zone, values) {
       return cluster._math_mode(values);
     },
-    max: function max(cluster, cell, values) {
+    max: function max(cluster, zone, values) {
       return cluster._math_max(values);
     },
-    min: function min(cluster, cell, values) {
+    min: function min(cluster, zone, values) {
       return cluster._math_min(values);
     },
-    sum: function sum(cluster, cell, values) {
+    sum: function sum(cluster, zone, values) {
       return cluster._math_sum(values);
     }
   },
 
   _elmInsideOperations: {
-    square: function square(ex, ey, cell) {
-      var x1 = cell.x,
-          x2 = cell.x + cell.w,
-          y1 = cell.y,
-          y2 = cell.y + cell.h;
+    square: function square(ex, ey, zone) {
+      var x1 = zone.x,
+          x2 = zone.x + zone.w,
+          y1 = zone.y,
+          y2 = zone.y + zone.h;
       if (ex > x1) {
         if (ey > y1) {
           if (ex < x2) {
@@ -889,29 +890,29 @@ L.RegularGridCluster.include({
       }
       return false;
     },
-    hexagon: function hexagon(ex, ey, cell) {
-      var x1 = cell.x,
-          x2 = cell.x + cell.w,
-          y1 = cell.y,
-          y2 = cell.y + cell.h;
+    hexagon: function hexagon(ex, ey, zone) {
+      var x1 = zone.x,
+          x2 = zone.x + zone.w,
+          y1 = zone.y,
+          y2 = zone.y + zone.h;
       if (ex > x1) {
         if (ey > y1) {
           if (ex < x2) {
             if (ey < y2) {
-              var yh1 = y1 + cell.h * 1 / 4,
-                  yh2 = y1 + cell.h * 3 / 4;
+              var yh1 = y1 + zone.h * 1 / 4,
+                  yh2 = y1 + zone.h * 3 / 4;
               if (ey > yh1 && ey < yh2) {
                 return true;
               } else {
                 var tx = ex - x1,
                     ty = ey - y1;
-                if (ty > cell.h / 4 * 3) {
-                  ty = cell.h - ty;
+                if (ty > zone.h / 4 * 3) {
+                  ty = zone.h - ty;
                 }
-                if (tx > cell.w / 2) {
-                  tx = cell.w - tx;
+                if (tx > zone.w / 2) {
+                  tx = zone.w - tx;
                 }
-                return ty / (cell.h / 4) + tx / (cell.w / 2) > 1;
+                return ty / (zone.h / 4) + tx / (zone.w / 2) > 1;
               }
             }
           }

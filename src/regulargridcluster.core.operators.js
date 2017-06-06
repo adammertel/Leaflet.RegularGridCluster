@@ -45,18 +45,18 @@ L.RegularGridCluster.include( {
   },
 
   _methodOperations: {
-    count: (cluster, cell, values) => cell.elms.length,
-    mean: (cluster, cell, values) => cluster._math_mean(values),
-    median: (cluster, cell, values) => cluster._math_median(values),
-    mode: (cluster, cell, values) => cluster._math_mode(values),
-    max: (cluster, cell, values) => cluster._math_max(values),
-    min: (cluster, cell, values) => cluster._math_min(values),
-    sum: (cluster, cell, values) => cluster._math_sum(values),
+    count: (cluster, zone, values) => zone.elms.length,
+    mean: (cluster, zone, values) => cluster._math_mean(values),
+    median: (cluster, zone, values) => cluster._math_median(values),
+    mode: (cluster, zone, values) => cluster._math_mode(values),
+    max: (cluster, zone, values) => cluster._math_max(values),
+    min: (cluster, zone, values) => cluster._math_min(values),
+    sum: (cluster, zone, values) => cluster._math_sum(values),
   },
 
   _elmInsideOperations: {
-    square: (ex, ey, cell) => {
-      const x1 = cell.x, x2 = cell.x + cell.w, y1 = cell.y, y2 = cell.y + cell.h;
+    square: (ex, ey, zone) => {
+      const x1 = zone.x, x2 = zone.x + zone.w, y1 = zone.y, y2 = zone.y + zone.h;
       if (ex > x1) {
         if (ey > y1) {
           if (ex < x2) {
@@ -68,20 +68,20 @@ L.RegularGridCluster.include( {
       }
       return false;
     },
-    hexagon: (ex, ey, cell) => {
-      const x1 = cell.x, x2 = cell.x + cell.w, y1 = cell.y, y2 = cell.y + cell.h;
+    hexagon: (ex, ey, zone) => {
+      const x1 = zone.x, x2 = zone.x + zone.w, y1 = zone.y, y2 = zone.y + zone.h;
       if (ex > x1) {
         if (ey > y1) {
           if (ex < x2) {
             if (ey < y2) {
-              const yh1 = y1 + cell.h * 1/4, yh2 = y1 + cell.h * 3/4;
+              const yh1 = y1 + zone.h * 1/4, yh2 = y1 + zone.h * 3/4;
               if (ey > yh1 && ey < yh2) {
                 return true;
               } else {
                 let tx = ex - x1, ty = ey - y1;
-                if (ty > (cell.h/4) * 3) {ty = cell.h - ty;}
-                if (tx > cell.w/2) {tx = cell.w - tx;}
-                return ty/(cell.h/4) + tx/(cell.w/2) > 1;
+                if (ty > (zone.h/4) * 3) {ty = zone.h - ty;}
+                if (tx > zone.w/2) {tx = zone.w - tx;}
+                return ty/(zone.h/4) + tx/(zone.w/2) > 1;
               }
             }
           }
