@@ -2,28 +2,31 @@
 
 L.RegularGridCluster = L.FeatureGroup.extend({
   options: {
-    gridMode: 'square',
+    gridMode: 'square', // square of hexagon
     zoneSize: 10000, // size of the cell at a scale of 10
 
-    gridBoundsPadding: 0.1,
     gridOrigin: 'auto', // SW corner for grid extent. 'auto' for getting this value from data. Useful for more independent datasets 
+    gridBoundsPadding: 0.1, // ratio to extend bounding box of elements 
 
+    // turning components on and off
     showCells: true,
     showMarkers: true,
     showTexts: true,
 
-    paneElementsZ: 1000,
+    // setting z-indices for data layers
+    paneElementsZ: 1000, 
     paneCellsZ: 700,
     paneMarkersZ: 800,
     paneTextsZ: 900,
 
+    // levels of zoom when to turn grid off and elements on
     zoomShowElements: 10,
     zoomHideGrid: 10,
 
     indexSize: 12, // ratio for pre-indexing elements in grid
 
-    rules: {},
-    trackingTime: false // for developement purposes 
+    rules: {}, // set of dynamical and static visual rules that define markers, cells and texts
+    trackingTime: false // for developement purposes only
   },
 
   initialize (options) {
@@ -231,13 +234,6 @@ L.RegularGridCluster = L.FeatureGroup.extend({
   _buildCells () {
     if (this.options.rules.cells && this.options.showCells) {
       this._visualise('cells');
-
-      // this._zones.forEach(function (zone) {
-      //   if (this._zoneIsNotEmpty(zone)){
-      //     const regularCell = new L.regularGridClusterCell(zone.path, zone.options.cells);
-      //     this._cells.addLayer(regularCell);
-      //   }
-      // }.bind(this));
 
       this._zones.filter( zone => this._zoneIsNotEmpty(zone)).map( zone => {
         const regularCell = new L.regularGridClusterCell(zone.path, zone.options.cells);
