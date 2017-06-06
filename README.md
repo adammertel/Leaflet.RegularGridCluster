@@ -39,11 +39,12 @@ Grid consists of 3 different component classes, each could styled separately or 
 
 
 ## rules
-Rules object consists of 3 key-values pairs - **cells, **markers** and **texts**. Most of the naming is technicaly the same as in the LPath class (see [leaflet documentation](http://leafletjs.com/reference-1.0.3.html#path)). Differences are mainly within texts (*font-size*, *font-weight*). 
-To create a dynamical rule, one has to define a **method**, **scale**, **style** and **attribute** parameters:
+Rules object consists of 3 key-values pairs - **cells, **markers** and **texts**. Most of the naming is technicaly the same as in the L.Path class (see [leaflet documentation](http://leafletjs.com/reference-1.0.3.html#path)). Differences are mainly within texts (*font-size*, *font-weight*). 
+To create a dynamical rule, one has to define a **method**, **scale**, **style**, **domain** and **attribute** parameters:
  - **method** ('count', 'mean', 'median', 'mode', 'min', 'max' and 'sum') - operation how the result value will be calculated from the overlapping elements
  - **scale** ('size' - equal size, 'quantile', 'continuous') - how threshold values will be defined for  intervals. 'Continous' value will create a continuous scale
  - **style** - array with values to set how to style the variable
+ - **domain** - array of two values to define minimum (first value) and maximum (second value) of input manually. If this is not defined, maximum and minimum will be set based on the data.
  - **attribute** - name of the property that defines the rule (could be ommited in case, the method is 'count')
 
 To test how these parameters work, please have a look at the [random data example](https://adammertel.github.io/Leaflet.RegularGridCluster/demo/random_data)

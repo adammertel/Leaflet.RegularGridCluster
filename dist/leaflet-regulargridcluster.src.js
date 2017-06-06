@@ -506,7 +506,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     while (y < maxY) {
       var zoneH = this._zoneHeightAtY(y, zoneSize);
 
-      if (this.options.gridMode == 'hexagon' && row % 2) {
+      if (this.options.gridMode === 'hexagon' && row % 2) {
         x -= zoneW / 2;
       }
 
@@ -572,7 +572,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
       Object.keys(this.options.rules[featureType]).map(function (option) {
         var rule = _this13.options.rules[featureType][option];
 
-        if (option == 'text') {
+        if (option === 'text') {
           _this13._zonesValues(rule.method, rule.attribute);
           _this13._zones.map(function (zone) {
             if (_this13._zoneIsNotEmpty(zone)) {
@@ -581,7 +581,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
           });
         } else if (_this13._isDynamicalRule(rule)) {
           _this13._zonesValues(rule.method, rule.attribute);
-          _this13._applyOptions(featureType, rule.scale, rule.style, option);
+          _this13._applyOptions(featureType, rule, option);
         } else {
           _this13._zones.map(function (zone) {
             if (_this13._zoneIsNotEmpty(zone)) {
@@ -592,10 +592,12 @@ L.RegularGridCluster = L.FeatureGroup.extend({
       });
     }
   },
-  _applyOptions: function _applyOptions(featureType, scale, style, option) {
+  _applyOptions: function _applyOptions(featureType, rule, option) {
     var _this14 = this;
 
-    if (style.length == 1) {
+    var scale = rule.scale;
+    var style = rule.style;
+    if (style.length === 1) {
       this._zones.map(function (zone) {
         zone.options[featureType][option] = style[0];
       });
@@ -606,11 +608,12 @@ L.RegularGridCluster = L.FeatureGroup.extend({
       });
       var noInts = style.length;
 
+      console.log(rule);
       if (scale === 'continuous') {
         noInts = noInts - 1;
       }
-      var max = Math.max.apply(Math, _toConsumableArray(values));
-      var min = Math.min.apply(Math, _toConsumableArray(values));
+      var min = rule.domain ? rule.domain[0] : Math.min.apply(Math, _toConsumableArray(values));
+      var max = rule.domain ? rule.domain[1] : Math.max.apply(Math, _toConsumableArray(values));
 
       var thresholds = [];
 

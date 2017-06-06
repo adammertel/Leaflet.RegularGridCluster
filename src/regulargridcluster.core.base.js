@@ -354,7 +354,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     while (y < maxY) {
       const zoneH = this._zoneHeightAtY(y, zoneSize);
 
-      if (this.options.gridMode == 'hexagon' && row % 2) {
+      if (this.options.gridMode === 'hexagon' && row % 2) {
         x -= zoneW/2;
       }
 
@@ -418,7 +418,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
       Object.keys(this.options.rules[featureType]).map( option => {
         const rule = this.options.rules[featureType][option];
 
-        if (option == 'text') {
+        if (option === 'text') {
           this._zonesValues(rule.method, rule.attribute);
           this._zones.map ( zone => {
             if (this._zoneIsNotEmpty(zone)) {
@@ -428,7 +428,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
 
         } else if (this._isDynamicalRule(rule)) {
           this._zonesValues(rule.method, rule.attribute);
-          this._applyOptions(featureType, rule.scale, rule.style, option);
+          this._applyOptions(featureType, rule, option);
         
         } else {
           this._zones.map ( zone => {
@@ -441,8 +441,10 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     }
   },
 
-  _applyOptions (featureType, scale, style, option) {
-    if (style.length == 1) {
+  _applyOptions (featureType, rule, option) {
+    const scale = rule.scale;
+    const style = rule.style;
+    if (style.length === 1) {
       this._zones.map( zone => {
         zone.options[featureType][option] = style[0];
       });
@@ -451,9 +453,10 @@ L.RegularGridCluster = L.FeatureGroup.extend({
       const values = this._zoneValues(true).sort(function(a,b){return a-b;});
       let noInts = style.length;
 
+      console.log(rule);
       if (scale === 'continuous') { noInts = noInts - 1;}
-      const max = Math.max(...values);
-      const min = Math.min(...values);
+      const min = rule.domain ? rule.domain[0] : Math.min(...values);
+      const max = rule.domain ? rule.domain[1] : Math.max(...values);
 
       const thresholds = [];
 
