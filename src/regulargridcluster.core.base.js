@@ -25,7 +25,12 @@ L.RegularGridCluster = L.FeatureGroup.extend({
 
     indexSize: 12, // ratio for pre-indexing elements in grid
 
-    rules: {}, // set of dynamical and static visual rules that define markers, cells and texts
+    // set of dynamical and static visual rules that define markers, cells and texts
+    rules: {
+      cells: {},
+      markers: {},
+      texts: {}
+    }, 
     trackingTime: false // for developement purposes only
   },
 
@@ -238,7 +243,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
       this._zones.filter( zone => this._zoneIsNotEmpty(zone)).map( zone => {
         const regularCell = new L.regularGridClusterCell(zone.path, zone.options.cells);
         this._cells.addLayer(regularCell);
-      })
+      });
 
       this._cells.addTo(this._map);
     }
