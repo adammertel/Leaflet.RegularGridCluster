@@ -30,7 +30,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
             },
             'color': 'black'
         },
-        grid: {},
+        cells: {},
         texts: {}
       },
       zoomShowElements: 10,
@@ -52,7 +52,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
   const gridCells = L.regularGridCluster(
     {
       rules: {
-        grid: {
+        cells: {
             "fillColor": {
                 "method": "count",
                 "attribute": "",

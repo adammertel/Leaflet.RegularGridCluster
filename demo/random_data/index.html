@@ -7,7 +7,7 @@
 
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.0.3/leaflet.js"></script>
   <script type="text/javascript" src="../ext/zoomdisplay.js"></script>
-  <script type="text/javascript" src="../../dist/leaflet-regulargridcluster.js"></script>
+  <script type="text/javascript" src="../../dist/leaflet-regulargridcluster.src.js"></script>
   <script type="text/javascript" src="./main.js"></script>
 
   <link href="https://fonts.googleapis.com/css?family=PT+Sans+Narrow" rel="stylesheet">
@@ -21,8 +21,8 @@
   <div id="panel">
     <h2>Leaflet regular-grid-cluster plugin demo</h2>
       
-    <p class="select-row">cell size:</p>
-    <select class="render-on-change" id="select-cell-size">
+    <p class="select-row">zone size:</p>
+    <select class="render-on-change" id="select-zone-size">
       <option value="5000">5000</option>    
       <option value="7500">7500</option>    
       <option value="10000" selected>10000</option>    
@@ -76,7 +76,7 @@
     </select>    
 
     <p class="select-row">rules - cells</p>
-    <textarea class="render-on-change textarea-rules" id="textarea-rules-grid" rows="10" cols="40">
+    <textarea class="render-on-change textarea-rules" id="textarea-rules-cells" rows="10" cols="40">
 "fillColor": {
   "method": "mean",
   "attribute": "b",

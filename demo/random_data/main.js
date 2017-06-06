@@ -47,7 +47,7 @@ var render = function () {
       rules: getRules(),
       zoomShowElements: parseInt(document.getElementById('select-elements-zoom').value),
       zoomHideGrid: parseInt(document.getElementById('select-grid-zoom').value),
-      cellSize: parseInt(document.getElementById('select-cell-size').value),
+      zoneSize: parseInt(document.getElementById('select-zone-size').value),
       gridMode: document.getElementById('select-grid-mode').value,
       showCells: (document.getElementById('select-show-cells').value == "1"),
       showMarkers: (document.getElementById('select-show-markers').value == "1"),
@@ -92,12 +92,12 @@ const parseTextAreaValue = function (textAreaId) {
 }
 
 const getRules = function () {
-  const rulesTextGrid = parseTextAreaValue('textarea-rules-grid');
+  const rulesTextCells = parseTextAreaValue('textarea-rules-cells');
   const rulesTextMarkers = parseTextAreaValue('textarea-rules-markers');
   const rulesTextTexts = parseTextAreaValue('textarea-rules-texts');
 
   return {
-    "grid": rulesTextGrid,
+    "cells": rulesTextCells,
     "markers": rulesTextMarkers,
     "texts": rulesTextTexts
   }
