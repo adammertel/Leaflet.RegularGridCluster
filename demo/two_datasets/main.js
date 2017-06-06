@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
                 "method": "count",
                 "attribute": "",
                 "scale": "continuous",
-                "style": [3, 10]
+                "range": [3, 10]
             },
             'color': 'black'
         },
@@ -57,7 +57,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
                 "method": "count",
                 "attribute": "",
                 "scale": "continuous",
-                "style": ['yellow', 'red']
+                "range": ['yellow', 'red']
             },
             'color': 'black'
         },

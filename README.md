@@ -43,7 +43,7 @@ Rules object consists of 3 key-values pairs - **cells, **markers** and **texts**
 To create a dynamical rule, one has to define a **method**, **scale**, **style**, **domain** and **attribute** parameters:
  - **method** ('count', 'mean', 'median', 'mode', 'min', 'max' and 'sum') - operation how the result value will be calculated from the overlapping elements
  - **scale** ('size' - equal size, 'quantile', 'continuous') - how threshold values will be defined for  intervals. 'Continous' value will create a continuous scale
- - **style** - array with values to set how to style the variable
+ - **range** - array with values to set how to style the variable
  - **domain** - array of two values to define minimum (first value) and maximum (second value) of input manually. If this is not defined, maximum and minimum will be set based on the data.
  - **attribute** - name of the property that defines the rule (could be ommited in case, the method is 'count')
 

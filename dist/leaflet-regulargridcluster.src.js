@@ -596,17 +596,17 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     var _this14 = this;
 
     var scale = rule.scale;
-    var style = rule.style;
-    if (style.length === 1) {
+    var range = rule.range;
+    if (range.length === 1) {
       this._zones.map(function (zone) {
-        zone.options[featureType][option] = style[0];
+        zone.options[featureType][option] = range[0];
       });
-    } else if (style.length > 1) {
+    } else if (range.length > 1) {
 
       var values = this._zoneValues(true).sort(function (a, b) {
         return a - b;
       });
-      var noInts = style.length;
+      var noInts = range.length;
 
       console.log(rule);
       if (scale === 'continuous') {
@@ -628,7 +628,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
       if (this._scaleOperations[scale]) {
         this._zones.map(function (zone) {
           if (_this14._isDefined(zone.value)) {
-            zone.options[featureType][option] = _this14._scaleOperations[scale](_this14, zone.value, min, max, noInts, thresholds, style);
+            zone.options[featureType][option] = _this14._scaleOperations[scale](_this14, zone.value, min, max, noInts, thresholds, range);
           }
         });
       }
@@ -666,7 +666,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     });
   },
   _isDynamicalRule: function _isDynamicalRule(rule) {
-    return rule.method && rule.scale && rule.style;
+    return rule.method && rule.scale && rule.range;
   },
   _zoneSize: function _zoneSize() {
     return this.options.zoneSize * Math.pow(2, 10 - this._mapZoom());
@@ -808,26 +808,26 @@ L.RegularGridCluster.include({
 
 L.RegularGridCluster.include({
   _scaleOperations: {
-    size: function size(cluster, value, min, max, noInts, thresholds, style) {
+    size: function size(cluster, value, min, max, noInts, thresholds, range) {
       var diff = max - min;
       var interval = noInts - 1;
       if (value < max) {
         interval = Math.floor((value - min) / diff * noInts);
       }
-      return style[interval];
+      return range[interval];
     },
 
-    quantile: function quantile(cluster, value, min, max, noInts, thresholds, style) {
+    quantile: function quantile(cluster, value, min, max, noInts, thresholds, range) {
       var interval = 0;
       thresholds.map(function (threshold, ti) {
         if (value > threshold) {
           interval = parseInt(ti) + 1;
         }
       });
-      return style[interval];
+      return range[interval];
     },
 
-    continuous: function continuous(cluster, value, min, max, noInts, thresholds, style) {
+    continuous: function continuous(cluster, value, min, max, noInts, thresholds, range) {
       var interval = 0;
 
       thresholds.map(function (threshold, ti) {
@@ -841,8 +841,8 @@ L.RegularGridCluster.include({
       edgeValues.unshift(min);
 
       var ratioDif = (value - edgeValues[interval]) / (edgeValues[interval + 1] - edgeValues[interval]);
-      var bottomValue = style[interval];
-      var upperValue = style[interval + 1];
+      var bottomValue = range[interval];
+      var upperValue = range[interval + 1];
 
       if (cluster._isNumber(bottomValue)) {
         return bottomValue + ratioDif * (upperValue - bottomValue);

@@ -1,25 +1,25 @@
 L.RegularGridCluster.include( {
   _scaleOperations: {
-    size: (cluster, value, min, max, noInts, thresholds, style) => {
+    size: (cluster, value, min, max, noInts, thresholds, range) => {
       const diff = max - min;
       let interval = noInts - 1;
       if (value < max) {
         interval = Math.floor(((value - min)/diff) * noInts);
       }
-      return style[interval];
+      return range[interval];
     },
 
-    quantile: (cluster, value, min, max, noInts, thresholds, style) => {
+    quantile: (cluster, value, min, max, noInts, thresholds, range) => {
       let interval = 0;
       thresholds.map ( (threshold, ti) => {
         if (value > threshold) {
           interval = parseInt(ti) + 1;
         }
       });
-      return style[interval];
+      return range[interval];
     },
 
-    continuous: (cluster, value, min, max, noInts, thresholds, style) => {
+    continuous: (cluster, value, min, max, noInts, thresholds, range) => {
       let interval = 0;
 
       thresholds.map ( (threshold, ti) => {
@@ -33,8 +33,8 @@ L.RegularGridCluster.include( {
       edgeValues.unshift(min);
 
       const ratioDif = (value - edgeValues[interval]) / (edgeValues[interval + 1] - edgeValues[interval]);
-      const bottomValue = style[interval];
-      const upperValue = style[interval + 1];
+      const bottomValue = range[interval];
+      const upperValue = range[interval + 1];
 
       if (cluster._isNumber(bottomValue)) {
         return bottomValue + ratioDif * (upperValue - bottomValue);

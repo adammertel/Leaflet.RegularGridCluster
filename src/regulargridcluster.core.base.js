@@ -443,15 +443,15 @@ L.RegularGridCluster = L.FeatureGroup.extend({
 
   _applyOptions (featureType, rule, option) {
     const scale = rule.scale;
-    const style = rule.style;
-    if (style.length === 1) {
+    const range = rule.range;
+    if (range.length === 1) {
       this._zones.map( zone => {
-        zone.options[featureType][option] = style[0];
+        zone.options[featureType][option] = range[0];
       });
-    } else if (style.length > 1) {
+    } else if (range.length > 1) {
       
       const values = this._zoneValues(true).sort(function(a,b){return a-b;});
-      let noInts = style.length;
+      let noInts = range.length;
 
       console.log(rule);
       if (scale === 'continuous') { noInts = noInts - 1;}
@@ -475,7 +475,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
               this, 
               zone.value, 
               min, max, noInts, 
-              thresholds, style
+              thresholds, range
             );
           }
         });
@@ -508,7 +508,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
   },
 
   _isDynamicalRule (rule) {
-    return rule.method && rule.scale && rule.style;
+    return rule.method && rule.scale && rule.range;
   },
 
   // return size of the zone in meters
