@@ -106,7 +106,9 @@ L.RegularGridClusterText = L.Marker.extend({
   },
 
   initialize: function initialize(centroid, options) {
-    this.options = L.extend(this.options, options);
+    options['font-size'] = options.fontSize;
+    options['font-weight'] = options.fontWeight;
+
     L.Util.setOptions(this, options);
 
     var iconOptions = JSON.stringify(options).substring(1, JSON.stringify(options).length - 2).replace(/,/g, ';').replace(/\"/g, "");
@@ -608,7 +610,6 @@ L.RegularGridCluster = L.FeatureGroup.extend({
       });
       var noInts = range.length;
 
-      console.log(rule);
       if (scale === 'continuous') {
         noInts = noInts - 1;
       }

@@ -5,7 +5,11 @@ L.RegularGridClusterText = L.Marker.extend({
   },
 
   initialize: function (centroid, options) {
-    this.options = L.extend(this.options, options);
+    
+    // to be able to write every option camelCase
+    options['font-size'] = options.fontSize;
+    options['font-weight'] = options.fontWeight;
+
     L.Util.setOptions(this, options);
 
     const iconOptions = JSON.stringify(options).substring(1, JSON.stringify(options).length - 2).replace(/,/g, ';').replace(/\"/g, "");

@@ -3,8 +3,8 @@
 ![image](./img.png)
 
 ## demo
-[random data example](https://adammertel.github.io/Leaflet.RegularGridCluster/demo/random_data )
-[two datasets example](https://adammertel.github.io/Leaflet.RegularGridCluster/demo/two_datasets )
+- [random data example](https://adammertel.github.io/Leaflet.RegularGridCluster/demo/random_data )
+- [two datasets example](https://adammertel.github.io/Leaflet.RegularGridCluster/demo/two_datasets )
 
 
 ## motivation
@@ -39,7 +39,7 @@ Grid consists of 3 different component classes, each could styled separately or 
 
 
 ## rules
-Rules object consists of 3 key-values pairs - **cells, **markers** and **texts**. Most of the naming is technicaly the same as in the L.Path class (see [leaflet documentation](http://leafletjs.com/reference-1.0.3.html#path)). Differences are mainly within texts (*font-size*, *font-weight*). 
+Rules object consists of 3 key-values pairs - **cells, **markers** and **texts**. Most of the naming is technicaly the same as in the L.Path class (see [leaflet documentation](http://leafletjs.com/reference-1.0.3.html#path)). Differences are mainly within texts (*fontSize*, *fontWeight*). 
 To create a dynamical rule, one has to define a **method**, **scale**, **style**, **domain** and **attribute** parameters:
  - **method** ('count', 'mean', 'median', 'mode', 'min', 'max' and 'sum') - operation how the result value will be calculated from the overlapping elements
  - **scale** ('size' - equal size, 'quantile', 'continuous') - how threshold values will be defined for  intervals. 'Continous' value will create a continuous scale
@@ -84,7 +84,7 @@ To test how these parameters work, please have a look at the [random data exampl
                 "method": "mean",
                 "attribute": "b",
                 "scale": "size",
-                "style": ["#d7191c","#fdae61","#ffffbf","#a6d96a","#1a9641"]
+                "range": ["#d7191c","#fdae61","#ffffbf","#a6d96a","#1a9641"]
             },
             "color": "black",
             "fillOpacity": 0.2,
@@ -98,13 +98,13 @@ To test how these parameters work, please have a look at the [random data exampl
                 "method": "mean",
                 "attribute": "b",
                 "scale": "continuous",
-                "style": ["#ffffb2","#fecc5c","#fd8d3c","#e31a1c"]
+                "range": ["#ffffb2","#fecc5c","#fd8d3c","#e31a1c"]
             },
             "radius": {
                 "method": "count",
                 "attribute": "",
                 "scale": "continuous",
-                "style": [7, 17]
+                "range": [7, 17]
             }
         },
         texts: {}

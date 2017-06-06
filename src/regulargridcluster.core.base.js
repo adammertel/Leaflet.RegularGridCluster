@@ -453,7 +453,6 @@ L.RegularGridCluster = L.FeatureGroup.extend({
       const values = this._zoneValues(true).sort(function(a,b){return a-b;});
       let noInts = range.length;
 
-      console.log(rule);
       if (scale === 'continuous') { noInts = noInts - 1;}
       const min = rule.domain ? rule.domain[0] : Math.min(...values);
       const max = rule.domain ? rule.domain[1] : Math.max(...values);
