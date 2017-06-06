@@ -632,11 +632,8 @@ L.RegularGridCluster = L.FeatureGroup.extend({
 
     this._zones.map(function (zone) {
       if (_this14._zoneIsNotEmpty(zone)) {
-        var zoneValues = void 0;
+        var zoneValues = method === 'count' ? false : _this14._zoneAttrValues(zone, attr);
 
-        if (method !== 'count') {
-          zoneValues = _this14._zoneAttrValues(zone, attr);
-        }
         zone.value = _this14._methodOperations[method](_this14, zone, zoneValues);
       }
     });
@@ -685,7 +682,6 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     return this._map ? this._map.getZoom() : false;
   },
   _zoneHeightAtY: function _zoneHeightAtY(y, zoneSize) {
-    console.log('zoneHeighr');
     return zoneSize / 111319;
   },
   _isDefined: function _isDefined(value) {

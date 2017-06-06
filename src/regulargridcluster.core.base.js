@@ -232,12 +232,17 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     if (this.options.rules.cells && this.options.showCells) {
       this._visualise('cells');
 
-      this._zones.forEach(function (zone) {
-        if (this._zoneIsNotEmpty(zone)){
-          const regularCell = new L.regularGridClusterCell(zone.path, zone.options.cells);
-          this._cells.addLayer(regularCell);
-        }
-      }.bind(this));
+      // this._zones.forEach(function (zone) {
+      //   if (this._zoneIsNotEmpty(zone)){
+      //     const regularCell = new L.regularGridClusterCell(zone.path, zone.options.cells);
+      //     this._cells.addLayer(regularCell);
+      //   }
+      // }.bind(this));
+
+      this._zones.filter( zone => this._zoneIsNotEmpty(zone)).map( zone => {
+        const regularCell = new L.regularGridClusterCell(zone.path, zone.options.cells);
+        this._cells.addLayer(regularCell);
+      })
 
       this._cells.addTo(this._map);
     }
@@ -477,11 +482,10 @@ L.RegularGridCluster = L.FeatureGroup.extend({
   _zonesValues (method, attr) {
     this._zones.map ( zone => {
       if (this._zoneIsNotEmpty(zone)){
-        let zoneValues;
+        let zoneValues = method === 'count' ? 
+          false :
+          this._zoneAttrValues(zone, attr); 
 
-        if (method !== 'count') {
-          zoneValues = this._zoneAttrValues(zone, attr);
-        }
         zone.value = this._methodOperations[method](this, zone, zoneValues);
       }
     });
@@ -533,7 +537,6 @@ L.RegularGridCluster = L.FeatureGroup.extend({
   // BASE FUNCTIONS
   // longitude delta for given latitude
   _zoneHeightAtY (y, zoneSize) {
-    console.log('zoneHeighr');
     return zoneSize/111319;
     // return (cellSize/111319) * this._deltaHeightAtY(y);
   },
