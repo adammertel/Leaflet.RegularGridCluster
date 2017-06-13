@@ -78,6 +78,10 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     this._map.getPane(paneName).style.zIndex = zIndex;
   },
 
+  _elementCollectionNotEmpty () {
+    return Object.keys(this._elements).length !== 0;
+  },
+
   _addAction (callback, type) {
     this._actions.push({callback: callback, type: type});
     this._map.on(type, callback);
@@ -124,7 +128,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
   },
 
   _index () {
-    if (this._elements.length){
+    if (this._elementCollectionNotEmpty()){
       const times = [];
       times.push(new Date());
       this._indexZones();
@@ -159,7 +163,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
   },
 
   refresh () {
-    if (this._elements.length){
+    if (this._elementCollectionNotEmpty()){
       this._renderComponents();
       this._renderElements();
     } 

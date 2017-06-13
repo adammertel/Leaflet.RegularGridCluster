@@ -227,6 +227,9 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     this._map.createPane(paneName);
     this._map.getPane(paneName).style.zIndex = zIndex;
   },
+  _elementCollectionNotEmpty: function _elementCollectionNotEmpty() {
+    return Object.keys(this._elements).length !== 0;
+  },
   _addAction: function _addAction(callback, type) {
     this._actions.push({ callback: callback, type: type });
     this._map.on(type, callback);
@@ -269,7 +272,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     this.lastelmid++;
   },
   _index: function _index() {
-    if (this._elements.length) {
+    if (this._elementCollectionNotEmpty()) {
       var times = [];
       times.push(new Date());
       this._indexZones();
@@ -305,7 +308,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     });
   },
   refresh: function refresh() {
-    if (this._elements.length) {
+    if (this._elementCollectionNotEmpty()) {
       this._renderComponents();
       this._renderElements();
     }
