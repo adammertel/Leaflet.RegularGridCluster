@@ -124,19 +124,21 @@ L.RegularGridCluster = L.FeatureGroup.extend({
   },
 
   _index () {
-    const times = [];
-    times.push(new Date());
-    this._indexZones();
-    times.push(new Date());
-    this._indexElements();
-    times.push(new Date());
+    if (this._elements.length){
+      const times = [];
+      times.push(new Date());
+      this._indexZones();
+      times.push(new Date());
+      this._indexElements();
+      times.push(new Date());
 
-    if (this.options.trackingTime) {
-      console.log('//////////////////////////////////');
-      console.log('cells indexed in    ' + (times[1].valueOf() - times[0].valueOf()) + 'ms');
-      console.log('elements indexed in ' + (times[2].valueOf() - times[1].valueOf()) + 'ms');
-      console.log('indexing took       ' + (times[2].valueOf() - times[0].valueOf()) + 'ms');
-      console.log('//////////////////////////////////');
+      if (this.options.trackingTime) {
+        console.log('//////////////////////////////////');
+        console.log('cells indexed in    ' + (times[1].valueOf() - times[0].valueOf()) + 'ms');
+        console.log('elements indexed in ' + (times[2].valueOf() - times[1].valueOf()) + 'ms');
+        console.log('indexing took       ' + (times[2].valueOf() - times[0].valueOf()) + 'ms');
+        console.log('//////////////////////////////////');
+      }
     }
   },
 
@@ -157,8 +159,10 @@ L.RegularGridCluster = L.FeatureGroup.extend({
   },
 
   refresh () {
-    this._renderComponents();
-    this._renderElements();
+    if (this._elements.length){
+      this._renderComponents();
+      this._renderElements();
+    } 
   },
 
   _renderElements () {
@@ -530,7 +534,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
   },
 
   _getGeometries () {
-    return this._getElementsCollection().map ( element => element.g);
+    return this._getElementsCollection().map( element => element.g);
   },
 
   _mapZoom () {

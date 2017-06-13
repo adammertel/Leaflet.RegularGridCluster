@@ -269,19 +269,21 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     this.lastelmid++;
   },
   _index: function _index() {
-    var times = [];
-    times.push(new Date());
-    this._indexZones();
-    times.push(new Date());
-    this._indexElements();
-    times.push(new Date());
+    if (this._elements.length) {
+      var times = [];
+      times.push(new Date());
+      this._indexZones();
+      times.push(new Date());
+      this._indexElements();
+      times.push(new Date());
 
-    if (this.options.trackingTime) {
-      console.log('//////////////////////////////////');
-      console.log('cells indexed in    ' + (times[1].valueOf() - times[0].valueOf()) + 'ms');
-      console.log('elements indexed in ' + (times[2].valueOf() - times[1].valueOf()) + 'ms');
-      console.log('indexing took       ' + (times[2].valueOf() - times[0].valueOf()) + 'ms');
-      console.log('//////////////////////////////////');
+      if (this.options.trackingTime) {
+        console.log('//////////////////////////////////');
+        console.log('cells indexed in    ' + (times[1].valueOf() - times[0].valueOf()) + 'ms');
+        console.log('elements indexed in ' + (times[2].valueOf() - times[1].valueOf()) + 'ms');
+        console.log('indexing took       ' + (times[2].valueOf() - times[0].valueOf()) + 'ms');
+        console.log('//////////////////////////////////');
+      }
     }
   },
   _getElementsCollection: function _getElementsCollection() {
@@ -303,8 +305,10 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     });
   },
   refresh: function refresh() {
-    this._renderComponents();
-    this._renderElements();
+    if (this._elements.length) {
+      this._renderComponents();
+      this._renderElements();
+    }
   },
   _renderElements: function _renderElements() {
     if (this._map.getZoom() >= this.options.zoomShowElements) {

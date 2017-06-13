@@ -1,6 +1,6 @@
 var map;
 var maxX = 50, minX = 0, maxY = 49.5, minY = 0;
-var noTestData = 1000;
+var noTestData = 0;
 var randomData = [];
 
 var grid;
