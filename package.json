@@ -1,6 +1,6 @@
 {
   "name": "leaflet-regular-grid-cluster",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "leaflet plugin that implements custom grid-style visualisation and clustering method",
   "main": "dist/leaflet-regulargridcluster.js",
   "repository": {
