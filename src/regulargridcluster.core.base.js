@@ -74,8 +74,10 @@ L.RegularGridCluster = L.FeatureGroup.extend({
   },
 
   _addPane (paneName, zIndex) {
-    this._map.createPane(paneName);
-    this._map.getPane(paneName).style.zIndex = zIndex;
+    if (!map.getPane(paneName)) {
+      this._map.createPane(paneName);
+      this._map.getPane(paneName).style.zIndex = zIndex;
+    }
   },
 
   _elementCollectionNotEmpty () {
@@ -89,7 +91,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
 
   _unregisterActions () {
     this._actions.map (action => {
-       this._map.off(action.type, action.callback);
+      if (this._map.off) this._map.off(action.type, action.callback);
     });
   },
 
@@ -105,9 +107,23 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     }
   },
 
+  _removePanes () {
+    const panes = ['grid-elements-pane', 'grid-markers-pane', 'grid-cells-pane', 'grid-texts-pane'];
+    panes.map(pane => {
+      console.log(this._map.getPane(pane));
+      this._map.getPane(pane).remove();
+
+      //paneElement.parentNode.removeChild(paneElement);
+    });
+  },
+
   unregister () {
     this._unregisterActions();
+    // this._removePanes();
     this._truncateLayers();
+    this._cells.remove();
+    this._markers.remove();
+    this._texts.remove();
     // this._map.removeLayer(this._cells);
     // this._map.removeLayer(this._markers);
     // this._map.removeLayer(this._texts);

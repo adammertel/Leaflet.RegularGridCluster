@@ -1,6 +1,6 @@
 var map;
 var maxX = 50, minX = 0, maxY = 49.5, minY = 0;
-var noTestData = 10000;
+var noTestData = 1000;
 var randomData = [];
 
 var grid;
@@ -42,7 +42,7 @@ var render = function () {
   }
 
   // define RegularGridCluster instance
-  grid = L.regularGridCluster(
+  var grid = L.regularGridCluster(
     {
       rules: getRules(),
       zoomShowElements: parseInt(document.getElementById('select-elements-zoom').value),

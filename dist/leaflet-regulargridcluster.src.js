@@ -224,8 +224,10 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     this.refresh();
   },
   _addPane: function _addPane(paneName, zIndex) {
-    this._map.createPane(paneName);
-    this._map.getPane(paneName).style.zIndex = zIndex;
+    if (!map.getPane(paneName)) {
+      this._map.createPane(paneName);
+      this._map.getPane(paneName).style.zIndex = zIndex;
+    }
   },
   _elementCollectionNotEmpty: function _elementCollectionNotEmpty() {
     return Object.keys(this._elements).length !== 0;
@@ -238,7 +240,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     var _this2 = this;
 
     this._actions.map(function (action) {
-      _this2._map.off(action.type, action.callback);
+      if (_this2._map.off) _this2._map.off(action.type, action.callback);
     });
   },
   addLayer: function addLayer(layer) {
@@ -255,9 +257,22 @@ L.RegularGridCluster = L.FeatureGroup.extend({
       this.refresh();
     }
   },
+  _removePanes: function _removePanes() {
+    var _this4 = this;
+
+    var panes = ['grid-elements-pane', 'grid-markers-pane', 'grid-cells-pane', 'grid-texts-pane'];
+    panes.map(function (pane) {
+      console.log(_this4._map.getPane(pane));
+      _this4._map.getPane(pane).remove();
+    });
+  },
   unregister: function unregister() {
     this._unregisterActions();
+
     this._truncateLayers();
+    this._cells.remove();
+    this._markers.remove();
+    this._texts.remove();
 
     this._map.removeLayer(this._displayedElements);
   },
@@ -290,21 +305,21 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     }
   },
   _getElementsCollection: function _getElementsCollection() {
-    var _this4 = this;
+    var _this5 = this;
 
     return Object.keys(this._elements).map(function (key) {
       return {
-        id: _this4._elements[key].id,
-        g: _this4._elements[key].latlng,
-        i: _this4._elements[key].index
+        id: _this5._elements[key].id,
+        g: _this5._elements[key].latlng,
+        i: _this5._elements[key].index
       };
     });
   },
   _getElementMarkers: function _getElementMarkers() {
-    var _this5 = this;
+    var _this6 = this;
 
     return Object.keys(this._elements).map(function (key) {
-      return _this5._elements[key].marker;
+      return _this6._elements[key].marker;
     });
   },
   refresh: function refresh() {
@@ -322,7 +337,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     }
   },
   _displayElements: function _displayElements() {
-    var _this6 = this;
+    var _this7 = this;
 
     if (!this.elementDisplayed) {
       this._displayedElements.clearLayers();
@@ -330,7 +345,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
 
       this._getElementMarkers().map(function (marker) {
         marker.setStyle({ pane: 'grid-elements-pane' });
-        _this6._displayedElements.addLayer(marker);
+        _this7._displayedElements.addLayer(marker);
       });
 
       this._displayedElements.addTo(this._map);
@@ -386,32 +401,32 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     this._texts.truncate();
   },
   _buildCells: function _buildCells() {
-    var _this7 = this;
+    var _this8 = this;
 
     if (this.options.rules.cells && this.options.showCells) {
       this._visualise('cells');
 
       this._zones.filter(function (zone) {
-        return _this7._zoneIsNotEmpty(zone);
+        return _this8._zoneIsNotEmpty(zone);
       }).map(function (zone) {
         var regularCell = new L.regularGridClusterCell(zone.path, zone.options.cells);
-        _this7._cells.addLayer(regularCell);
+        _this8._cells.addLayer(regularCell);
       });
 
       this._cells.addTo(this._map);
     }
   },
   _buildMarkers: function _buildMarkers() {
-    var _this8 = this;
+    var _this9 = this;
 
     if (this.options.rules.markers && this.options.showMarkers) {
       this._visualise('markers');
 
       this._zones.map(function (zone) {
-        if (_this8._zoneIsNotEmpty(zone)) {
+        if (_this9._zoneIsNotEmpty(zone)) {
           var zoneCentroid = [zone.y + zone.h / 2, zone.x + zone.w / 2];
           var marker = new L.regularGridClusterMarker(zoneCentroid, zone.options.markers);
-          _this8._markers.addLayer(marker);
+          _this9._markers.addLayer(marker);
         }
       });
 
@@ -419,16 +434,16 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     }
   },
   _buildTexts: function _buildTexts() {
-    var _this9 = this;
+    var _this10 = this;
 
     if (this.options.rules.texts && this.options.showTexts) {
       this._visualise('texts');
 
       this._zones.map(function (cell) {
-        if (_this9._zoneIsNotEmpty(cell)) {
+        if (_this10._zoneIsNotEmpty(cell)) {
           var cellCentroid = [cell.y + cell.h / 2, cell.x + cell.w / 2];
           var text = new L.regularGridClusterText(cellCentroid, cell.options.texts);
-          _this9._texts.addLayer(text);
+          _this10._texts.addLayer(text);
         }
       });
 
@@ -462,22 +477,22 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     }
   },
   _indexElements: function _indexElements() {
-    var _this10 = this;
+    var _this11 = this;
 
     this._getElementsCollection().map(function (element) {
-      for (var ici in _this10._indexedZones) {
-        if (_this10._indexedZones[ici].b.contains(element.g)) {
-          _this10._elements[element.id].index = ici;
+      for (var ici in _this11._indexedZones) {
+        if (_this11._indexedZones[ici].b.contains(element.g)) {
+          _this11._elements[element.id].index = ici;
           break;
         }
       }
     });
   },
   _indexedZonesCollection: function _indexedZonesCollection() {
-    var _this11 = this;
+    var _this12 = this;
 
     return Object.keys(this._indexedZones).map(function (key) {
-      return _this11._indexedZones[key];
+      return _this12._indexedZones[key];
     });
   },
   _truncateIndexedZones: function _truncateIndexedZones() {
@@ -554,16 +569,16 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     }
   },
   _findElements: function _findElements() {
-    var _this12 = this;
+    var _this13 = this;
 
     this._getElementsCollection().map(function (element) {
       var ei = element.id;
       var ex = element.g.lng,
           ey = element.g.lat;
 
-      if (_typeof(_this12._indexedZones[element.i]) === 'object') {
-        _this12._indexedZones[element.i].cs.map(function (zone) {
-          if (_this12._elmInsideOperations[_this12.options.gridMode].call(_this12, ex, ey, zone)) {
+      if (_typeof(_this13._indexedZones[element.i]) === 'object') {
+        _this13._indexedZones[element.i].cs.map(function (zone) {
+          if (_this13._elmInsideOperations[_this13.options.gridMode].call(_this13, ex, ey, zone)) {
             zone.elms.push(ei);
           }
         });
@@ -574,26 +589,26 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     return zone.elms.length !== 0;
   },
   _visualise: function _visualise(featureType) {
-    var _this13 = this;
+    var _this14 = this;
 
     if (this.options.rules[featureType]) {
 
       Object.keys(this.options.rules[featureType]).map(function (option) {
-        var rule = _this13.options.rules[featureType][option];
+        var rule = _this14.options.rules[featureType][option];
 
         if (option === 'text') {
-          _this13._zonesValues(rule.method, rule.attribute);
-          _this13._zones.map(function (zone) {
-            if (_this13._zoneIsNotEmpty(zone)) {
+          _this14._zonesValues(rule.method, rule.attribute);
+          _this14._zones.map(function (zone) {
+            if (_this14._zoneIsNotEmpty(zone)) {
               zone.options.texts.text = zone.value;
             }
           });
-        } else if (_this13._isDynamicalRule(rule)) {
-          _this13._zonesValues(rule.method, rule.attribute);
-          _this13._applyOptions(featureType, rule, option);
+        } else if (_this14._isDynamicalRule(rule)) {
+          _this14._zonesValues(rule.method, rule.attribute);
+          _this14._applyOptions(featureType, rule, option);
         } else {
-          _this13._zones.map(function (zone) {
-            if (_this13._zoneIsNotEmpty(zone)) {
+          _this14._zones.map(function (zone) {
+            if (_this14._zoneIsNotEmpty(zone)) {
               zone.options[featureType][option] = rule;
             }
           });
@@ -602,7 +617,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     }
   },
   _applyOptions: function _applyOptions(featureType, rule, option) {
-    var _this14 = this;
+    var _this15 = this;
 
     var scale = rule.scale;
     var range = rule.range;
@@ -635,21 +650,21 @@ L.RegularGridCluster = L.FeatureGroup.extend({
 
       if (this._scaleOperations[scale]) {
         this._zones.map(function (zone) {
-          if (_this14._isDefined(zone.value)) {
-            zone.options[featureType][option] = _this14._scaleOperations[scale](_this14, zone.value, min, max, noInts, thresholds, range);
+          if (_this15._isDefined(zone.value)) {
+            zone.options[featureType][option] = _this15._scaleOperations[scale](_this15, zone.value, min, max, noInts, thresholds, range);
           }
         });
       }
     }
   },
   _zonesValues: function _zonesValues(method, attr) {
-    var _this15 = this;
+    var _this16 = this;
 
     this._zones.map(function (zone) {
-      if (_this15._zoneIsNotEmpty(zone)) {
-        var zoneValues = method === 'count' ? false : _this15._zoneAttrValues(zone, attr);
+      if (_this16._zoneIsNotEmpty(zone)) {
+        var zoneValues = method === 'count' ? false : _this16._zoneAttrValues(zone, attr);
 
-        zone.value = _this15._methodOperations[method](_this15, zone, zoneValues);
+        zone.value = _this16._methodOperations[method](_this16, zone, zoneValues);
       }
     });
   },
@@ -667,10 +682,10 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     }
   },
   _zoneAttrValues: function _zoneAttrValues(zone, attr) {
-    var _this16 = this;
+    var _this17 = this;
 
     return zone.elms.map(function (elm) {
-      return _this16._elements[elm].properties[attr];
+      return _this17._elements[elm].properties[attr];
     });
   },
   _isDynamicalRule: function _isDynamicalRule(rule) {
