@@ -13,6 +13,18 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     showMarkers: true,
     showTexts: true,
 
+    showEmptyCells: false,
+    emptyCellOptions: {
+      weight: 1,
+      fillOpacity: 0,
+      clickable: false,
+      color: 'grey',
+      lineJoin: 'miter',
+      fillRule: 'evenodd',
+      strokeLocation: 'inside',
+      interactive: false
+    },
+
     // setting z-indices for data layers
     paneElementsZ: 1000, 
     paneCellsZ: 700,
@@ -263,10 +275,20 @@ L.RegularGridCluster = L.FeatureGroup.extend({
   _buildCells () {
     if (this.options.rules.cells && this.options.showCells) {
       this._visualise('cells');
+      
+      this._zones
+        .filter( zone => this.options.showEmptyCells || this._zoneIsNotEmpty(zone))
+        .map( zone => {
+          let options = zone.options.cells;
+          
+          if (this.options.showEmptyCells) {
+            if (!this._zoneIsNotEmpty(zone)) {
+              options = this.options.emptyCellOptions;
+            }
+          }
 
-      this._zones.filter( zone => this._zoneIsNotEmpty(zone)).map( zone => {
-        const regularCell = new L.regularGridClusterCell(zone.path, zone.options.cells);
-        this._cells.addLayer(regularCell);
+          const regularCell = new L.regularGridClusterCell(zone.path, options);
+          this._cells.addLayer(regularCell);
       });
 
       this._cells.addTo(this._map);

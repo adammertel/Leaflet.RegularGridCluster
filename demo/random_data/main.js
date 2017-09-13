@@ -50,6 +50,7 @@ var render = function () {
       zoneSize: parseInt(document.getElementById('select-zone-size').value),
       gridMode: document.getElementById('select-grid-mode').value,
       showCells: (document.getElementById('select-show-cells').value == "1"),
+      showEmptyCells: (document.getElementById('select-show-empty-cells').value == "1"),
       showMarkers: (document.getElementById('select-show-markers').value == "1"),
       showTexts: (document.getElementById('select-show-texts').value == "1"),
       trackingTime: true

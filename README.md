@@ -24,6 +24,8 @@ Grid consists of 3 different component classes, each could styled separately or 
  - **showCells** (*default: true*) turning cells off and on
  - **showMarkers** (*default: true*) turning markers off and on
  - **showTexts** (*default: true*) turning texts off and on
+ - **showEmptyCells** (*default: false*) whether display cells where no elements fall
+ - **emptyCellOptions** styling of empty cells
  
  
  - **zoomShowElements** (*default: 10*) level of zoom when to turn elements on and off

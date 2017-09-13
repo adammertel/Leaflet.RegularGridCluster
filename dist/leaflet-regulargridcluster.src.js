@@ -169,6 +169,18 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     showMarkers: true,
     showTexts: true,
 
+    showEmptyCells: false,
+    emptyCellOptions: {
+      weight: 1,
+      fillOpacity: 0,
+      clickable: false,
+      color: 'grey',
+      lineJoin: 'miter',
+      fillRule: 'evenodd',
+      strokeLocation: 'inside',
+      interactive: false
+    },
+
     paneElementsZ: 1000,
     paneCellsZ: 700,
     paneMarkersZ: 800,
@@ -407,9 +419,17 @@ L.RegularGridCluster = L.FeatureGroup.extend({
       this._visualise('cells');
 
       this._zones.filter(function (zone) {
-        return _this8._zoneIsNotEmpty(zone);
+        return _this8.options.showEmptyCells || _this8._zoneIsNotEmpty(zone);
       }).map(function (zone) {
-        var regularCell = new L.regularGridClusterCell(zone.path, zone.options.cells);
+        var options = zone.options.cells;
+
+        if (_this8.options.showEmptyCells) {
+          if (!_this8._zoneIsNotEmpty(zone)) {
+            options = _this8.options.emptyCellOptions;
+          }
+        }
+
+        var regularCell = new L.regularGridClusterCell(zone.path, options);
         _this8._cells.addLayer(regularCell);
       });
 
