@@ -6,6 +6,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     zoneSize: 10000, // size of the cell at a scale of 10
 
     gridOrigin: 'auto', // SW corner for grid extent. 'auto' for getting this value from data. Useful for more independent datasets 
+    gridEnd: 'auto',
     gridBoundsPadding: 0.1, // ratio to extend bounding box of elements 
 
     // turning components on and off
@@ -122,7 +123,6 @@ L.RegularGridCluster = L.FeatureGroup.extend({
   _removePanes () {
     const panes = ['grid-elements-pane', 'grid-markers-pane', 'grid-cells-pane', 'grid-texts-pane'];
     panes.map(pane => {
-      console.log(this._map.getPane(pane));
       this._map.getPane(pane).remove();
 
       //paneElement.parentNode.removeChild(paneElement);
@@ -329,10 +329,11 @@ L.RegularGridCluster = L.FeatureGroup.extend({
 
   _indexZones () {
     const origin = this._gridOrigin();
-    const gridEnd = this._gridExtent().getNorthEast();
+    const gridEnd = this._gridEnd();
+    // const gridEnd = this._gridExtent().getNorthEast();
     const maxX = gridEnd.lng, maxY = gridEnd.lat;
     const x = origin.lng, y = origin.lat;
-
+    
     const indexPortion = this.options.indexSize;
     const diffX = (maxX - x) / indexPortion, diffY = (maxY - y) / indexPortion;
     
@@ -380,10 +381,10 @@ L.RegularGridCluster = L.FeatureGroup.extend({
 
     const zoneSize = this._zoneSize();
     const origin = this._gridOrigin();
-    const gridEnd = this._gridExtent().getNorthEast();
+    const gridEnd = this._gridEnd();
     const maxX = gridEnd.lng, maxY = gridEnd.lat;
 
-    let x = origin.lng, y = origin.lat;
+    let x = origin.lng, y =  origin.lat;
     let row = 1;
 
     const zoneW = zoneSize/111319;
@@ -563,10 +564,15 @@ L.RegularGridCluster = L.FeatureGroup.extend({
 
   _gridOrigin () {
     return this.options.gridOrigin === 'auto' ? 
-      this._gridExtent().getSouthWest() :
-      this.options.gridOrigin;
+    this._gridExtent().getSouthWest() :
+    this.options.gridOrigin;
   },
 
+  _gridEnd () {
+    return this.options.gridEnd === 'auto' ? 
+      this._gridExtent().getNorthEast() : this.options.gridEnd;
+  },
+  
   _gridExtent () {
     return this._getBounds().pad(this.options.gridBoundsPadding);
   },

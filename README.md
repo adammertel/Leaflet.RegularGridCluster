@@ -19,6 +19,7 @@ Grid consists of 3 different component classes, each could styled separately or 
  - **gridMode** (*default: 'square'*) 'square' of 'hexagon' values. The shape of cells
  - **zoneSize** (*default: 10000*) size of the cell at a scale of 10
  - **gridOrigin** (*default: 'auto'*) setting the value of a L.latLng instance will manually define the SW corner of the grid. Value 'auto' will define the origin based on data and gridBoundsPadding, 
+ - **gridEnd** (*default: 'auto'*) NE corner of the grid. In case value "auto" is used, corner will be calculated from data and gridBoundsPadding option.
  - **gridBoundsPadding** (*default: 0.1*) ratio to extend bounding box of elements 
  
  - **showCells** (*default: true*) turning cells off and on

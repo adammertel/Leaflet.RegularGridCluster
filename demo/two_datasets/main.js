@@ -48,7 +48,6 @@ document.addEventListener("DOMContentLoaded", function(event) {
   gridMarkers.addLayers(randomDataMarkers);
   gridMarkers.addTo(map);
 
-
   const gridCells = L.regularGridCluster(
     {
       rules: {
@@ -59,7 +58,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
                 "scale": "continuous",
                 "range": ['yellow', 'red']
             },
-            'color': 'black'
+            'color': 'black',
+            'fillOpacity': 0.6
         },
         markers: {},
         texts: {}
@@ -69,7 +69,19 @@ document.addEventListener("DOMContentLoaded", function(event) {
       zoneSize: 10000,
       gridMode: 'hexagon',
       showCells: true,
+      showEmptyCells: true,
+      emptyCellOptions: {
+        weight: 1,
+        fillOpacity: 0,
+        clickable: false,
+        color: 'grey',
+        lineJoin: 'miter',
+        fillRule: 'evenodd',
+        strokeLocation: 'inside',
+        interactive: false
+      },
       gridOrigin: {lat: 0, lng: 0},
+      gridEnd: {lat: 30, lng: 80},
       showMarkers: false,
       showTexts: false,
       trackingTime: false
@@ -84,7 +96,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 const createRandomData = function (mode) {
   // putting some random point data
   const randomData = []
-  const x = mode === 'cells' ? minX : minX + 6 
+  const x = minX;
   for (var i=0; i < noTestData; i++) {
     const coordinates = [
       x + Math.random() * (maxX - x),

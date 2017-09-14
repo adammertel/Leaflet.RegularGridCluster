@@ -164,6 +164,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     zoneSize: 10000,
 
     gridOrigin: 'auto',
+    gridEnd: 'auto',
     gridBoundsPadding: 0.1,
     showCells: true,
     showMarkers: true,
@@ -274,7 +275,6 @@ L.RegularGridCluster = L.FeatureGroup.extend({
 
     var panes = ['grid-elements-pane', 'grid-markers-pane', 'grid-cells-pane', 'grid-texts-pane'];
     panes.map(function (pane) {
-      console.log(_this4._map.getPane(pane));
       _this4._map.getPane(pane).remove();
     });
   },
@@ -472,7 +472,8 @@ L.RegularGridCluster = L.FeatureGroup.extend({
   },
   _indexZones: function _indexZones() {
     var origin = this._gridOrigin();
-    var gridEnd = this._gridExtent().getNorthEast();
+    var gridEnd = this._gridEnd();
+
     var maxX = gridEnd.lng,
         maxY = gridEnd.lat;
     var x = origin.lng,
@@ -528,7 +529,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
 
     var zoneSize = this._zoneSize();
     var origin = this._gridOrigin();
-    var gridEnd = this._gridExtent().getNorthEast();
+    var gridEnd = this._gridEnd();
     var maxX = gridEnd.lng,
         maxY = gridEnd.lat;
 
@@ -716,6 +717,9 @@ L.RegularGridCluster = L.FeatureGroup.extend({
   },
   _gridOrigin: function _gridOrigin() {
     return this.options.gridOrigin === 'auto' ? this._gridExtent().getSouthWest() : this.options.gridOrigin;
+  },
+  _gridEnd: function _gridEnd() {
+    return this.options.gridEnd === 'auto' ? this._gridExtent().getNorthEast() : this.options.gridEnd;
   },
   _gridExtent: function _gridExtent() {
     return this._getBounds().pad(this.options.gridBoundsPadding);
