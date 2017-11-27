@@ -30,6 +30,7 @@
     "copyfiles": "^1.0.0",
     "jshint": "^2.9.3",
     "npm-run-all": "^4.0.2",
+    "onchange": "^3.2.1",
     "run-all": "^1.0.1"
   },
   "scripts": {
