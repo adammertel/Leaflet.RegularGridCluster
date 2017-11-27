@@ -558,14 +558,14 @@ L.RegularGridCluster = L.FeatureGroup.extend({
   _applyOptions(featureType, rule, option) {
     const scale = rule.scale;
     const range = rule.range;
+
     if (range.length === 1) {
       this._zones.map(zone => {
         zone.options[featureType][option] = range[0];
       });
     } else if (range.length > 1) {
-      const values = this._zoneValues(true).sort(function(a, b) {
-        return a - b;
-      });
+      const values = this._zoneValues(true).sort((a, b) => a - b);
+
       let noInts = range.length;
 
       if (scale === 'continuous') {
@@ -596,6 +596,8 @@ L.RegularGridCluster = L.FeatureGroup.extend({
               thresholds,
               range
             );
+          } else {
+            zone.options[featureType][option] = 'none';
           }
         });
       }
@@ -605,10 +607,14 @@ L.RegularGridCluster = L.FeatureGroup.extend({
   _zonesValues(method, attr) {
     this._zones.map(zone => {
       if (this._zoneIsNotEmpty(zone)) {
-        let zoneValues =
-          method === 'count' ? false : this._zoneAttrValues(zone, attr);
-
-        zone.value = this._methodOperations[method](this, zone, zoneValues);
+        if (method === 'count') {
+          zone.value = this._methodOperations[method](this, zone, false);
+        } else {
+          let zoneValues = this._zoneAttrValues(zone, attr);
+          zone.value = zoneValues.length
+            ? this._methodOperations[method](this, zone, zoneValues)
+            : false;
+        }
       }
     });
   },
@@ -616,7 +622,12 @@ L.RegularGridCluster = L.FeatureGroup.extend({
   _zoneValues(onlyDefined) {
     if (onlyDefined) {
       return this._zones
-        .filter(zone => typeof zone.value !== 'undefined' && !isNaN(zone.value))
+        .filter(
+          zone =>
+            zone.value &&
+            typeof zone.value !== 'undefined' &&
+            !isNaN(zone.value)
+        )
         .map(zone => zone.value);
     } else {
       return this._zones.map(zone => zone.value);

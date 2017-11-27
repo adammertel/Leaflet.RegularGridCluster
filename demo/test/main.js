@@ -35,24 +35,32 @@ document.addEventListener('DOMContentLoaded', function(event) {
 var render = () => {
   const gridCells = L.regularGridCluster({
     rules: {
-      cells: {
-        fillColor: {
-          method: 'median',
+      markers: {
+        radius: {
+          method: 'sum',
           attribute: 'a',
           scale: 'continuous',
-          range: ['yellow', 'red']
+          range: [10, 20]
         },
         color: 'black',
         fillOpacity: 0.6
       },
-      markers: {},
-      texts: {}
+      texts: {
+        text: {
+          method: 'sum',
+          attribute: 'a'
+        },
+        fontSize: '18'
+      },
+      cells: {}
     },
-    zoomShowElements: 10,
+    zoomShowElements: 6,
     zoomHideGrid: 9,
     zoneSize: 50000,
     gridMode: 'hexagon',
     showCells: true,
+    showTexts: true,
+    showMarkers: true,
     showEmptyCells: true,
     emptyCellOptions: {
       weight: 1,
@@ -64,8 +72,6 @@ var render = () => {
       strokeLocation: 'inside',
       interactive: false
     },
-    showMarkers: false,
-    showTexts: false,
     trackingTime: false
   });
 
@@ -92,6 +98,15 @@ const createRandomData = () => {
 };
 
 const circleStyle = props => {
+  if (!props.a) {
+    return {
+      fillColor: 'black',
+      color: 'black',
+      weight: 1,
+      radius: 3,
+      fillOpacity: 1
+    };
+  }
   return {
     fillColor: ['#ffffcc', '#a1dab4', '#41b6c4', '#2c7fb8', '#253494'][props.b],
     color: 'black',

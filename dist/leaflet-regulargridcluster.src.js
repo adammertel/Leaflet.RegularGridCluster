@@ -664,6 +664,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
 
     var scale = rule.scale;
     var range = rule.range;
+
     if (range.length === 1) {
       this._zones.map(function (zone) {
         zone.options[featureType][option] = range[0];
@@ -672,6 +673,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
       var values = this._zoneValues(true).sort(function (a, b) {
         return a - b;
       });
+
       var noInts = range.length;
 
       if (scale === 'continuous') {
@@ -694,6 +696,8 @@ L.RegularGridCluster = L.FeatureGroup.extend({
         this._zones.map(function (zone) {
           if (_this15._isDefined(zone.value)) {
             zone.options[featureType][option] = _this15._scaleOperations[scale](_this15, zone.value, min, max, noInts, thresholds, range);
+          } else {
+            zone.options[featureType][option] = 'none';
           }
         });
       }
@@ -704,16 +708,19 @@ L.RegularGridCluster = L.FeatureGroup.extend({
 
     this._zones.map(function (zone) {
       if (_this16._zoneIsNotEmpty(zone)) {
-        var zoneValues = method === 'count' ? false : _this16._zoneAttrValues(zone, attr);
-
-        zone.value = _this16._methodOperations[method](_this16, zone, zoneValues);
+        if (method === 'count') {
+          zone.value = _this16._methodOperations[method](_this16, zone, false);
+        } else {
+          var zoneValues = _this16._zoneAttrValues(zone, attr);
+          zone.value = zoneValues.length ? _this16._methodOperations[method](_this16, zone, zoneValues) : false;
+        }
       }
     });
   },
   _zoneValues: function _zoneValues(onlyDefined) {
     if (onlyDefined) {
       return this._zones.filter(function (zone) {
-        return typeof zone.value !== 'undefined' && !isNaN(zone.value);
+        return zone.value && typeof zone.value !== 'undefined' && !isNaN(zone.value);
       }).map(function (zone) {
         return zone.value;
       });
