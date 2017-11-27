@@ -1,0 +1,4 @@
+node_modules
+lib/leaflet/docs
+*.log
+*.log.*
