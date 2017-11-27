@@ -24,32 +24,30 @@ document.addEventListener('DOMContentLoaded', function(event) {
     opacity: 0.3
   }).addTo(map);
 
-  var selects = [].slice.call(
+  const selects = [].slice.call(
     document.getElementsByClassName('render-on-change'),
     0
   );
-  for (var si in selects) {
-    var select = selects[si];
-
+  selects.map(select => {
     if (select.addEventListener) {
-      select.addEventListener('change', function() {
+      select.addEventListener('change', () => {
         render();
       });
     }
-  }
+  });
 
   render();
 });
 
-var render = function() {
-  console.log('demo renders');
+var render = () => {
+  console.log(grid);
   if (map.hasLayer(grid)) {
     grid.unregister();
     map.removeLayer(grid);
   }
 
   // define RegularGridCluster instance
-  var grid = L.regularGridCluster({
+  grid = L.regularGridCluster({
     rules: getRules(),
     zoomShowElements: parseInt(
       document.getElementById('select-elements-zoom').value
@@ -69,9 +67,9 @@ var render = function() {
   grid.addTo(map);
 };
 
-const createRandomData = function() {
+const createRandomData = () => {
   // putting some random point data
-  for (var i = 0; i < noTestData; i++) {
+  for (let i = 0; i < noTestData; i++) {
     const coordinates = [
       minX + Math.random() * (maxX - minX),
       minY + Math.random() * (maxY - minY)
@@ -86,7 +84,7 @@ const createRandomData = function() {
   }
 };
 
-const parseTextAreaValue = function(textAreaId) {
+const parseTextAreaValue = textAreaId => {
   const textAreaValue = document.getElementById(textAreaId).value;
   const textAreaObjectValue = '{' + textAreaValue + '}';
 
@@ -99,7 +97,7 @@ const parseTextAreaValue = function(textAreaId) {
   }
 };
 
-const getRules = function() {
+const getRules = () => {
   const rulesTextCells = parseTextAreaValue('textarea-rules-cells');
   const rulesTextMarkers = parseTextAreaValue('textarea-rules-markers');
   const rulesTextTexts = parseTextAreaValue('textarea-rules-texts');
@@ -111,7 +109,7 @@ const getRules = function() {
   };
 };
 
-const circleStyle = function(props) {
+const circleStyle = props => {
   return {
     fillColor: ['#ffffcc', '#a1dab4', '#41b6c4', '#2c7fb8', '#253494'][props.b],
     color: 'black',
