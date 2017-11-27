@@ -47,10 +47,6 @@ L.RegularGridCluster.include({
     });
     var half = Math.floor(arr.length / 2);
 
-    if (arr.length % 2) {
-      return arr[half];
-    } else {
-      return (arr[half - 1] + arr[half]) / 2.0;
-    }
+    return arr.length % 2 ? arr[half] : (arr[half - 1] + arr[half]) / 2.0;
   }
 });

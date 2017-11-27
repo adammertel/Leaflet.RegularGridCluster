@@ -1,16 +1,23 @@
 var map;
-var maxX = 50,
+var maxX = 20,
   minX = 0,
-  maxY = 49.5,
+  maxY = 20,
   minY = 0;
-var noTestData = 1000;
-var gridMarkers = {};
+var noTestData = 100;
+var randomData = [];
+
+var grid;
+
+var elementValue = (id, parse = false) => {
+  const value = document.getElementById(id).value;
+  return parse ? parseInt(value) : value;
+};
 
 document.addEventListener('DOMContentLoaded', function(event) {
   console.log('dom loaded');
 
-  const randomDataCells = createRandomData('cells');
-  const randomDataMarkers = createRandomData('markers');
+  const colors = ['#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00'];
+  createRandomData();
 
   // setting map
   map = L.map('map-content');
@@ -22,40 +29,16 @@ document.addEventListener('DOMContentLoaded', function(event) {
     opacity: 0.3
   }).addTo(map);
 
-  gridMarkers = L.regularGridCluster({
-    rules: {
-      markers: {
-        radius: {
-          method: 'count',
-          attribute: '',
-          scale: 'continuous',
-          range: [3, 10]
-        },
-        color: 'black'
-      },
-      cells: {},
-      texts: {}
-    },
-    zoomShowElements: 10,
-    zoomHideGrid: 9,
-    zoneSize: 10000,
-    gridMode: 'hexagon',
-    showCells: false,
-    gridOrigin: { lat: 0, lng: 0 },
-    showMarkers: true,
-    showTexts: false,
-    trackingTime: false
-  });
+  render();
+});
 
-  gridMarkers.addLayers(randomDataMarkers);
-  gridMarkers.addTo(map);
-
+var render = () => {
   const gridCells = L.regularGridCluster({
     rules: {
       cells: {
         fillColor: {
-          method: 'count',
-          attribute: '',
+          method: 'median',
+          attribute: 'a',
           scale: 'continuous',
           range: ['yellow', 'red']
         },
@@ -67,7 +50,7 @@ document.addEventListener('DOMContentLoaded', function(event) {
     },
     zoomShowElements: 10,
     zoomHideGrid: 9,
-    zoneSize: 10000,
+    zoneSize: 50000,
     gridMode: 'hexagon',
     showCells: true,
     showEmptyCells: true,
@@ -81,43 +64,39 @@ document.addEventListener('DOMContentLoaded', function(event) {
       strokeLocation: 'inside',
       interactive: false
     },
-    gridOrigin: { lat: 0, lng: 0 },
-    gridEnd: { lat: 30, lng: 80 },
     showMarkers: false,
     showTexts: false,
     trackingTime: false
   });
 
-  gridCells.addLayers(randomDataCells);
+  gridCells.addLayers(randomData);
   gridCells.addTo(map);
-});
-
-const createRandomData = function(mode) {
-  // random point data
-  const randomData = [];
-  const x = minX;
-  for (let i = 0; i < noTestData; i++) {
-    const coordinates = [
-      x + Math.random() * (maxX - x),
-      minY + Math.random() * (maxY - minY)
-    ];
-    const properties = {
-      a: Math.floor(Math.random() * 5)
-    };
-
-    const marker = L.circleMarker(coordinates, circleStyle(properties, mode));
-    randomData.push({ marker: marker, properties: properties });
-  }
-  return randomData;
 };
 
-const circleStyle = function(props, mode) {
-  const fillColor = mode === 'cells' ? 'red' : 'black';
+const createRandomData = () => {
+  // random point data
+  for (let i = 0; i < noTestData; i++) {
+    const coordinates = [
+      minX + Math.random() * (maxX - minX),
+      minY + Math.random() * (maxY - minY)
+    ];
+    const falseData = Math.random() > 0.7;
+    const properties = {
+      a: falseData ? false : 5 + Math.floor(Math.random() * 5),
+      b: Math.floor(Math.random() * 5)
+    };
+
+    const marker = L.circleMarker(coordinates, circleStyle(properties));
+    randomData.push({ marker: marker, properties: properties });
+  }
+};
+
+const circleStyle = props => {
   return {
-    fillColor: fillColor,
+    fillColor: ['#ffffcc', '#a1dab4', '#41b6c4', '#2c7fb8', '#253494'][props.b],
     color: 'black',
     weight: 1,
-    radius: props.a / 2,
-    fillOpacity: 0.5
+    radius: props.a / 3,
+    fillOpacity: 1
   };
 };

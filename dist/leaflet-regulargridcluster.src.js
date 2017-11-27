@@ -726,9 +726,13 @@ L.RegularGridCluster = L.FeatureGroup.extend({
   _zoneAttrValues: function _zoneAttrValues(zone, attr) {
     var _this17 = this;
 
-    return zone.elms.map(function (elm) {
+    var values = zone.elms.map(function (elm) {
       return _this17._elements[elm].properties[attr];
     });
+    return this._cleanAttrValues(values);
+  },
+  _cleanAttrValues: function _cleanAttrValues(values) {
+    return values.filter(this._isNumber);
   },
   _isDynamicalRule: function _isDynamicalRule(rule) {
     return rule.method && rule.scale && rule.range;
@@ -740,7 +744,6 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     return this.options.zoneSize * Math.pow(2, 10 - this._mapZoom());
   },
   _gridOrigin: function _gridOrigin() {
-    console.log('adho');
     return this.options.gridOrigin === 'auto' ? this._gridExtent().getSouthWest() : this.options.gridOrigin;
   },
   _gridEnd: function _gridEnd() {
@@ -1007,11 +1010,7 @@ L.RegularGridCluster.include({
     });
     var half = Math.floor(arr.length / 2);
 
-    if (arr.length % 2) {
-      return arr[half];
-    } else {
-      return (arr[half - 1] + arr[half]) / 2.0;
-    }
+    return arr.length % 2 ? arr[half] : (arr[half - 1] + arr[half]) / 2.0;
   }
 });
 "use strict";

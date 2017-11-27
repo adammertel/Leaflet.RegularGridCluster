@@ -624,7 +624,12 @@ L.RegularGridCluster = L.FeatureGroup.extend({
   },
 
   _zoneAttrValues(zone, attr) {
-    return zone.elms.map(elm => this._elements[elm].properties[attr]);
+    const values = zone.elms.map(elm => this._elements[elm].properties[attr]);
+    return this._cleanAttrValues(values);
+  },
+
+  _cleanAttrValues(values) {
+    return values.filter(this._isNumber);
   },
 
   _isDynamicalRule(rule) {

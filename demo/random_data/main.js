@@ -70,7 +70,7 @@ var render = () => {
 };
 
 const createRandomData = () => {
-  // putting some random point data
+  // random point data
   for (let i = 0; i < noTestData; i++) {
     const coordinates = [
       minX + Math.random() * (maxX - minX),
