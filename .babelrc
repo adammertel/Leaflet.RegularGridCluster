@@ -1,9 +1,3 @@
 {
-  "presets": ["env"],
-  "comments": false,
-  "plugins": [
-    ["@comandeer/babel-plugin-banner", {
-      "banner": "/* Adam Mertel | UNIVIE */"
-    }]
-  ]
+  "presets": ["env"]
 }

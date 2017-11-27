@@ -1,3 +1,9 @@
+/*
+  regular-grid-cluster plugin for leaflet
+  https://github.com/adammertel/Leaflet.RegularGridCluster
+  Adam Mertel | univie
+*/
+
 'use strict';
 
 L.RegularGridClusterCell = L.Polygon.extend({
@@ -106,12 +112,13 @@ L.RegularGridClusterText = L.Marker.extend({
   },
 
   initialize: function initialize(centroid, options) {
+    // to be able to write every option camelCase
     options['font-size'] = options.fontSize;
     options['font-weight'] = options.fontWeight;
 
     L.Util.setOptions(this, options);
 
-    var iconOptions = JSON.stringify(options).substring(1, JSON.stringify(options).length - 2).replace(/,/g, ';').replace(/\"/g, "");
+    var iconOptions = JSON.stringify(options).substring(1, JSON.stringify(options).length - 2).replace(/,/g, ';').replace(/\"/g, '');
 
     this.options.icon = L.divIcon({
       html: '<span class="regular-grid-text-html" style="' + iconOptions + ' ; text-align: center">' + this.options.text + '</span>',
@@ -158,14 +165,18 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
+// main class, controller, ...
+
 L.RegularGridCluster = L.FeatureGroup.extend({
   options: {
-    gridMode: 'square',
-    zoneSize: 10000,
+    gridMode: 'square', // square of hexagon
+    zoneSize: 10000, // size of the cell at a scale of 10
 
-    gridOrigin: 'auto',
+    gridOrigin: 'auto', // SW corner for grid extent. 'auto' for getting this value from data. Useful for more independent datasets
     gridEnd: 'auto',
-    gridBoundsPadding: 0.1,
+    gridBoundsPadding: 0.1, // ratio to extend bounding box of elements
+
+    // turning components on and off
     showCells: true,
     showMarkers: true,
     showTexts: true,
@@ -182,23 +193,29 @@ L.RegularGridCluster = L.FeatureGroup.extend({
       interactive: false
     },
 
+    // setting z-indices for data layers
     paneElementsZ: 1000,
     paneCellsZ: 700,
     paneMarkersZ: 800,
     paneTextsZ: 900,
 
+    // levels of zoom when to turn grid off and elements on
     zoomShowElements: 10,
     zoomHideGrid: 10,
 
-    indexSize: 12,
+    indexSize: 12, // ratio for pre-indexing elements in grid
+
+    // set of dynamical and static visual rules that define markers, cells and texts
     rules: {
       cells: {},
       markers: {},
       texts: {}
     },
-    trackingTime: false },
+    trackingTime: false // for developement purposes only
+  },
 
   initialize: function initialize(options) {
+    //this.options = L.extend(this.options, options);
     this.lastelmid = 0;
     this.elementDisplayed = false;
     L.Util.setOptions(this, options);
@@ -224,7 +241,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     this._addPane('grid-markers-pane', this.options.paneMarkersZ);
     this._addPane('grid-cells-pane', this.options.paneCellsZ);
     this._addPane('grid-texts-pane', this.options.paneTextsZ);
-
+    //L.GeoJSON.prototype.onAdd.call(this, map);
 
     this._cells.addTo(this._map);
     this._markers.addTo(this._map);
@@ -276,27 +293,33 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     var panes = ['grid-elements-pane', 'grid-markers-pane', 'grid-cells-pane', 'grid-texts-pane'];
     panes.map(function (pane) {
       _this4._map.getPane(pane).remove();
+
+      //paneElement.parentNode.removeChild(paneElement);
     });
   },
   unregister: function unregister() {
     this._unregisterActions();
-
+    // this._removePanes();
     this._truncateLayers();
     this._cells.remove();
     this._markers.remove();
     this._texts.remove();
-
+    // this._map.removeLayer(this._cells);
+    // this._map.removeLayer(this._markers);
+    // this._map.removeLayer(this._texts);
     this._map.removeLayer(this._displayedElements);
   },
   _addElement: function _addElement(element) {
+    // todo - filter non point and group data
     this._elements[this.lastelmid] = {
-      "id": this.lastelmid,
-      "latlng": element.marker.getLatLng(),
-      "properties": element.properties,
-      "marker": element.marker
+      id: this.lastelmid,
+      latlng: element.marker.getLatLng(),
+      properties: element.properties,
+      marker: element.marker
     };
 
     this.lastelmid++;
+    //L.GeoJSON.prototype.addData.call(this, element);
   },
   _index: function _index() {
     if (this._elementCollectionNotEmpty()) {
@@ -473,7 +496,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
   _indexZones: function _indexZones() {
     var origin = this._gridOrigin();
     var gridEnd = this._gridEnd();
-
+    // const gridEnd = this._gridExtent().getNorthEast();
     var maxX = gridEnd.lng,
         maxY = gridEnd.lat;
     var x = origin.lng,
@@ -613,7 +636,6 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     var _this14 = this;
 
     if (this.options.rules[featureType]) {
-
       Object.keys(this.options.rules[featureType]).map(function (option) {
         var rule = _this14.options.rules[featureType][option];
 
@@ -647,7 +669,6 @@ L.RegularGridCluster = L.FeatureGroup.extend({
         zone.options[featureType][option] = range[0];
       });
     } else if (range.length > 1) {
-
       var values = this._zoneValues(true).sort(function (a, b) {
         return a - b;
       });
@@ -712,10 +733,14 @@ L.RegularGridCluster = L.FeatureGroup.extend({
   _isDynamicalRule: function _isDynamicalRule(rule) {
     return rule.method && rule.scale && rule.range;
   },
+
+
+  // return size of the zone in meters
   _zoneSize: function _zoneSize() {
     return this.options.zoneSize * Math.pow(2, 10 - this._mapZoom());
   },
   _gridOrigin: function _gridOrigin() {
+    console.log('adho');
     return this.options.gridOrigin === 'auto' ? this._gridExtent().getSouthWest() : this.options.gridOrigin;
   },
   _gridEnd: function _gridEnd() {
@@ -735,8 +760,13 @@ L.RegularGridCluster = L.FeatureGroup.extend({
   _mapZoom: function _mapZoom() {
     return this._map ? this._map.getZoom() : false;
   },
+
+
+  // BASE FUNCTIONS
+  // longitude delta for given latitude
   _zoneHeightAtY: function _zoneHeightAtY(y, zoneSize) {
     return zoneSize / 111319;
+    // return (cellSize/111319) * this._deltaHeightAtY(y);
   },
   _isDefined: function _isDefined(value) {
     return !(!value && value !== 0);
@@ -749,20 +779,152 @@ L.RegularGridCluster = L.FeatureGroup.extend({
 L.regularGridCluster = function (options, secondGrid) {
   return new L.RegularGridCluster(options);
 };
-"use strict";
+'use strict';
 
 L.RegularGridCluster.include({
-  colors: { "aliceblue": "#f0f8ff", "antiquewhite": "#faebd7", "aqua": "#00ffff", "aquamarine": "#7fffd4", "azure": "#f0ffff", "beige": "#f5f5dc", "bisque": "#ffe4c4", "black": "#000000", "blanchedalmond": "#ffebcd", "blue": "#0000ff", "blueviolet": "#8a2be2", "brown": "#a52a2a", "burlywood": "#deb887",
-    "cadetblue": "#5f9ea0", "chartreuse": "#7fff00", "chocolate": "#d2691e", "coral": "#ff7f50", "cornflowerblue": "#6495ed", "cornsilk": "#fff8dc", "crimson": "#dc143c", "cyan": "#00ffff", "darkblue": "#00008b", "darkcyan": "#008b8b", "darkgoldenrod": "#b8860b", "darkgray": "#a9a9a9", "darkgreen": "#006400", "darkkhaki": "#bdb76b", "darkmagenta": "#8b008b", "darkolivegreen": "#556b2f",
-    "darkorange": "#ff8c00", "darkorchid": "#9932cc", "darkred": "#8b0000", "darksalmon": "#e9967a", "darkseagreen": "#8fbc8f", "darkslateblue": "#483d8b", "darkslategray": "#2f4f4f", "darkturquoise": "#00ced1",
-    "darkviolet": "#9400d3", "deeppink": "#ff1493", "deepskyblue": "#00bfff", "dimgray": "#696969", "dodgerblue": "#1e90ff", "firebrick": "#b22222", "floralwhite": "#fffaf0", "forestgreen": "#228b22", "fuchsia": "#ff00ff", "gainsboro": "#dcdcdc", "ghostwhite": "#f8f8ff", "gold": "#ffd700", "goldenrod": "#daa520", "gray": "#808080", "green": "#008000", "greenyellow": "#adff2f", "honeydew": "#f0fff0", "hotpink": "#ff69b4", "indianred ": "#cd5c5c", "indigo": "#4b0082", "ivory": "#fffff0", "khaki": "#f0e68c", "lavender": "#e6e6fa", "lavenderblush": "#fff0f5", "lawngreen": "#7cfc00", "lemonchiffon": "#fffacd", "lightblue": "#add8e6", "lightcoral": "#f08080", "lightcyan": "#e0ffff", "lightgoldenrodyellow": "#fafad2",
-    "lightgrey": "#d3d3d3", "lightgreen": "#90ee90", "lightpink": "#ffb6c1", "lightsalmon": "#ffa07a", "lightseagreen": "#20b2aa", "lightskyblue": "#87cefa", "lightslategray": "#778899", "lightsteelblue": "#b0c4de",
-    "lightyellow": "#ffffe0", "lime": "#00ff00", "limegreen": "#32cd32", "linen": "#faf0e6", "magenta": "#ff00ff", "maroon": "#800000", "mediumaquamarine": "#66cdaa", "mediumblue": "#0000cd", "mediumorchid": "#ba55d3", "mediumpurple": "#9370d8", "mediumseagreen": "#3cb371", "mediumslateblue": "#7b68ee",
-    "mediumspringgreen": "#00fa9a", "mediumturquoise": "#48d1cc", "mediumvioletred": "#c71585", "midnightblue": "#191970", "mintcream": "#f5fffa", "mistyrose": "#ffe4e1", "moccasin": "#ffe4b5", "navajowhite": "#ffdead", "navy": "#000080", "oldlace": "#fdf5e6", "olive": "#808000", "olivedrab": "#6b8e23", "orange": "#ffa500", "orangered": "#ff4500", "orchid": "#da70d6",
-    "palegoldenrod": "#eee8aa", "palegreen": "#98fb98", "paleturquoise": "#afeeee", "palevioletred": "#d87093", "papayawhip": "#ffefd5", "peachpuff": "#ffdab9", "peru": "#cd853f", "pink": "#ffc0cb", "plum": "#dda0dd", "powderblue": "#b0e0e6", "purple": "#800080",
-    "red": "#ff0000", "rosybrown": "#bc8f8f", "royalblue": "#4169e1", "saddlebrown": "#8b4513", "salmon": "#fa8072", "sandybrown": "#f4a460", "seagreen": "#2e8b57", "seashell": "#fff5ee", "sienna": "#a0522d", "silver": "#c0c0c0", "skyblue": "#87ceeb", "slateblue": "#6a5acd", "slategray": "#708090", "snow": "#fffafa", "springgreen": "#00ff7f", "steelblue": "#4682b4",
-    "tan": "#d2b48c", "teal": "#008080", "thistle": "#d8bfd8", "tomato": "#ff6347", "turquoise": "#40e0d0", "violet": "#ee82ee", "wheat": "#f5deb3", "white": "#ffffff", "whitesmoke": "#f5f5f5",
-    "yellow": "#ffff00", "yellowgreen": "#9acd32" },
+  // COLORS
+  colors: {
+    aliceblue: '#f0f8ff',
+    antiquewhite: '#faebd7',
+    aqua: '#00ffff',
+    aquamarine: '#7fffd4',
+    azure: '#f0ffff',
+    beige: '#f5f5dc',
+    bisque: '#ffe4c4',
+    black: '#000000',
+    blanchedalmond: '#ffebcd',
+    blue: '#0000ff',
+    blueviolet: '#8a2be2',
+    brown: '#a52a2a',
+    burlywood: '#deb887',
+    cadetblue: '#5f9ea0',
+    chartreuse: '#7fff00',
+    chocolate: '#d2691e',
+    coral: '#ff7f50',
+    cornflowerblue: '#6495ed',
+    cornsilk: '#fff8dc',
+    crimson: '#dc143c',
+    cyan: '#00ffff',
+    darkblue: '#00008b',
+    darkcyan: '#008b8b',
+    darkgoldenrod: '#b8860b',
+    darkgray: '#a9a9a9',
+    darkgreen: '#006400',
+    darkkhaki: '#bdb76b',
+    darkmagenta: '#8b008b',
+    darkolivegreen: '#556b2f',
+    darkorange: '#ff8c00',
+    darkorchid: '#9932cc',
+    darkred: '#8b0000',
+    darksalmon: '#e9967a',
+    darkseagreen: '#8fbc8f',
+    darkslateblue: '#483d8b',
+    darkslategray: '#2f4f4f',
+    darkturquoise: '#00ced1',
+    darkviolet: '#9400d3',
+    deeppink: '#ff1493',
+    deepskyblue: '#00bfff',
+    dimgray: '#696969',
+    dodgerblue: '#1e90ff',
+    firebrick: '#b22222',
+    floralwhite: '#fffaf0',
+    forestgreen: '#228b22',
+    fuchsia: '#ff00ff',
+    gainsboro: '#dcdcdc',
+    ghostwhite: '#f8f8ff',
+    gold: '#ffd700',
+    goldenrod: '#daa520',
+    gray: '#808080',
+    green: '#008000',
+    greenyellow: '#adff2f',
+    honeydew: '#f0fff0',
+    hotpink: '#ff69b4',
+    'indianred ': '#cd5c5c',
+    indigo: '#4b0082',
+    ivory: '#fffff0',
+    khaki: '#f0e68c',
+    lavender: '#e6e6fa',
+    lavenderblush: '#fff0f5',
+    lawngreen: '#7cfc00',
+    lemonchiffon: '#fffacd',
+    lightblue: '#add8e6',
+    lightcoral: '#f08080',
+    lightcyan: '#e0ffff',
+    lightgoldenrodyellow: '#fafad2',
+    lightgrey: '#d3d3d3',
+    lightgreen: '#90ee90',
+    lightpink: '#ffb6c1',
+    lightsalmon: '#ffa07a',
+    lightseagreen: '#20b2aa',
+    lightskyblue: '#87cefa',
+    lightslategray: '#778899',
+    lightsteelblue: '#b0c4de',
+    lightyellow: '#ffffe0',
+    lime: '#00ff00',
+    limegreen: '#32cd32',
+    linen: '#faf0e6',
+    magenta: '#ff00ff',
+    maroon: '#800000',
+    mediumaquamarine: '#66cdaa',
+    mediumblue: '#0000cd',
+    mediumorchid: '#ba55d3',
+    mediumpurple: '#9370d8',
+    mediumseagreen: '#3cb371',
+    mediumslateblue: '#7b68ee',
+    mediumspringgreen: '#00fa9a',
+    mediumturquoise: '#48d1cc',
+    mediumvioletred: '#c71585',
+    midnightblue: '#191970',
+    mintcream: '#f5fffa',
+    mistyrose: '#ffe4e1',
+    moccasin: '#ffe4b5',
+    navajowhite: '#ffdead',
+    navy: '#000080',
+    oldlace: '#fdf5e6',
+    olive: '#808000',
+    olivedrab: '#6b8e23',
+    orange: '#ffa500',
+    orangered: '#ff4500',
+    orchid: '#da70d6',
+    palegoldenrod: '#eee8aa',
+    palegreen: '#98fb98',
+    paleturquoise: '#afeeee',
+    palevioletred: '#d87093',
+    papayawhip: '#ffefd5',
+    peachpuff: '#ffdab9',
+    peru: '#cd853f',
+    pink: '#ffc0cb',
+    plum: '#dda0dd',
+    powderblue: '#b0e0e6',
+    purple: '#800080',
+    red: '#ff0000',
+    rosybrown: '#bc8f8f',
+    royalblue: '#4169e1',
+    saddlebrown: '#8b4513',
+    salmon: '#fa8072',
+    sandybrown: '#f4a460',
+    seagreen: '#2e8b57',
+    seashell: '#fff5ee',
+    sienna: '#a0522d',
+    silver: '#c0c0c0',
+    skyblue: '#87ceeb',
+    slateblue: '#6a5acd',
+    slategray: '#708090',
+    snow: '#fffafa',
+    springgreen: '#00ff7f',
+    steelblue: '#4682b4',
+    tan: '#d2b48c',
+    teal: '#008080',
+    thistle: '#d8bfd8',
+    tomato: '#ff6347',
+    turquoise: '#40e0d0',
+    violet: '#ee82ee',
+    wheat: '#f5deb3',
+    white: '#ffffff',
+    whitesmoke: '#f5f5f5',
+    yellow: '#ffff00',
+    yellowgreen: '#9acd32'
+  },
 
   _colorNameToHex: function _colorNameToHex(color) {
     if (typeof this.colors[color.toLowerCase()] != 'undefined') {
@@ -824,6 +986,7 @@ L.RegularGridCluster.include({
           maxEl = el;
           maxCount = modeMap[el];
         }
+        // extendable to solve ties
       }
     }
     return maxEl;
