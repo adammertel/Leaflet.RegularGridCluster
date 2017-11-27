@@ -1,30 +1,30 @@
 L.RegularGridClusterTextsGroup = L.FeatureGroup.extend({
-  options: {
-
-  },
-  initialize (options) {
+  options: {},
+  initialize(options) {
     this.controller = options.controller;
     this.options = L.extend(this.options, options);
     L.Util.setOptions(this, options);
 
-    L.FeatureGroup.prototype.initialize.call(this, {
-      features: []
-    }, options);
+    L.FeatureGroup.prototype.initialize.call(
+      this,
+      {
+        features: []
+      },
+      options
+    );
   },
 
-  render (cellSize, origin) {
+  render(cellSize, origin) {},
 
-  },
-
-  addLayer (marker) {
+  addLayer(marker) {
     L.FeatureGroup.prototype.addLayer.call(this, marker);
   },
 
-  truncate () {
+  truncate() {
     this.clearLayers();
   }
 });
 
-L.regularGridClusterTextsGroup = (options) => {
+L.regularGridClusterTextsGroup = options => {
   return new L.RegularGridClusterTextsGroup(options);
 };

@@ -1,25 +1,26 @@
 L.RegularGridClusterMarkersGroup = L.FeatureGroup.extend({
-  options: {
-  },
-  initialize: function (options) {
+  options: {},
+  initialize: function(options) {
     this.controller = options.controller;
     this.options = L.extend(this.options, options);
     L.Util.setOptions(this, options);
 
-    L.FeatureGroup.prototype.initialize.call(this, {
-      features: []
-    }, options);
+    L.FeatureGroup.prototype.initialize.call(
+      this,
+      {
+        features: []
+      },
+      options
+    );
   },
 
-  render: function (cellSize, origin) {
+  render: function(cellSize, origin) {},
 
-  },
-
-  addLayer: function (marker) {
+  addLayer: function(marker) {
     L.FeatureGroup.prototype.addLayer.call(this, marker);
   },
 
-  truncate: function () {
+  truncate: function() {
     this.clearLayers();
   }
 });

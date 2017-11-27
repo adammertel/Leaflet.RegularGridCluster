@@ -2,29 +2,31 @@ L.RegularGridClusterCellsGroup = L.FeatureGroup.extend({
   options: {
     interactive: false
   },
-  initialize (options) {
+  initialize(options) {
     this.controller = options.controller;
     this.options = L.extend(this.options, options);
     L.Util.setOptions(this, options);
 
-    L.FeatureGroup.prototype.initialize.call(this, {
-      features: []
-    }, this.options);
+    L.FeatureGroup.prototype.initialize.call(
+      this,
+      {
+        features: []
+      },
+      this.options
+    );
   },
 
-  render (cellSize, origin) {
+  render(cellSize, origin) {},
 
-  },
-
-  addLayer (cell) {
+  addLayer(cell) {
     L.FeatureGroup.prototype.addLayer.call(this, cell);
   },
 
-  truncate () {
+  truncate() {
     this.clearLayers();
   }
 });
 
-L.regularGridClusterCellsGroup = (options) => {
+L.regularGridClusterCellsGroup = options => {
   return new L.RegularGridClusterCellsGroup(options);
 };
