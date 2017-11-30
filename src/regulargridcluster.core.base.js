@@ -44,6 +44,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
       markers: {},
       texts: {}
     },
+
     trackingTime: false // for developement purposes only
   },
 
@@ -597,7 +598,16 @@ L.RegularGridCluster = L.FeatureGroup.extend({
               range
             );
           } else {
-            zone.options[featureType][option] = 'none';
+            if (
+              this.options.defaultStyle[featureType] &&
+              this.options.defaultStyle[featureType][option]
+            ) {
+              zone.options[featureType][option] = this.options.defaultStyle[
+                featureType
+              ][option];
+            } else {
+              zone.options[featureType][option] = 'none';
+            }
           }
         });
       }

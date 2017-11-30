@@ -211,6 +211,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
       markers: {},
       texts: {}
     },
+
     trackingTime: false // for developement purposes only
   },
 
@@ -697,7 +698,11 @@ L.RegularGridCluster = L.FeatureGroup.extend({
           if (_this15._isDefined(zone.value)) {
             zone.options[featureType][option] = _this15._scaleOperations[scale](_this15, zone.value, min, max, noInts, thresholds, range);
           } else {
-            zone.options[featureType][option] = 'none';
+            if (_this15.options.defaultStyle[featureType] && _this15.options.defaultStyle[featureType][option]) {
+              zone.options[featureType][option] = _this15.options.defaultStyle[featureType][option];
+            } else {
+              zone.options[featureType][option] = 'none';
+            }
           }
         });
       }

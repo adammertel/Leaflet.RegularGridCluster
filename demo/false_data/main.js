@@ -35,16 +35,6 @@ document.addEventListener('DOMContentLoaded', function(event) {
 var render = () => {
   const gridCells = L.regularGridCluster({
     rules: {
-      markers: {
-        radius: {
-          method: 'sum',
-          attribute: 'a',
-          scale: 'continuous',
-          range: [10, 20]
-        },
-        color: 'black',
-        fillOpacity: 0.6
-      },
       texts: {
         text: {
           method: 'sum',
@@ -52,7 +42,14 @@ var render = () => {
         },
         fontSize: '18'
       },
-      cells: {}
+      cells: {
+        fillColor: {
+          method: 'median',
+          attribute: 'a',
+          scale: 'continuous',
+          range: ['blue', 'orange']
+        }
+      }
     },
     zoomShowElements: 6,
     zoomHideGrid: 9,
@@ -61,7 +58,7 @@ var render = () => {
     showCells: true,
     showTexts: true,
     showMarkers: true,
-    showEmptyCells: true,
+    showEmptyCells: false,
     emptyCellOptions: {
       weight: 1,
       fillOpacity: 0,
@@ -71,6 +68,11 @@ var render = () => {
       fillRule: 'evenodd',
       strokeLocation: 'inside',
       interactive: false
+    },
+    defaultStyle: {
+      cells: {
+        fillColor: 'red'
+      }
     },
     trackingTime: false
   });
