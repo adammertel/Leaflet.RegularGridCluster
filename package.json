@@ -1,14 +1,19 @@
 {
   "name": "leaflet-regular-grid-cluster",
-  "version": "0.2.3",
-  "description":
-    "leaflet plugin that implements custom grid-style visualisation and clustering method",
+  "version": "0.3.0",
+  "description": "leaflet plugin that implements custom grid-style visualisation and clustering method",
   "main": "dist/leaflet-regulargridcluster.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/adammertel/Leaflet.RegularGridCluster.git"
   },
-  "keywords": ["leaflet", "maps", "grid", "cluster", "visualisation"],
+  "keywords": [
+    "leaflet",
+    "maps",
+    "grid",
+    "cluster",
+    "visualisation"
+  ],
   "author": "Adam Mertel, University of Vienna",
   "license": "ISC",
   "bugs": {
@@ -18,18 +23,12 @@
   "devDependencies": {},
   "scripts": {
     "jshint": "jshint src",
-
     "banners": "run-s banner-js-src banner-js",
-    "banner-js-src":
-      "concat-cli -f banner dist/leaflet-regulargridcluster.src.js -o dist/leaflet-regulargridcluster.src.js",
-    "banner-js":
-      "concat-cli -f banner dist/leaflet-regulargridcluster.js -o dist/leaflet-regulargridcluster.js",
-
+    "banner-js-src": "concat-cli -f banner dist/leaflet-regulargridcluster.src.js -o dist/leaflet-regulargridcluster.src.js",
+    "banner-js": "concat-cli -f banner dist/leaflet-regulargridcluster.js -o dist/leaflet-regulargridcluster.js",
     "babel": "babel src --out-file dist/leaflet-regulargridcluster.src.js",
-    "minify":
-      "babel --plugins=transform-remove-console,minify-mangle-names dist/leaflet-regulargridcluster.src.js --out-file dist/leaflet-regulargridcluster.js --minified",
+    "minify": "babel --plugins=transform-remove-console,minify-mangle-names dist/leaflet-regulargridcluster.src.js --out-file dist/leaflet-regulargridcluster.js --minified",
     "onchange": "onchange src/**/*.js -- npm run build",
-
     "build": "run-s jshint babel minify banners",
     "start": "run-p onchange build"
   },
