@@ -11,7 +11,7 @@ L.RegularGridCluster.include({
 
     quantile: (cluster, value, min, max, noInts, thresholds, range) => {
       let interval = 0;
-      thresholds.map((threshold, ti) => {
+      thresholds.forEach((threshold, ti) => {
         if (value > threshold) {
           interval = parseInt(ti) + 1;
         }
@@ -22,7 +22,7 @@ L.RegularGridCluster.include({
     continuous: (cluster, value, min, max, noInts, thresholds, range) => {
       let interval = 0;
 
-      thresholds.map((threshold, ti) => {
+      thresholds.forEach((threshold, ti) => {
         if (value > threshold) {
           interval = parseInt(ti) + 1;
         }

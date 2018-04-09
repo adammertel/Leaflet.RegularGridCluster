@@ -14,6 +14,12 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     showMarkers: true,
     showTexts: true,
 
+    defaultStyle: {
+      cells: {},
+      texts: {},
+      markers: {}
+    },
+
     showEmptyCells: false,
     emptyCellOptions: {
       weight: 1,
@@ -532,12 +538,12 @@ L.RegularGridCluster = L.FeatureGroup.extend({
 
   _visualise(featureType) {
     if (this.options.rules[featureType]) {
-      Object.keys(this.options.rules[featureType]).map(option => {
+      Object.keys(this.options.rules[featureType]).forEach(option => {
         const rule = this.options.rules[featureType][option];
 
         if (option === 'text') {
           this._zonesValues(rule.method, rule.attribute);
-          this._zones.map(zone => {
+          this._zones.forEach(zone => {
             if (this._zoneIsNotEmpty(zone)) {
               zone.options.texts.text = zone.value;
             }
@@ -546,7 +552,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
           this._zonesValues(rule.method, rule.attribute);
           this._applyOptions(featureType, rule, option);
         } else {
-          this._zones.map(zone => {
+          this._zones.forEach(zone => {
             if (this._zoneIsNotEmpty(zone)) {
               zone.options[featureType][option] = rule;
             }
@@ -561,7 +567,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     const range = rule.range;
 
     if (range.length === 1) {
-      this._zones.map(zone => {
+      this._zones.forEach(zone => {
         zone.options[featureType][option] = range[0];
       });
     } else if (range.length > 1) {
@@ -586,7 +592,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
       }
 
       if (this._scaleOperations[scale]) {
-        this._zones.map(zone => {
+        this._zones.forEach(zone => {
           if (this._isDefined(zone.value)) {
             zone.options[featureType][option] = this._scaleOperations[scale](
               this,
@@ -615,7 +621,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
   },
 
   _zonesValues(method, attr) {
-    this._zones.map(zone => {
+    this._zones.forEach(zone => {
       if (this._zoneIsNotEmpty(zone)) {
         if (method === 'count') {
           zone.value = this._methodOperations[method](this, zone, false);

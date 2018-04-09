@@ -181,6 +181,12 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     showMarkers: true,
     showTexts: true,
 
+    defaultStyle: {
+      cells: {},
+      texts: {},
+      markers: {}
+    },
+
     showEmptyCells: false,
     emptyCellOptions: {
       weight: 1,
@@ -637,12 +643,12 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     var _this14 = this;
 
     if (this.options.rules[featureType]) {
-      Object.keys(this.options.rules[featureType]).map(function (option) {
+      Object.keys(this.options.rules[featureType]).forEach(function (option) {
         var rule = _this14.options.rules[featureType][option];
 
         if (option === 'text') {
           _this14._zonesValues(rule.method, rule.attribute);
-          _this14._zones.map(function (zone) {
+          _this14._zones.forEach(function (zone) {
             if (_this14._zoneIsNotEmpty(zone)) {
               zone.options.texts.text = zone.value;
             }
@@ -651,7 +657,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
           _this14._zonesValues(rule.method, rule.attribute);
           _this14._applyOptions(featureType, rule, option);
         } else {
-          _this14._zones.map(function (zone) {
+          _this14._zones.forEach(function (zone) {
             if (_this14._zoneIsNotEmpty(zone)) {
               zone.options[featureType][option] = rule;
             }
@@ -667,7 +673,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
     var range = rule.range;
 
     if (range.length === 1) {
-      this._zones.map(function (zone) {
+      this._zones.forEach(function (zone) {
         zone.options[featureType][option] = range[0];
       });
     } else if (range.length > 1) {
@@ -694,7 +700,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
       }
 
       if (this._scaleOperations[scale]) {
-        this._zones.map(function (zone) {
+        this._zones.forEach(function (zone) {
           if (_this15._isDefined(zone.value)) {
             zone.options[featureType][option] = _this15._scaleOperations[scale](_this15, zone.value, min, max, noInts, thresholds, range);
           } else {
@@ -711,7 +717,7 @@ L.RegularGridCluster = L.FeatureGroup.extend({
   _zonesValues: function _zonesValues(method, attr) {
     var _this16 = this;
 
-    this._zones.map(function (zone) {
+    this._zones.forEach(function (zone) {
       if (_this16._zoneIsNotEmpty(zone)) {
         if (method === 'count') {
           zone.value = _this16._methodOperations[method](_this16, zone, false);
@@ -1040,7 +1046,7 @@ L.RegularGridCluster.include({
 
     quantile: function quantile(cluster, value, min, max, noInts, thresholds, range) {
       var interval = 0;
-      thresholds.map(function (threshold, ti) {
+      thresholds.forEach(function (threshold, ti) {
         if (value > threshold) {
           interval = parseInt(ti) + 1;
         }
@@ -1051,7 +1057,7 @@ L.RegularGridCluster.include({
     continuous: function continuous(cluster, value, min, max, noInts, thresholds, range) {
       var interval = 0;
 
-      thresholds.map(function (threshold, ti) {
+      thresholds.forEach(function (threshold, ti) {
         if (value > threshold) {
           interval = parseInt(ti) + 1;
         }
