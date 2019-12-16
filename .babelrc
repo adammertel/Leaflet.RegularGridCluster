@@ -1,13 +1,3 @@
 {
-  "presets": [
-    [
-      "env",
-      {
-        "targets": {
-          "browsers": ["last 5 versions"]
-        },
-        "parserOpts": { "sourceType": "script" }
-      }
-    ]
-  ]
+  "presets": [["@babel/env", { "loose": true }]]
 }

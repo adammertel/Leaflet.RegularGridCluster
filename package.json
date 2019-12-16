@@ -33,10 +33,11 @@
     "start": "run-p onchange build"
   },
   "dependencies": {
-    "babel-cli": "^6.26.0",
+    "@babel/cli": "^7.7.5",
+    "@babel/core": "^7.7.5",
+    "@babel/preset-env": "^7.7.6",
     "babel-plugin-minify-mangle-names": "^0.4.0",
     "babel-plugin-transform-remove-console": "^6.9.1",
-    "babel-preset-env": "^1.6.1",
     "bower": "^1.8.4",
     "concat-cli": "^4.0.0",
     "jshint": "^2.9.5",
