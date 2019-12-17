@@ -173,5 +173,5 @@ To test how these parameters work, please have a look at the
 ## Develop
 
 - 1. `npm install` to download dependencies
-- 2.a `npm start` for development
-- 2.b `npm build` for production
+- 2. `npm start` for development
+- 3. `npm build` for production
