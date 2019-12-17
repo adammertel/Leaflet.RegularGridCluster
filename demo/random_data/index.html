@@ -1,88 +1,103 @@
 <html>
+  <head>
+    <link rel="stylesheet" href="./../node_modules/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="./../zoomdisplay/zoomdisplay.css" />
+    <link rel="stylesheet" href="./../demo.css" />
 
-<head>
-  <link rel="stylesheet" href="./../lib/leaflet/dist/leaflet.css" />
-  <link rel="stylesheet" href="./../lib/zoomdisplay.css" />
-  <link rel="stylesheet" href="./../demo.css" />
+    <script
+      type="text/javascript"
+      src="./../node_modules/leaflet/dist/leaflet.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="./../zoomdisplay/zoomdisplay.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="./../../dist/leaflet-regulargridcluster.src.js"
+    ></script>
+    <script type="text/javascript" src="./main.js"></script>
 
-  <script type="text/javascript" src="./../lib/leaflet/dist/leaflet.js"></script>
-  <script type="text/javascript" src="./../lib/zoomdisplay.js"></script>
-  <script type="text/javascript" src="./../../dist/leaflet-regulargridcluster.src.js"></script>
-  <script type="text/javascript" src="./main.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css?family=PT+Sans+Narrow"
+      rel="stylesheet"
+    />
 
-  <link href="https://fonts.googleapis.com/css?family=PT+Sans+Narrow" rel="stylesheet">
+    <title>Leaflet regular-grid-cluster plugin demo</title>
+  </head>
 
-  <title>Leaflet regular-grid-cluster plugin demo</title>
-</head>
+  <body>
+    <div id="map-content"></div>
+    <div id="panel">
+      <h2>Leaflet regular-grid-cluster plugin demo</h2>
 
+      <p class="select-row">zone size:</p>
+      <select class="render-on-change" id="select-zone-size">
+        <option value="5000">5000</option>
+        <option value="7500">7500</option>
+        <option value="10000" selected>10000</option>
+        <option value="15000">15000</option>
+        <option value="20000">20000</option>
+        <option value="50000">50000</option>
+      </select>
 
-<body>
-  <div id="map-content"></div>
-  <div id="panel">
-    <h2>Leaflet regular-grid-cluster plugin demo</h2>
+      <p class="select-row">grid mode:</p>
+      <select class="render-on-change" id="select-grid-mode">
+        <option value="hexagon" selected>hexagon</option>
+        <option value="square">square</option>
+      </select>
 
-    <p class="select-row">zone size:</p>
-    <select class="render-on-change" id="select-zone-size">
-      <option value="5000">5000</option>
-      <option value="7500">7500</option>
-      <option value="10000" selected>10000</option>
-      <option value="15000">15000</option>
-      <option value="20000">20000</option>
-      <option value="50000">50000</option>
-    </select>
+      <p class="select-row">hide grid zoom:</p>
+      <select class="render-on-change" id="select-grid-zoom">
+        <option value="5">5</option>
+        <option value="6">6</option>
+        <option value="7" selected>7</option>
+        <option value="8">8</option>
+        <option value="9">9</option>
+        <option value="10">10</option>
+      </select>
 
-    <p class="select-row">grid mode:</p>
-    <select class="render-on-change" id="select-grid-mode">
-      <option value="hexagon" selected>hexagon</option>
-      <option value="square">square</option>
-    </select>
+      <p class="select-row">show elements zoom:</p>
+      <select class="render-on-change" id="select-elements-zoom">
+        <option value="5">5</option>
+        <option value="6" selected>6</option>
+        <option value="7">7</option>
+        <option value="8">8</option>
+        <option value="9">9</option>
+        <option value="10">10</option>
+      </select>
 
-    <p class="select-row">hide grid zoom:</p>
-    <select class="render-on-change" id="select-grid-zoom">
-      <option value="5">5</option>
-      <option value="6">6</option>
-      <option value="7" selected>7</option>
-      <option value="8">8</option>
-      <option value="9">9</option>
-      <option value="10">10</option>
-    </select>
+      <p class="select-row">show cells:</p>
+      <select class="render-on-change" id="select-show-cells">
+        <option value="1" selected>yes</option>
+        <option value="0">no</option>
+      </select>
 
-    <p class="select-row">show elements zoom:</p>
-    <select class="render-on-change" id="select-elements-zoom">
-      <option value="5">5</option>
-      <option value="6" selected>6</option>
-      <option value="7">7</option>
-      <option value="8">8</option>
-      <option value="9">9</option>
-      <option value="10">10</option>
-    </select>
+      <p class="select-row">show markers:</p>
+      <select class="render-on-change" id="select-show-markers">
+        <option value="1" selected>yes</option>
+        <option value="0">no</option>
+      </select>
 
-    <p class="select-row">show cells:</p>
-    <select class="render-on-change" id="select-show-cells">
-      <option value="1" selected>yes</option>
-      <option value="0">no</option>
-    </select>
+      <p class="select-row">show texts:</p>
+      <select class="render-on-change" id="select-show-texts">
+        <option value="1" selected>yes</option>
+        <option value="0">no</option>
+      </select>
 
-    <p class="select-row">show markers:</p>
-    <select class="render-on-change" id="select-show-markers">
-      <option value="1" selected>yes</option>
-      <option value="0">no</option>
-    </select>
+      <p class="select-row">show empty cells:</p>
+      <select class="render-on-change" id="select-show-empty-cells">
+        <option value="1">yes</option>
+        <option value="0" selected>no</option>
+      </select>
 
-    <p class="select-row">show texts:</p>
-    <select class="render-on-change" id="select-show-texts">
-      <option value="1" selected>yes</option>
-      <option value="0">no</option>
-    </select>
-
-    <p class="select-row">show empty cells:</p>
-    <select class="render-on-change" id="select-show-empty-cells">
-      <option value="1">yes</option>
-      <option value="0" selected>no</option>
-    </select>
-
-    <p class="select-row">rules - cells</p>
-    <textarea class="render-on-change textarea-rules" id="textarea-rules-cells" rows="10" cols="40">
+      <p class="select-row">rules - cells</p>
+      <textarea
+        class="render-on-change textarea-rules"
+        id="textarea-rules-cells"
+        rows="10"
+        cols="40"
+      >
 "fillColor": {
   "method": "mean",
   "attribute": "b",
@@ -93,11 +108,16 @@
 "color": "black",
 "fillOpacity": 0.2,
 "weight": 0    
-    </textarea>
+    </textarea
+      >
 
-
-    <p class="select-row">rules - markers</p>
-    <textarea class="render-on-change textarea-rules" id="textarea-rules-markers" rows="10" cols="40">
+      <p class="select-row">rules - markers</p>
+      <textarea
+        class="render-on-change textarea-rules"
+        id="textarea-rules-markers"
+        rows="10"
+        cols="40"
+      >
 "color": "white",
 "weight": 2,
 "fillOpacity": 0.9,
@@ -113,11 +133,16 @@
   "scale": "continuous",
   "range": [7, 17]
 }
-    </textarea>
+    </textarea
+      >
 
-
-    <p class="select-row">rules - texts</p>
-    <textarea class="render-on-change textarea-rules" id="textarea-rules-texts" rows="10" cols="40">
+      <p class="select-row">rules - texts</p>
+      <textarea
+        class="render-on-change textarea-rules"
+        id="textarea-rules-texts"
+        rows="10"
+        cols="40"
+      >
 "color": {
   "method": "count",
   "attribute": "",
@@ -147,13 +172,12 @@
   "scale": "continuous",
   "range": [-5, -1]
 }
-    </textarea>
+    </textarea
+      >
 
-    <p>
-      <i>
-        <b>Data:</b> Random data with properties 'a' and 'b'</i>
-    </p>
-  </div>
-</body>
-
+      <p>
+        <i> <b>Data:</b> Random data with properties 'a' and 'b'</i>
+      </p>
+    </div>
+  </body>
 </html>
