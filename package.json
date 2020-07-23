@@ -36,7 +36,7 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "@babel/cli": "^7.7.5",
+    "@babel/cli": "^7.10.5",
     "@babel/core": "^7.7.5",
     "@babel/preset-env": "^7.7.6",
     "babel-plugin-minify-mangle-names": "^0.4.0",
