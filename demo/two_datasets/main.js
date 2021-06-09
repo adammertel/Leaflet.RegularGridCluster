@@ -6,45 +6,48 @@ var maxX = 50,
 var noTestData = 1000;
 var gridMarkers = {};
 
-document.addEventListener('DOMContentLoaded', function(event) {
-  console.log('dom loaded');
+document.addEventListener("DOMContentLoaded", function (event) {
+  console.log("dom loaded");
 
-  const randomDataCells = createRandomData('cells');
-  const randomDataMarkers = createRandomData('markers');
+  const randomDataCells = createRandomData("cells");
+  const randomDataMarkers = createRandomData("markers");
 
   // setting map
-  map = L.map('map-content');
-  map.fitBounds([[minY, minX], [maxY, maxX]]);
+  map = L.map("map-content");
+  map.fitBounds([
+    [minY, minX],
+    [maxY, maxX],
+  ]);
 
-  L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+  L.tileLayer("http://{s}.tile.osm.org/{z}/{x}/{y}.png", {
     attribution:
       '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
-    opacity: 0.3
+    opacity: 0.3,
   }).addTo(map);
 
   gridMarkers = L.regularGridCluster({
     rules: {
       markers: {
         radius: {
-          method: 'count',
-          attribute: '',
-          scale: 'continuous',
-          range: [3, 10]
+          method: "mean",
+          attribute: "a",
+          scale: "continuous",
+          range: [-5, 10],
         },
-        color: 'black'
+        color: "black",
       },
       cells: {},
-      texts: {}
+      texts: {},
     },
     zoomShowElements: 10,
     zoomHideGrid: 9,
     zoneSize: 10000,
-    gridMode: 'hexagon',
+    gridMode: "hexagon",
     showCells: false,
     gridOrigin: { lat: 0, lng: 0 },
     showMarkers: true,
     showTexts: false,
-    trackingTime: false
+    trackingTime: false,
   });
 
   gridMarkers.addLayers(randomDataMarkers);
@@ -54,55 +57,55 @@ document.addEventListener('DOMContentLoaded', function(event) {
     rules: {
       cells: {
         fillColor: {
-          method: 'count',
-          attribute: '',
-          scale: 'continuous',
-          range: ['yellow', 'red']
+          method: "count",
+          attribute: "",
+          scale: "continuous",
+          range: ["yellow", "red"],
         },
-        color: 'black',
-        fillOpacity: 0.6
+        color: "black",
+        fillOpacity: 0.6,
       },
       markers: {},
-      texts: {}
+      texts: {},
     },
     zoomShowElements: 10,
     zoomHideGrid: 9,
     zoneSize: 10000,
-    gridMode: 'hexagon',
+    gridMode: "hexagon",
     showCells: true,
     showEmptyCells: true,
     emptyCellOptions: {
       weight: 1,
       fillOpacity: 0,
       clickable: false,
-      color: 'grey',
-      lineJoin: 'miter',
-      fillRule: 'evenodd',
-      strokeLocation: 'inside',
-      interactive: false
+      color: "grey",
+      lineJoin: "miter",
+      fillRule: "evenodd",
+      strokeLocation: "inside",
+      interactive: false,
     },
     gridOrigin: { lat: 0, lng: 0 },
     gridEnd: { lat: 30, lng: 80 },
     showMarkers: false,
     showTexts: false,
-    trackingTime: false
+    trackingTime: false,
   });
 
   gridCells.addLayers(randomDataCells);
   gridCells.addTo(map);
 });
 
-const createRandomData = function(mode) {
+const createRandomData = function (mode) {
   // random point data
   const randomData = [];
   const x = minX;
   for (let i = 0; i < noTestData; i++) {
     const coordinates = [
       x + Math.random() * (maxX - x),
-      minY + Math.random() * (maxY - minY)
+      minY + Math.random() * (maxY - minY),
     ];
     const properties = {
-      a: Math.floor(Math.random() * 5)
+      a: Math.floor(Math.random() * 5),
     };
 
     const marker = L.circleMarker(coordinates, circleStyle(properties, mode));
@@ -111,13 +114,13 @@ const createRandomData = function(mode) {
   return randomData;
 };
 
-const circleStyle = function(props, mode) {
-  const fillColor = mode === 'cells' ? 'red' : 'black';
+const circleStyle = function (props, mode) {
+  const fillColor = mode === "cells" ? "red" : "black";
   return {
     fillColor: fillColor,
-    color: 'black',
+    color: "black",
     weight: 1,
     radius: props.a / 2,
-    fillOpacity: 0.5
+    fillOpacity: 0.5,
   };
 };
